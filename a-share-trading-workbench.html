@@ -1289,6 +1289,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   /* ============================================================
    * 1. 状态
    * ============================================================ */
+  /* TODO(code-review #7): introduce a Position wrapper type to fix Data
+     Clumps (10+ Chinese-keyed fields travelling together — 股票代码/名称/
+     股数/成本/现价/止损/目标/买入日/巡检日/备注). Deferred because the file
+     is self-contained and only this file consumes Position; refactor would
+     touch ~100+ lines for no external consumer. Same applies to a
+     Primitive Obsession pass on level / tone / 持仓状态 strings — the
+     LEVEL_TO_TAG / LEVEL_TO_NOTICE maps already cover the hottest call
+     sites. Reconsider when this file gets split into modules or another
+     consumer appears. */
   var state = {
     positions: [],
     logs: [],
