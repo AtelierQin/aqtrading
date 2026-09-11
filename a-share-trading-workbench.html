@@ -1462,9 +1462,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     var shares = num(p['持仓股数']);
     /* 自愈历史 bug：旧版本在用户拿不到行情时，会把 code 当 name 存进库
        （onManualSave 里 `trim() || code` 的兜底）。这里读出时若发现 name===code，
-       视为无名称，渲染时只显示代码，避免「代码 代码」重复。 */
+       视为无名称，渲染时只显示代码，避免「代码 代码」重复。
+       进一步：名字为空时，从缓存的行情报价顶上（不写回存储，
+       让用户在下次点「取现价」/「刷新全仓」时再正式存一次）。 */
     var rawName = p['股票名称'] || '';
     var name = (rawName && rawName === p['股票代码']) ? '' : rawName;
+    if (!name) {
+      var hit = cachedQuote(p['股票代码']);
+      if (hit && hit.quote && hit.quote.nameReliable && hit.quote.name) {
+        name = hit.quote.name;
+      }
+    }
     var out = {
       id: p._id, code: p['股票代码'] || '', name: name,
       shares: shares, cost: cost, price: price, stop: stop, target: target,
@@ -3901,7 +3909,37 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       refreshAll();
       if (restoreRiskDraft) { restoreRiskDraft(); }
       if (restoreLogDraft) { restoreLogDraft(); }
+      lazyBackfillNames(); /* 旧数据里股票名称为空或 === 代码的，后台异步补一次并写回 */
     });
+  }
+
+  /* 旧版 onManualSave 在行情不可达时会把代码当 name 写进库，部分持仓的
+     「股票名称」字段是空字符串或 === 代码。渲染端已用缓存报价顶上做软回退，
+     这里再加一道硬回填：后台遍历无名字的持仓并请求行情，取到后写回台账。
+     节流：每只间隔 200ms，最多并发 2 个，避免同时给三个源推 N 个请求。 */
+  function lazyBackfillNames() {
+    var targets = [];
+    for (var i = 0; i < state.positions.length; i++) {
+      var p = state.positions[i];
+      var n = String(p['股票名称'] || '').trim();
+      if (!n || n === String(p['股票代码'] || '')) { targets.push(p); }
+    }
+    if (!targets.length) { return; }
+    var cursor = 0, active = 0;
+    function next() {
+      if (cursor >= targets.length && active === 0) { return; }
+      if (active >= 2 || cursor >= targets.length) { return; }
+      var p = targets[cursor++];
+      active++;
+      requestQuote(p['股票代码'], function (err, q) {
+        if (!err && q && q.nameReliable && q.name) {
+          updatePosition(p._id, { '股票名称': { text: q.name } }).then(reloadData).then(function () { refreshAll(); });
+        }
+        active--;
+        setTimeout(next, 200);
+      }, false);
+    }
+    next(); next();
   }
 
   if (document.readyState === 'loading') {
