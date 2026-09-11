@@ -2299,6 +2299,24 @@ svg{display:block;}
   function loadPositions() { return paginatedQuery(POS_DB_ID, '买入日期', '持仓台账'); }
   function loadLogs() { return paginatedQuery(LOG_DB_ID, '交易日期', '交易日志'); }
 
+  /* 把任意格式的 select 字段值归一到当前 schema 的 option ID：
+     1) 原值已是当前 schema 里的某个 option.id → 直接返回；
+     2) 原值是某个 option.text 的字面显示 → 查表得到对应 id；
+     3) 都不是（跨账号导入、ID 已变、未知 text）→ 原样返回，由云端后续校验。 */
+  function resolveSelectId(field, raw) {
+    if (raw === null || raw === undefined) { return ''; }
+    var v = String(raw);
+    if (!v) { return ''; }
+    var opts = state.schemaOptions[field] || [];
+    for (var i = 0; i < opts.length; i++) {
+      if (opts[i].id === v) { return v; }
+    }
+    for (var j = 0; j < opts.length; j++) {
+      if (opts[j].text === v) { return opts[j].id; }
+    }
+    return v;
+  }
+
   function loadSchema() {
     sdk();
     if (!db) { return Promise.resolve({}); }
@@ -3110,7 +3128,7 @@ svg{display:block;}
         var properties = {};
         properties['股票代码'] = { text: String(r['股票代码'] || '') };
         properties['股票名称'] = { text: String(r['股票名称'] || '') };
-        if (r['持仓状态']) { properties['持仓状态'] = { select: String(r['持仓状态']) }; }
+        if (r['持仓状态']) { properties['持仓状态'] = { select: resolveSelectId('持仓状态', r['持仓状态']) }; }
         properties['持仓股数'] = { number: num(r['持仓股数']) };
         properties['成本价'] = { number: num(r['成本价']) };
         properties['现价'] = { number: num(r['现价']) };
@@ -3125,11 +3143,11 @@ svg{display:block;}
         var properties = {};
         if (r['交易日期']) { properties['交易日期'] = { date: dayOnly(r['交易日期']) }; }
         properties['股票代码'] = { text: String(r['股票代码'] || '') };
-        if (r['操作类型']) { properties['操作类型'] = { select: String(r['操作类型']) }; }
+        if (r['操作类型']) { properties['操作类型'] = { select: resolveSelectId('操作类型', r['操作类型']) }; }
         properties['成交价'] = { number: num(r['成交价']) };
         properties['成交股数'] = { number: num(r['成交股数']) };
-        if (r['纪律执行']) { properties['纪律执行'] = { select: String(r['纪律执行']) }; }
-        if (r['违规类型']) { properties['违规类型'] = { select: String(r['违规类型']) }; }
+        if (r['纪律执行']) { properties['纪律执行'] = { select: resolveSelectId('纪律执行', r['纪律执行']) }; }
+        if (r['违规类型']) { properties['违规类型'] = { select: resolveSelectId('违规类型', r['违规类型']) }; }
         if (r['盈亏金额'] !== null && r['盈亏金额'] !== undefined && r['盈亏金额'] !== '') { properties['盈亏金额'] = { number: num(r['盈亏金额']) }; }
         properties['复盘备注'] = { text: String(r['复盘备注'] || '') };
         tasks.push(function () { return addLog(properties); });
