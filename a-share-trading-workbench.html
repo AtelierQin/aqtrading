@@ -4,6 +4,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A股交易纪律工作台：风控计算、持仓台账、交易纪律复盘的单页工具，支持云端资料库同步与本机兜底。">
+<meta name="theme-color" content="#1f4bd8">
+<link rel="icon" href="data:,">
 <title>A股交易纪律工作台</title>
 <style>
 :root{
@@ -121,6 +124,8 @@ svg{display:block;}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(31,75,216,.1);}
 /* 键盘导航时才显示 focus ring；鼠标点击不出现 —— 避免视觉噪音又不丢键盘可达性 */
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--primary);outline-offset:2px;box-shadow:0 0 0 3px rgba(31,75,216,.35);}
+/* a11y: 当 <label> 包住 <input>/<select>/<textarea> 时（去掉 for/id 重写），输入元素须块级显示，避免与 label 文字挤在同一行 */
+.field label>input,.field label>select,.field label>textarea{display:block;margin-top:5px;}
 .field .tip{font-size:11px;color:var(--text-3);}
 
 .stat{background:var(--gray-soft);border-radius:12px;padding:11px 12px;}
@@ -296,6 +301,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   .tabs-m button{font-size:10.5px;gap:2px;}
   .tabs-m .ico-lg{width:20px;height:20px;}
 }
+
+/* a11y: 用户在系统设置里勾选「减少动效」时，禁用所有过渡/动画 */
+@media (prefers-reduced-motion: reduce){
+  *,*::before,*::after{transition:none!important;animation:none!important;}
+}
 </style>
 </head>
 <body>
@@ -369,7 +379,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <span class="spacer"></span>
         <span class="badge" id="todayCount"><span class="dot"></span><span>0 项</span></span>
       </div>
-      <div id="todayList" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD"></div>
+      <div id="todayList" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD" aria-live="polite"></div>
     </section>
 
     <!-- ============ 模块 1 风控计算 ============ -->
@@ -384,45 +394,45 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <form id="riskForm" autocomplete="off">
           <div class="grid4">
             <div class="field">
-              <label>股票代码 <span class="req">必填</span></label>
-              <input type="text" name="riskCode" inputmode="numeric" maxlength="6" placeholder="如 600519">
+              <label>股票代码 <span class="req">必填</span>
+              <input type="text" name="riskCode" inputmode="numeric" maxlength="6" placeholder="如 600519"></label>
               <span class="tip">只填这一项，下面的价格会自动算出</span>
             </div>
             <div class="field">
-              <label>股票名称</label>
-              <input type="text" name="riskName" placeholder="自动带出">
+              <label>股票名称
+              <input type="text" name="riskName" placeholder="自动带出"></label>
               <span class="tip">取不到行情时可手填</span>
             </div>
             <div class="field">
-              <label>当前价</label>
-              <input type="number" name="riskLast" step="0.01" min="0" placeholder="自动带出">
+              <label>当前价
+              <input type="number" name="riskLast" step="0.01" min="0" placeholder="自动带出"></label>
               <span class="tip">自动取价，也可手动改</span>
             </div>
             <div class="field">
-              <label>计划进场价</label>
-              <input type="number" name="riskEntry" step="0.01" min="0" placeholder="默认 = 当前价">
+              <label>计划进场价
+              <input type="number" name="riskEntry" step="0.01" min="0" placeholder="默认 = 当前价"></label>
               <span class="tip">想等回调就改这里</span>
             </div>
           </div>
           <div class="grid4" style="margin-top:12px">
             <div class="field">
-              <label>止损幅度（%）</label>
-              <input type="number" name="riskStopPct" step="0.5" min="0.5" max="20" value="5">
+              <label>止损幅度（%）
+              <input type="number" name="riskStopPct" step="0.5" min="0.5" max="20" value="5"></label>
               <span class="tip">止损价 = 进场价 ×（1 − 该比例）</span>
             </div>
             <div class="field">
-              <label>止损价</label>
-              <input type="number" name="riskStop" step="0.01" min="0" placeholder="自动算出">
+              <label>止损价
+              <input type="number" name="riskStop" step="0.01" min="0" placeholder="自动算出"></label>
               <span class="tip">直接改这里会反算止损幅度</span>
             </div>
             <div class="field">
-              <label>目标盈亏比</label>
-              <input type="number" name="riskRR" step="0.5" min="1" max="10" value="2">
+              <label>目标盈亏比
+              <input type="number" name="riskRR" step="0.5" min="1" max="10" value="2"></label>
               <span class="tip">目标价 = 进场价 + 盈亏比 × 每股风险</span>
             </div>
             <div class="field">
-              <label>总仓位资金（¥）</label>
-              <input type="number" name="riskCapital" step="1000" min="0" placeholder="100000">
+              <label>总仓位资金（¥）
+              <input type="number" name="riskCapital" step="1000" min="0" placeholder="100000"></label>
               <span class="tip">默认 10 万，请按实际账户改</span>
             </div>
           </div>
@@ -468,7 +478,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           <span class="spacer"></span>
           <span class="hint" id="riskResultHint">等待输入</span>
         </div>
-        <div id="riskAlerts"></div>
+        <div id="riskAlerts" aria-live="polite"></div>
         <div class="grid4">
           <div class="stat"><div class="k">买入点位</div><div class="v" id="rEntry">--</div><div class="u" id="rEntryU">按计划进场，不追高</div></div>
           <div class="stat"><div class="k">止损点位</div><div class="v down" id="rStop">--</div><div class="u" id="rStopU">触碰即无条件执行</div></div>
@@ -511,7 +521,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           <div class="stat"><div class="k">浮动盈亏</div><div class="v sm" id="pPnl" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD">¥0</div><div class="u" id="pPnlU">0.00%</div></div>
           <div class="stat"><div class="k">组合风险敞口</div><div class="v sm" id="pRisk" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD">0.00%</div><div class="u" id="pRiskU">全部触损时占总资金</div></div>
         </div>
-        <div id="posAlerts" style="margin-top:12px" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD"></div>
+        <div id="posAlerts" style="margin-top:12px" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD" aria-live="polite"></div>
       </div>
 
       <div class="card" id="manualCard">
@@ -528,45 +538,45 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <form id="manualForm" autocomplete="off" style="display:none">
           <div class="grid4">
             <div class="field">
-              <label>股票代码 <span class="req">必填</span></label>
-              <input type="text" name="mCode" inputmode="numeric" maxlength="6" placeholder="如 600519">
+              <label>股票代码 <span class="req">必填</span>
+              <input type="text" name="mCode" inputmode="numeric" maxlength="6" placeholder="如 600519"></label>
               <span class="tip">填 6 位代码，自动带出名称与现价</span>
             </div>
             <div class="field">
-              <label>股票名称</label>
-              <input type="text" name="mName" placeholder="自动带出">
+              <label>股票名称
+              <input type="text" name="mName" placeholder="自动带出"></label>
               <span class="tip">取不到行情时可手填</span>
             </div>
             <div class="field">
-              <label>持仓股数 <span class="req">必填</span></label>
-              <input type="number" name="mShares" step="1" min="1" inputmode="numeric" placeholder="如 500">
+              <label>持仓股数 <span class="req">必填</span>
+              <input type="number" name="mShares" step="1" min="1" inputmode="numeric" placeholder="如 500"></label>
               <span class="tip">按券商实际持有填，配股零股也可以</span>
             </div>
             <div class="field">
-              <label>成本价 <span class="req">必填</span></label>
-              <input type="number" name="mCost" step="0.001" min="0" placeholder="实际买入均价">
+              <label>成本价 <span class="req">必填</span>
+              <input type="number" name="mCost" step="0.001" min="0" placeholder="实际买入均价"></label>
               <span class="tip">摊薄手续费后的均价更准</span>
             </div>
           </div>
           <div class="grid4" style="margin-top:12px">
             <div class="field">
-              <label>现价</label>
-              <input type="number" name="mLast" step="0.001" min="0" placeholder="自动带出">
+              <label>现价
+              <input type="number" name="mLast" step="0.001" min="0" placeholder="自动带出"></label>
               <span class="tip">留空则先按成本价记，之后可刷新</span>
             </div>
             <div class="field">
-              <label>止损价</label>
-              <input type="number" name="mStop" step="0.001" min="0" placeholder="你的实际止损位">
+              <label>止损价
+              <input type="number" name="mStop" step="0.001" min="0" placeholder="你的实际止损位"></label>
               <span class="tip">留空会按「未设止损」录入，并在巡检里标红提醒</span>
             </div>
             <div class="field">
-              <label>目标价</label>
-              <input type="number" name="mTarget" step="0.001" min="0" placeholder="留空按 2 倍盈亏比推导">
+              <label>目标价
+              <input type="number" name="mTarget" step="0.001" min="0" placeholder="留空按 2 倍盈亏比推导"></label>
               <span class="tip">目标价 = 现价 + 2 ×（现价 − 止损价）</span>
             </div>
             <div class="field">
-              <label>买入日期</label>
-              <input type="date" name="mBuyDate">
+              <label>买入日期
+              <input type="date" name="mBuyDate"></label>
               <span class="tip">默认今天，可回填真实买入日</span>
             </div>
           </div>
@@ -648,23 +658,23 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         </div>
         <div class="grid3">
           <div class="field">
-            <label>选择标的</label>
-            <select id="rulePos" style="min-height:44px"></select>
+            <label>选择标的
+            <select id="rulePos" style="min-height:44px"></select></label>
           </div>
           <div class="field">
-            <label>是否跌破 20 日均线</label>
+            <label>是否跌破 20 日均线
             <select id="ruleMA" style="min-height:44px">
               <option value="no">未跌破（趋势完好）</option>
               <option value="yes">已跌破（趋势走坏）</option>
-            </select>
+            </select></label>
           </div>
           <div class="field">
-            <label>该标的已加仓次数</label>
+            <label>该标的已加仓次数
             <select id="ruleAdd" style="min-height:44px">
               <option value="0">0 次</option>
               <option value="1">1 次</option>
               <option value="2">2 次（已达上限）</option>
-            </select>
+            </select></label>
           </div>
         </div>
         <div style="margin-top:14px">
@@ -709,7 +719,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             <div class="u" id="discWeekU">上限 5 笔 / 周</div>
           </div>
         </div>
-        <div id="discAlerts" style="margin-top:12px" data-sp-bindable="database" data-sp-database-id="d96S6pyZZBxZ3nBJj1oyO0"></div>
+        <div id="discAlerts" style="margin-top:12px" data-sp-bindable="database" data-sp-database-id="d96S6pyZZBxZ3nBJj1oyO0" aria-live="polite"></div>
         <div style="margin-top:14px">
           <div class="card-h"><h2 style="font-size:13.5px">违规类型分布</h2></div>
           <div class="bars" id="discBars"></div>
@@ -730,45 +740,45 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <form id="logForm" autocomplete="off">
           <div class="grid3">
             <div class="field">
-              <label>交易日期</label>
-              <input type="date" name="logDate">
+              <label>交易日期
+              <input type="date" name="logDate"></label>
             </div>
             <div class="field">
-              <label>股票代码</label>
-              <input type="text" name="logCode" inputmode="numeric" maxlength="6" placeholder="600519">
+              <label>股票代码
+              <input type="text" name="logCode" inputmode="numeric" maxlength="6" placeholder="600519"></label>
             </div>
             <div class="field">
-              <label>操作类型</label>
-              <select name="logOp" data-opt-field="操作类型"></select>
+              <label>操作类型
+              <select name="logOp" data-opt-field="操作类型"></select></label>
             </div>
           </div>
           <div class="grid3" style="margin-top:12px">
             <div class="field">
-              <label>成交价</label>
-              <input type="number" name="logPrice" step="0.01" min="0" placeholder="0.00">
+              <label>成交价
+              <input type="number" name="logPrice" step="0.01" min="0" placeholder="0.00"></label>
             </div>
             <div class="field">
-              <label>成交股数</label>
-              <input type="number" name="logShares" step="100" min="0" placeholder="100">
+              <label>成交股数
+              <input type="number" name="logShares" step="100" min="0" placeholder="100"></label>
             </div>
             <div class="field">
-              <label>该笔盈亏（¥，可留空）</label>
-              <input type="number" name="logPnl" step="0.01" placeholder="如 -1200">
+              <label>该笔盈亏（¥，可留空）
+              <input type="number" name="logPnl" step="0.01" placeholder="如 -1200"></label>
             </div>
           </div>
           <div class="grid2" style="margin-top:12px">
             <div class="field">
-              <label>纪律执行情况</label>
-              <select name="logDisc" data-opt-field="纪律执行"></select>
+              <label>纪律执行情况
+              <select name="logDisc" data-opt-field="纪律执行"></select></label>
             </div>
             <div class="field">
-              <label>违规类型</label>
-              <select name="logViolation" data-opt-field="违规类型"></select>
+              <label>违规类型
+              <select name="logViolation" data-opt-field="违规类型"></select></label>
             </div>
           </div>
           <div class="field" style="margin-top:12px">
-            <label>复盘备注</label>
-            <textarea name="logNote" placeholder="这笔操作是计划内还是临时起意？下次怎么避免？"></textarea>
+            <label>复盘备注
+            <textarea name="logNote" placeholder="这笔操作是计划内还是临时起意？下次怎么避免？"></textarea></label>
           </div>
           <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px">
             <button type="submit" class="btn primary">
