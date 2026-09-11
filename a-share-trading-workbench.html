@@ -309,6 +309,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{transition:none!important;animation:none!important;}
 }
+
+/* ---------- modal ---------- */
+.modal{position:fixed;inset:0;background:rgba(20,26,40,.45);display:flex;align-items:center;justify-content:center;z-index:999;padding:20px;}
+.modal-card{background:var(--card);border-radius:var(--radius);padding:20px;max-width:420px;width:100%;box-shadow:0 10px 40px rgba(20,26,40,.25);}
+.modal-card h3{margin:0 0 10px;font-size:15px;font-weight:700;}
+.modal-card p{margin:0 0 18px;color:var(--text-2);font-size:13.5px;line-height:1.6;}
+.modal-actions{display:flex;gap:8px;justify-content:flex-end;}
+.modal-actions .btn.danger{color:var(--up);border-color:#f2cccc;}
+.modal-actions .btn.danger:hover{background:var(--up-soft);}
 </style>
 </head>
 <body>
@@ -1223,6 +1232,38 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
   function setText(id, txt) { var el = document.getElementById(id); if (el) { el.textContent = txt; } }
   function setHidden(el, bool) { if (!el) { return; } el.classList.toggle('hidden', !!bool); }
+
+  /* Promise-based confirm dialog：替代 window.confirm。opts = {title, body, okText, cancelText, danger}。
+     ESC = 取消；Enter（在 Ok 按钮聚焦时）= 确认。 */
+  function confirmModal(opts) {
+    opts = opts || {};
+    var m = $('#confirmModal');
+    if (!m) { return Promise.resolve(window.confirm(opts.body || opts.title || '确认？')); }
+    setText('confirmTitle', opts.title || '请确认');
+    setText('confirmBody', opts.body || '');
+    var okBtn = $('#confirmOk');
+    var cancelBtn = $('#confirmCancel');
+    okBtn.textContent = opts.okText || '确认';
+    cancelBtn.textContent = opts.cancelText || '取消';
+    okBtn.classList.toggle('danger', !!opts.danger);
+    m.classList.remove('hidden');
+    return new Promise(function (resolve) {
+      function done(v) {
+        m.classList.add('hidden');
+        okBtn.removeEventListener('click', okHandler);
+        cancelBtn.removeEventListener('click', cancelHandler);
+        document.removeEventListener('keydown', escHandler);
+        resolve(v);
+      }
+      function okHandler() { done(true); }
+      function cancelHandler() { done(false); }
+      function escHandler(e) { if (e.key === 'Escape') { done(false); } }
+      okBtn.addEventListener('click', okHandler);
+      cancelBtn.addEventListener('click', cancelHandler);
+      document.addEventListener('keydown', escHandler);
+      okBtn.focus();
+    });
+  }
 
   var toastTimer = null;
   function toast(msg) {
@@ -2202,15 +2243,18 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     var list = state.positions, a = null, i;
     for (i = 0; i < list.length; i++) { if (list[i]._id === id) { a = list[i]; break; } }
     var label = a ? ((a['股票名称'] || a['股票代码']) + ' ' + fmtShares(num(a['持仓股数'])) + ' 股') : '这条记录';
-    if (!window.confirm('从持仓台账中删除「' + label + '」？删除后不可撤销。')) { return; }
-    if (btn) { btn.disabled = true; }
-    deletePosition(id).then(function () {
-      return reloadData();
-    }).then(function () {
-      refreshAll(); toast('已从台账删除该记录');
-    }).catch(function (err) {
-      console.error(err); toast('删除失败，请检查网络后重试');
-    }).then(function () { if (btn) { btn.disabled = false; } });
+    confirmModal({ title: '删除持仓', body: '从持仓台账中删除「' + label + '」？删除后不可撤销。', danger: true })
+      .then(function (ok) {
+        if (!ok) { return; }
+        if (btn) { btn.disabled = true; }
+        return deletePosition(id).then(function () {
+          return reloadData();
+        }).then(function () {
+          refreshAll(); toast('已从台账删除该记录');
+        }).catch(function (err) {
+          console.error(err); toast('删除失败，请检查网络后重试');
+        }).then(function () { if (btn) { btn.disabled = false; } });
+      });
   }
 
   var quoteSeq = 0;
@@ -3071,49 +3115,58 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   }
 
   function onClearSample(btn) {
-    if (!window.confirm('将删除备注中标记为「示例」的持仓与交易日志，你自己录入的数据不受影响。确认继续？')) { return; }
-    var tasks = [], i;
-    for (i = 0; i < state.positions.length; i++) {
-      if (String(state.positions[i]['备注'] || '').indexOf('示例') !== -1) {
-        (function (id) { tasks.push(function () { return deletePosition(id); }); })(state.positions[i]._id);
-      }
-    }
-    for (i = 0; i < state.logs.length; i++) {
-      if (String(state.logs[i]['复盘备注'] || '').indexOf('示例') !== -1) {
-        (function (id) { tasks.push(function () { return deleteLog(id); }); })(state.logs[i]._id);
-      }
-    }
-    if (!tasks.length) {
-      var sampleN = 0;
-      for (var k = 0; k < state.positions.length; k++) { if (String(state.positions[k]['备注'] || '').indexOf('示例') !== -1) { sampleN++; } }
-      if (sampleN === 0) { toast('没有找到示例数据'); return; }
-    }
-    if (btn) { btn.disabled = true; }
-    runSequential(tasks, 0).then(reloadData).then(function () {
-      refreshAll(); toast('已清空 ' + tasks.length + ' 条示例数据');
-    }).catch(function (err) {
-      console.error(err); toast('清空失败，请重试');
-    }).then(function () { if (btn) { btn.disabled = false; } });
+    confirmModal({ title: '清空示例数据', body: '将删除备注中标记为「示例」的持仓与交易日志，你自己录入的数据不受影响。确认继续？', danger: true })
+      .then(function (ok) {
+        if (!ok) { return; }
+        var tasks = [], i;
+        for (i = 0; i < state.positions.length; i++) {
+          if (String(state.positions[i]['备注'] || '').indexOf('示例') !== -1) {
+            (function (id) { tasks.push(function () { return deletePosition(id); }); })(state.positions[i]._id);
+          }
+        }
+        for (i = 0; i < state.logs.length; i++) {
+          if (String(state.logs[i]['复盘备注'] || '').indexOf('示例') !== -1) {
+            (function (id) { tasks.push(function () { return deleteLog(id); }); })(state.logs[i]._id);
+          }
+        }
+        if (!tasks.length) {
+          var sampleN = 0;
+          for (var k = 0; k < state.positions.length; k++) { if (String(state.positions[k]['备注'] || '').indexOf('示例') !== -1) { sampleN++; } }
+          if (sampleN === 0) { toast('没有找到示例数据'); return; }
+        }
+        if (btn) { btn.disabled = true; }
+        runSequential(tasks, 0).then(reloadData).then(function () {
+          refreshAll(); toast('已清空 ' + tasks.length + ' 条示例数据');
+        }).catch(function (err) {
+          console.error(err); toast('清空失败，请重试');
+        }).then(function () { if (btn) { btn.disabled = false; } });
+      });
   }
 
   function onClearAll(btn) {
-    if (!window.confirm('第一步确认：即将删除「持仓台账」与「交易日志」中的全部记录，操作不可撤销。继续？')) { return; }
-    if (!window.confirm('第二步确认：请再次确认删除全部数据。删除后无法恢复，请确保已导出备份。')) { return; }
-    var tasks = [], i;
-    for (i = 0; i < state.positions.length; i++) {
-      (function (id) { tasks.push(function () { return deletePosition(id); }); })(state.positions[i]._id);
-    }
-    for (i = 0; i < state.logs.length; i++) {
-      (function (id) { tasks.push(function () { return deleteLog(id); }); })(state.logs[i]._id);
-    }
-    if (!tasks.length) { toast('当前没有可清空的数据'); return; }
-    if (btn) { btn.disabled = true; }
-    runSequential(tasks, 0).then(reloadData).then(function () {
-      state.riskResult = null; state.advice = null;
-      refreshAll(); toast('已清空全部数据');
-    }).catch(function (err) {
-      console.error(err); toast('清空失败，请重试');
-    }).then(function () { if (btn) { btn.disabled = false; } });
+    confirmModal({ title: '第一步确认', body: '即将删除「持仓台账」与「交易日志」中的全部记录，操作不可撤销。继续？', danger: true })
+      .then(function (ok1) {
+        if (!ok1) { return; }
+        return confirmModal({ title: '第二步确认', body: '请再次确认删除全部数据。删除后无法恢复，请确保已导出备份。', okText: '我已备份，删除', danger: true })
+          .then(function (ok2) {
+            if (!ok2) { return; }
+            var tasks = [], i;
+            for (i = 0; i < state.positions.length; i++) {
+              (function (id) { tasks.push(function () { return deletePosition(id); }); })(state.positions[i]._id);
+            }
+            for (i = 0; i < state.logs.length; i++) {
+              (function (id) { tasks.push(function () { return deleteLog(id); }); })(state.logs[i]._id);
+            }
+            if (!tasks.length) { toast('当前没有可清空的数据'); return; }
+            if (btn) { btn.disabled = true; }
+            runSequential(tasks, 0).then(reloadData).then(function () {
+              state.riskResult = null; state.advice = null;
+              refreshAll(); toast('已清空全部数据');
+            }).catch(function (err) {
+              console.error(err); toast('清空失败，请重试');
+            }).then(function () { if (btn) { btn.disabled = false; } });
+          });
+      });
   }
 
   function onBackup() {
@@ -3147,7 +3200,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       var posList = (data && data.positions) || [];
       var logList = (data && data.logs) || [];
       if (!posList.length && !logList.length) { toast('备份文件中没有可导入的数据'); return; }
-      if (!window.confirm('将追加导入 ' + posList.length + ' 条持仓与 ' + logList.length + ' 条交易日志（不会覆盖现有数据）。继续？')) { return; }
+      confirmModal({ title: '导入备份', body: '将追加导入 ' + posList.length + ' 条持仓与 ' + logList.length + ' 条交易日志（不会覆盖现有数据）。继续？' })
+        .then(function (ok) {
+          if (!ok) { return; }
+          doRestoreImport(data, posList, logList);
+        });
+    };
+    reader.onerror = function () { toast('读取文件失败'); };
+    reader.readAsText(file);
+  }
+  function doRestoreImport(data, posList, logList) {
       if (data.params && typeof data.params === 'object') {
         state.params.capital = num(data.params.capital);
         state.params.riskPct = Math.min(num(data.params.riskPct) || 2, 2);
@@ -3199,9 +3261,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       }).catch(function (err) {
         console.error(err); toast('导入过程中断，请重试');
       });
-    };
-    reader.onerror = function () { toast('读取文件失败'); };
-    reader.readAsText(file);
   }
 
   /* ---------------- 事件绑定 ---------------- */
@@ -3539,12 +3598,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         if (!el) { return; }
         var id = el.getAttribute('data-id');
         if (!id) { return; }
-        if (!window.confirm('确认删除这条交易日志？删除后纪律分会同步重算。')) { return; }
-        deleteLog(id).then(reloadData).then(function () {
-          refreshAll(); toast('已删除该条日志');
-        }).catch(function (err) {
-          console.error(err); toast('删除失败，请重试');
-        });
+        confirmModal({ title: '删除交易日志', body: '确认删除这条交易日志？删除后纪律分会同步重算。', danger: true })
+          .then(function (ok) {
+            if (!ok) { return; }
+            deleteLog(id).then(reloadData).then(function () {
+              refreshAll(); toast('已删除该条日志');
+            }).catch(function (err) {
+              console.error(err); toast('删除失败，请重试');
+            });
+          });
       });
     }
 
@@ -3656,5 +3718,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   }
 })();
 </script>
+
+<!-- ====== 二次确认 modal（替代 window.confirm） ====== -->
+<div id="confirmModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="confirmTitle" aria-describedby="confirmBody">
+  <div class="modal-card">
+    <h3 id="confirmTitle"></h3>
+    <p id="confirmBody"></p>
+    <div class="modal-actions">
+      <button type="button" id="confirmCancel" class="btn">取消</button>
+      <button type="button" id="confirmOk" class="btn primary">确认</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
