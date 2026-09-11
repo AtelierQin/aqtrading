@@ -3684,6 +3684,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function init() {
     loadParams();
     loadPatrol();
+    /* 装饰性 SVG 不向屏幕阅读器暴露。启发式跳过两类非装饰 SVG：
+       1) 父级带 role="img"（显式标注为内容图）；2) 父级 <button> 内同时含可见文字（按钮的 SVG 已有文字做 accessible name）。
+       此外，渲染过程中由 JS 注入的 SVG（renderTraps / refreshAll）也会在插入后被本规则标 hidden，
+       这里再跑一遍覆盖静态骨架。 */
+    $$('svg').forEach(function (s) {
+      if (s.closest('[role="img"]')) { return; }
+      var btn = s.closest('button');
+      if (btn && btn.textContent && btn.textContent.trim().length > 0) { return; }
+      s.setAttribute('aria-hidden', 'true');
+    });
     renderTraps();
     bindEvents();
     bindDraftCaches();
