@@ -2998,7 +2998,9 @@ svg{display:block;}
       if (q.nameReliable && q.name) { properties['股票名称'] = { text: q.name }; }
       updatePosition(id, properties).then(reloadData).then(function () {
         state.lastPatrol = todayStr(); savePatrol();
-        refreshAll(); toast('已取到现价 ' + toFixed2(q.price) + ' 并写回台账');
+        var it = instrumentOf(target['股票代码'], target['股票名称']);
+        var tick = it && it.tick ? it.tick : 0.01;
+        refreshAll(); toast('已取到现价 ' + fmtByTick(q.price, tick) + ' 并写回台账');
       })['catch'](function (e) {
         console.error('[database] 单只取价写回失败:', e);
         toast('现价写回失败，请重试');
