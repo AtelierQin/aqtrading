@@ -1276,8 +1276,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     state.params = out;
   }
   function saveParams() { writeJSON(LS_PARAMS, state.params); }
-  function loadPatrol() { state.lastPatrol = localStorage.getItem(LS_PATROL) || ''; }
-  function savePatrol() { try { localStorage.setItem(LS_PATROL, state.lastPatrol); } catch (e) { /* noop */ } }
+  function loadPatrol() { state.lastPatrol = readJSON(LS_PATROL) || ''; }
+  function savePatrol() { writeJSON(LS_PATROL, state.lastPatrol); }
 
   /* ============================================================
    * 3. 计算层（纯函数，不碰 DOM）
@@ -1862,7 +1862,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         var q = parseEmQuote(json, code);
         if (!q) { cb(new Error('该代码暂无有效报价')); return; }
         cb(null, q);
-      })['catch'](function () {
+      }).catch(function () {
         if (done) { return; }
         done = true; clearTimeout(timer);
         cb(new Error('备用行情源不可达'));
@@ -2192,7 +2192,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       updatePendingUI();
       var tail = (stop > 0 ? '' : '（未设止损）') + (res && res.cloud === false ? '　已存本机，登录后点「同步本机数据」上云' : '');
       toast('已录入 ' + name + ' ' + shares + ' ' + it.unit + tail);
-    })['catch'](function (err) {
+    }).catch(function (err) {
       console.error(err); toast('写入失败，请检查网络后重试');
     }).then(function () { if (btn) { btn.disabled = false; } });
   }
@@ -2208,7 +2208,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       return reloadData();
     }).then(function () {
       refreshAll(); toast('已从台账删除该记录');
-    })['catch'](function (err) {
+    }).catch(function (err) {
       console.error(err); toast('删除失败，请检查网络后重试');
     }).then(function () { if (btn) { btn.disabled = false; } });
   }
@@ -2282,7 +2282,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       }).then(function () {
         refreshAll();
         toast('已刷新 ' + hit + ' 只标的现价' + (hit < list.length ? '，' + (list.length - hit) + ' 只未取到' : ''));
-      })['catch'](function (e) {
+      }).catch(function (e) {
         console.error('[database] 现价写回失败:', e);
         toast('现价写回失败，请重试');
       }).then(function () { if (btn) { btn.disabled = false; } });
@@ -2319,7 +2319,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           var next = result.nextCursor;
           if (result.hasMore && next && next !== cursor && (result.results || []).length) { step(next); }
           else { done(); }
-        })['catch'](function (err) {
+        }).catch(function (err) {
           console.error('[database] ' + label + ' 读取失败:', err);
           done();
         });
@@ -2360,8 +2360,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       });
       return map;
     }
-    var p1 = db.getSchema({ databaseId: POS_DB_ID }).then(pick)['catch'](function () { return {}; });
-    var p2 = db.getSchema({ databaseId: LOG_DB_ID }).then(pick)['catch'](function () { return {}; });
+    var p1 = db.getSchema({ databaseId: POS_DB_ID }).then(pick).catch(function () { return {}; });
+    var p2 = db.getSchema({ databaseId: LOG_DB_ID }).then(pick).catch(function () { return {}; });
     return Promise.all([p1, p2]).then(function (arr) {
       var merged = {};
       for (var i = 0; i < arr.length; i++) {
@@ -2456,7 +2456,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       setSync('sync', '同步中');
       return db.addRecord({ databaseId: dbId, properties: props }).then(function () {
         setSync('ok', '已同步'); return { cloud: true };
-      })['catch'](function (err) {
+      }).catch(function (err) {
         console.warn('[database] 云端写入被拒，已转存本机:', err && err.message);
         saveLocalAdd(dbId, props);
         setSync('local', '本机保存');
@@ -2477,7 +2477,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         : db.deleteRecord({ databaseId: dbId, recordId: recordId });
       return call.then(function () {
         setSync('ok', '已同步'); return { cloud: true };
-      })['catch'](function (err) { setSync('off', '离线模式'); throw err; });
+      }).catch(function (err) { setSync('off', '离线模式'); throw err; });
     }
     return Promise.reject(new Error('writeOne: unknown op ' + op));
   }
@@ -2530,7 +2530,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       updatePendingUI();
       if (okN === plan.length) { setSync('ok', '已同步'); toast('已同步 ' + okN + ' 条到云端'); }
       else { setSync('local', '本机保存'); toast('已同步 ' + okN + ' / ' + plan.length + ' 条，其余仍在本机'); }
-    })['catch'](function (err) {
+    }).catch(function (err) {
       console.error(err); setSync('local', '本机保存');
       toast('同步中断：仍在本机的数据不会丢失，可稍后重试');
     }).then(function () { if (btn) { btn.disabled = false; } });
@@ -2989,7 +2989,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     updatePosition(id, properties).then(reloadData).then(function () {
       state.lastPatrol = todayStr(); savePatrol();
       refreshAll(); toast('现价已更新，并记录本次巡检');
-    })['catch'](function (err) {
+    }).catch(function (err) {
       console.error(err); toast('更新失败，请检查网络后重试');
     }).then(function () { if (btn) { btn.disabled = false; } });
   }
@@ -3024,7 +3024,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         var it = instrumentOf(target['股票代码'], target['股票名称']);
         var tick = it && it.tick ? it.tick : 0.01;
         refreshAll(); toast('已取到现价 ' + fmtByTick(q.price, tick) + ' 并写回台账');
-      })['catch'](function (e) {
+      }).catch(function (e) {
         console.error('[database] 单只取价写回失败:', e);
         toast('现价写回失败，请重试');
       }).then(function () { if (btn) { btn.disabled = false; } });
@@ -3038,7 +3038,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     updatePosition(id, properties).then(reloadData).then(function () {
       state.lastPatrol = todayStr(); savePatrol();
       refreshAll(); toast('已登记巡检');
-    })['catch'](function (err) {
+    }).catch(function (err) {
       console.error(err); toast('登记失败，请重试');
     }).then(function () { if (btn) { btn.disabled = false; } });
   }
@@ -3060,7 +3060,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       return reloadData();
     }).then(function () {
       refreshAll(); toast('已完成 ' + list.length + ' 只标的的巡检登记');
-    })['catch'](function (err) {
+    }).catch(function (err) {
       console.error(err); toast('巡检登记过程中断，请重试');
     }).then(function () { if (btn) { btn.disabled = false; } });
   }
@@ -3091,7 +3091,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     if (btn) { btn.disabled = true; }
     runSequential(tasks, 0).then(reloadData).then(function () {
       refreshAll(); toast('已清空 ' + tasks.length + ' 条示例数据');
-    })['catch'](function (err) {
+    }).catch(function (err) {
       console.error(err); toast('清空失败，请重试');
     }).then(function () { if (btn) { btn.disabled = false; } });
   }
@@ -3111,7 +3111,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     runSequential(tasks, 0).then(reloadData).then(function () {
       state.riskResult = null; state.advice = null;
       refreshAll(); toast('已清空全部数据');
-    })['catch'](function (err) {
+    }).catch(function (err) {
       console.error(err); toast('清空失败，请重试');
     }).then(function () { if (btn) { btn.disabled = false; } });
   }
@@ -3196,7 +3196,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       setSync('sync', '同步中');
       runSequential(tasks, 0).then(reloadData).then(function () {
         refreshAll(); updatePendingUI(); toast('已导入 ' + tasks.length + ' 条记录');
-      })['catch'](function (err) {
+      }).catch(function (err) {
         console.error(err); toast('导入过程中断，请重试');
       });
     };
@@ -3357,7 +3357,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           }).then(function (res) {
             refreshAll(); updatePendingUI();
             toast(res && res.cloud === false ? '已存入本机台账，登录后点「同步本机数据」上云' : '已存入持仓台账并同步');
-          })['catch'](function (err) {
+          }).catch(function (err) {
             console.error(err); toast('写入失败，请检查网络后重试');
           }).then(function () { saveBtn.disabled = false; });
         });
@@ -3526,7 +3526,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }).then(function (res) {
           refreshAll(); updatePendingUI();
           toast(res && res.cloud === false ? '日志已存本机，登录后点「同步本机数据」上云' : '交易日志已写入并同步');
-        })['catch'](function (err) {
+        }).catch(function (err) {
           console.error(err); toast('写入失败，草稿已为你保留');
         }).then(function () { if (submitBtn) { submitBtn.disabled = false; } });
       });
@@ -3542,7 +3542,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         if (!window.confirm('确认删除这条交易日志？删除后纪律分会同步重算。')) { return; }
         deleteLog(id).then(reloadData).then(function () {
           refreshAll(); toast('已删除该条日志');
-        })['catch'](function (err) {
+        }).catch(function (err) {
           console.error(err); toast('删除失败，请重试');
         });
       });
@@ -3640,7 +3640,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       updatePendingUI();
       if (restoreRiskDraft) { restoreRiskDraft(); }
       if (restoreLogDraft) { restoreLogDraft(); }
-    })['catch'](function (err) {
+    }).catch(function (err) {
       console.error('[database] 初始化异常:', err);
       state.online = false;
       setSync('off', '本机保存');
