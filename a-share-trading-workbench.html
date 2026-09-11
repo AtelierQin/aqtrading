@@ -79,9 +79,6 @@ svg{display:block;}
 .badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--text-2);}
 .badge .dot{width:7px;height:7px;border-radius:50%;background:var(--text-3);}
 .badge.ok .dot{background:var(--down);}
-.badge.sync .dot{background:var(--warn);}
-.badge.local .dot{background:var(--warn);}
-.badge.off .dot{background:var(--text-3);}
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
@@ -96,12 +93,8 @@ svg{display:block;}
 .btn.xs{min-height:30px;padding:0 9px;font-size:12px;border-radius:8px;}
 .btn:disabled{opacity:.55;cursor:not-allowed;}
 
-/* 「本机暂存 N 条待同步」提示条：只在有未上云数据时出现 */
-.pendingchip{display:inline-flex;align-items:center;gap:8px;padding:4px 6px 4px 12px;border-radius:999px;font-size:12px;background:var(--warn-soft);color:#7d5210;border:1px solid #f2e0c5;}
-.pendingchip svg{flex:0 0 auto;}
-.pendingchip .btn{background:#fff;border-color:#f2e0c5;color:#7d5210;}
+/* 「本机待同步」徽标已移除（原 .pendingchip 样式随之删除） */
 @media (max-width:768px){
-  .pendingchip{width:100%;justify-content:space-between;}
   .pendingchip .btn{flex:0 0 auto;}
 }
 
@@ -372,12 +365,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <div class="sub">总仓位风险 2% · 单笔硬止损 · 规则先于情绪</div>
       </div>
       <div class="spacer"></div>
-      <span class="badge off" id="syncBadge"><span class="dot"></span><span id="syncText">连接中</span></span>
-      <span class="pendingchip hidden" id="pendingWrap">
-        <svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/><circle cx="12" cy="12" r="4"/></svg>
-        <span id="pendingText"></span>
-        <button type="button" class="btn xs" id="btnSyncLocal">同步本机数据</button>
-      </span>
       <button class="btn sm" id="btnBackup">
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M5 21h14"/></svg>
         导出备份
@@ -398,7 +385,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <span class="spacer"></span>
         <span class="badge" id="todayCount"><span class="dot"></span><span>0 项</span></span>
       </div>
-      <div id="todayList" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD" aria-live="polite"></div>
+      <div id="todayList" aria-live="polite"></div>
     </section>
 
     <!-- ============ 模块 1 风控计算 ============ -->
@@ -535,12 +522,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           </button>
         </div>
         <div class="grid4">
-          <div class="stat"><div class="k">在持标的</div><div class="v" id="pCount" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD">0</div><div class="u">只</div></div>
-          <div class="stat"><div class="k">持仓市值</div><div class="v sm" id="pValue" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD">¥0</div><div class="u" id="pValueU">成本 ¥0</div></div>
-          <div class="stat"><div class="k">浮动盈亏</div><div class="v sm" id="pPnl" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD">¥0</div><div class="u" id="pPnlU">0.00%</div></div>
-          <div class="stat"><div class="k">组合风险敞口</div><div class="v sm" id="pRisk" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD">0.00%</div><div class="u" id="pRiskU">全部触损时占总资金</div></div>
+          <div class="stat"><div class="k">在持标的</div><div class="v" id="pCount">0</div><div class="u">只</div></div>
+          <div class="stat"><div class="k">持仓市值</div><div class="v sm" id="pValue">¥0</div><div class="u" id="pValueU">成本 ¥0</div></div>
+          <div class="stat"><div class="k">浮动盈亏</div><div class="v sm" id="pPnl">¥0</div><div class="u" id="pPnlU">0.00%</div></div>
+          <div class="stat"><div class="k">组合风险敞口</div><div class="v sm" id="pRisk">0.00%</div><div class="u" id="pRiskU">全部触损时占总资金</div></div>
         </div>
-        <div id="posAlerts" style="margin-top:12px" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD" aria-live="polite"></div>
+        <div id="posAlerts" style="margin-top:12px" aria-live="polite"></div>
       </div>
 
       <div class="card" id="manualCard">
@@ -628,7 +615,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             </select>
           </div>
         </div>
-        <div class="plist" id="posList" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD"></div>
+        <div class="plist" id="posList"></div>
       </div>
     </section>
 
@@ -725,7 +712,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
                         stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4"
                         transform="rotate(-90 31 31)"/>
               </svg>
-              <div class="ringtxt"><b id="discScore" data-sp-bindable="database" data-sp-database-id="d96S6pyZZBxZ3nBJj1oyO0">--</b><span id="discGrade">暂无记录</span></div>
+              <div class="ringtxt"><b id="discScore">--</b><span id="discGrade">暂无记录</span></div>
             </div>
           </div>
           <div class="stat">
@@ -734,11 +721,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           </div>
           <div class="stat">
             <div class="k">本周交易笔数</div>
-            <div class="v sm" id="discWeek" data-sp-bindable="database" data-sp-database-id="d96S6pyZZBxZ3nBJj1oyO0">0 笔</div>
+            <div class="v sm" id="discWeek">0 笔</div>
             <div class="u" id="discWeekU">上限 5 笔 / 周</div>
           </div>
         </div>
-        <div id="discAlerts" style="margin-top:12px" data-sp-bindable="database" data-sp-database-id="d96S6pyZZBxZ3nBJj1oyO0" aria-live="polite"></div>
+        <div id="discAlerts" style="margin-top:12px" aria-live="polite"></div>
         <div style="margin-top:14px">
           <div class="card-h"><h2 style="font-size:13.5px">违规类型分布</h2></div>
           <div class="bars" id="discBars"></div>
@@ -819,7 +806,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           <span class="spacer"></span>
           <span class="hint" id="logCountHint">0 条</span>
         </div>
-        <div class="plist" id="logList" data-sp-bindable="database" data-sp-database-id="d96S6pyZZBxZ3nBJj1oyO0"></div>
+        <div class="plist" id="logList"></div>
       </div>
     </section>
 
@@ -975,19 +962,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
           <h2>更新日志</h2>
           <span class="spacer"></span>
-          <span class="hint">当前版本 1.1.7 · 覆盖发布，链接不变</span>
+          <span class="hint">当前版本 1.2.0 · 覆盖发布，链接不变</span>
         </div>
-        <p>页面采用三段式版本号 <code>1.1.x</code>：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本都覆盖发布到同一个在线地址，收藏一个链接即可，无需重新分享。下面按版本从新到旧记录改了什么、修了什么。</p>
+        <p>页面采用三段式版本号 <code>1.x.y</code>：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本都覆盖发布到同一个在线地址，收藏一个链接即可，无需重新分享。下面按版本从新到旧记录改了什么、修了什么。</p>
         <div class="tl">
           <div class="tlitem">
-            <h3><span class="ver">1.1.7</span>手工录入存不下来<span class="tlmeta">2026-09-11</span></h3>
+            <h3><span class="ver">1.2.0</span>纯本机存储<span class="tlmeta">2026-09-11</span></h3>
             <ul>
-              <li class="fix">修正：<b>手工录入持仓点保存后「无法保存」</b>。根因不是表单坏了，而是<b>分享出去的页面，访客未登录时写接口被服务端拒绝</b>——实测读接口（getSchema / query）返回 200，写接口（addRecord）返回 <code>401 not login</code>。原代码把写失败直接当错误抛出，于是记录既没上云、也没落本地，输入内容凭空消失</li>
-              <li>新增「本机暂存」：写云端被拒（未登录 / 断网 / 接口异常）时自动转存本机，<b>记录立刻照常出现在列表里</b>，并在卡片上标注「本机待同步」</li>
-              <li>新增顶栏「本机暂存 N 条待同步 + 同步本机数据」按钮：登录后一键把本机记录补传上云，成功后自动清除本机副本</li>
-              <li>同步徽标改为「已同步 / 同步中 / 本机保存」，并修正一个不诚实的细节：<b>本机还有未上云的数据时，不再显示「已同步」</b></li>
-              <li>本机记录同样可以「取现价 / 更新 / 标记已巡检 / 删除」，改动直接落在本机副本上，不会有「点得动但存不下」的空操作</li>
-              <li>导出备份：主台账只导出已上云的记录，本机待同步的数据单列一段，恢复时原样写回本机缓冲——既不丢数据，也不会把同一条记录重复传两遍造成重复</li>
+              <li><b>架构级重写：移除云端资料库依赖</b>。原本「云端主库 + 本机兜底」的双层架构带来的复杂性（401 / 待同步队列 / 离线模式徽标 / schema 拉取）完全用不上，全部砍掉。持仓与日志现在直接落 localStorage（<code>wb_astock_local_pos</code> / <code>wb_astock_local_log</code>），打开即用，断网 / 隐身 / 跨设备都不影响</li>
+              <li>删除所有 <code>__SMART_PAGE__.database</code> 调用、<code>setSync</code> / <code>syncLocalBuffer</code> / <code>updatePendingUI</code> / <code>resolveSelectId</code> / <code>isLocalId</code> / <code>pendingLocalCount</code> 等云端相关函数</li>
+              <li>删除顶栏同步徽标、待同步提示条、同步本机数据按钮，以及卡片上的「本机待同步」标签</li>
+              <li>删除所有 <code>data-sp-bindable="database"</code> / <code>data-sp-database-id</code> 属性（SharePoint 风格 SDK 已不运行，这些标记无用）</li>
+              <li>select 选项硬编码到 <code>LOCAL_SCHEMA_OPTIONS</code>，<b>value 直接用 text</b>（id 仅留作占位）；备份文件中 select 字段无需再做 id↔text 折算</li>
+              <li>备份文件简化：单一 <code>positions + logs + params</code>，不再分「云端 / 本机待同步」两段；旧备份文件仍可读（<code>pendingLocal</code> 段被忽略）</li>
+              <li>toast 文案清理：「已同步 / 已存本机，登录后点同步」等表述统一为「已录入 / 已写入」</li>
+              <li>无云端依赖 → 「分享出去的页面、访客是否登录」完全无关，复制单文件部署到任何静态托管都一致工作</li>
             </ul>
           </div>
           <div class="tlitem">
@@ -1064,8 +1053,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           <tbody>
             <tr><td>页面形态</td><td>单文件 HTML，CSS 与 JS 全部内联，无任何外部框架、字体或图表库，可离线打开</td></tr>
             <tr><td>图标与图表</td><td>全部为内联 SVG 手写，未使用任何图标字体或 emoji</td></tr>
-            <tr><td>数据存储</td><td>资料库云端数据表：持仓台账（<code>9lETwrJdhMy10JAoJ8vqnD</code>）、交易日志（<code>d96S6pyZZBxZ3nBJj1oyO0</code>）</td></tr>
-            <tr><td>数据同步</td><td><b>本地优先，绝不丢数据</b>：新增记录先试写云端；<b>分享链接对未登录访客只放行读、写会返回 401</b>，此时自动转存本机缓冲，记录<b>立刻照常出现在列表里</b>并标注「本机待同步」，顶部提示「本机暂存 N 条」；登录后点「同步本机数据」一键补传。徽标显示「已同步 / 同步中 / 本机保存」，<b>有待同步数据时不会谎报「已同步」</b></td></tr>
+            <tr><td>数据存储</td><td>纯本机 localStorage：持仓台账（<code>wb_astock_local_pos</code>）、交易日志（<code>wb_astock_local_log</code>），加上风控参数 / 巡检日期 / 表单草稿共 6 个 key。无云端依赖、无 401 风险</td></tr>
+            <tr><td>数据同步</td><td>无。同一浏览器内多标签页实时共享 localStorage；跨设备 / 跨浏览器通过顶部的「导出备份 / 导入恢复」手动同步（JSON 快照，无条数上限）</td></tr>
             <tr><td>行情来源</td><td>腾讯（主通道）、东方财富（备用通道），均为公开行情接口</td></tr>
             <tr><td>备份方式</td><td>顶部「导出备份」得到 JSON 快照；「导入恢复」可还原，导入不设条数上限</td></tr>
             <tr><td>上线验证</td><td>每次改动均通过六道门禁：语法检查、纯逻辑单测、浏览器端到端、资料库两道规则检查、外链与 emoji 自检</td></tr>
@@ -1105,14 +1094,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
 <!-- ========== 模板（静态骨架，JS 克隆填充） ========== -->
 <template id="tpl-pos">
-  <div class="pcard" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD">
+  <div class="pcard">
     <div class="pcard-h">
       <span class="code" data-field="股票代码">--</span>
       <span class="name" data-field="股票名称">--</span>
       <span class="tag gray" data-status>--</span>
       <span class="spacer"></span>
       <span class="tag gray hidden" data-stale>待巡检</span>
-      <span class="tag warn hidden" data-local>本机待同步</span>
     </div>
     <div class="metrics">
       <div class="metric"><div class="k">现价 / 成本</div><div class="v" data-calc="price">--</div></div>
@@ -1138,7 +1126,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 </template>
 
 <template id="tpl-log">
-  <div class="logrow" data-sp-bindable="database" data-sp-database-id="d96S6pyZZBxZ3nBJj1oyO0">
+  <div class="logrow">
     <div class="lc">
       <div class="lt"><span data-field="股票代码">--</span><span class="name" data-field="股票名称">--</span> · <span data-field="操作类型">--</span> · <span class="muted" data-date>--</span></div>
       <div class="ld"><span data-field="违规类型">--</span> · <span data-field="复盘备注"></span></div>
@@ -1158,8 +1146,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   /* ============================================================
    * 0. 常量与工具
    * ============================================================ */
-  var POS_DB_ID = '9lETwrJdhMy10JAoJ8vqnD'; // use this constant instead of the literal in JS
-  var LOG_DB_ID = 'd96S6pyZZBxZ3nBJj1oyO0'; // use this constant instead of the literal in JS
+  /* POS_DB_ID / LOG_DB_ID 历史上是云端资料库 ID；本机存储后改作「持仓 / 日志」这两个
+     localStorage 数组的常量 key。保留名字是为了让 localKeyOf / 行级 props 不必全部
+     改字面量。 */
+  var POS_DB_ID = 'pos';
+  var LOG_DB_ID = 'log';
 
   /* 风险等级 → UI class 的查表。assessPosition() 返回的 level 取值范围：
      danger / warn / target / watch / ok / (其它)；两张表对应 .tag 与 .notice 各自的
@@ -1170,9 +1161,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   var LS_PATROL = 'wb_astock_last_patrol';
   var LS_DRAFT = 'wb_astock_draft_log';
   var LS_DRAFT_RISK = 'wb_astock_draft_risk';
-  /* 本机缓冲：资料库「分享页」对未登录访客只放行读（query/getSchema），
-     写（addRecord/updateRecord/deleteRecord）会返回 401 not login。
-     因此写入改为「先试云端，失败即落本机」，保证任何情况下都不丢数据。 */
+  /* 本机存储：所有持仓 / 日志都直接落 localStorage，没有云端依赖、没有 401 风险。
+     key 沿用历史名称（wb_astock_local_pos / wb_astock_local_log），旧数据照常可读。 */
   var LS_LOCAL_POS = 'wb_astock_local_pos';
   var LS_LOCAL_LOG = 'wb_astock_local_log';
 
@@ -1313,9 +1303,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     rulePosId: '',
     ruleMA: 'no',
     ruleAdd: 0,
-    lastPatrol: '',
-    online: true,
-    dbReady: false
+    lastPatrol: ''
   };
 
   /* ============================================================
@@ -1447,8 +1435,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       costValue: shares * cost, marketValue: shares * price, pnl: 0, pnlRate: 0,
       distToStop: 0, distToTarget: 0, stopPct: 0, level: 'ok', label: '正常持有',
       action: '继续持有，按原计划执行', reasons: [], stale: false, staleDays: null,
-      note: p['备注'] || '', lastPatrol: dayOnly(p['巡检日期']),
-      local: !!p._local   /* 本机暂存、尚未上云 */
+      note: p['备注'] || '', lastPatrol: dayOnly(p['巡检日期'])
     };
     /* 「股 / 份 / 张」与价格小数位由标的类型决定，与风控计算、录入表单保持一致 */
     var outInst = instrumentOf(out.code, out.name);
@@ -2258,8 +2245,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       resetManualForm();
       collapseManualForm();
       refreshAll();
-      updatePendingUI();
-      var tail = (stop > 0 ? '' : '（未设止损）') + (res && res.cloud === false ? '　已存本机，登录后点「同步本机数据」上云' : '');
+      var tail = (stop > 0 ? '' : '（未设止损）');
       toast('已录入 ' + name + ' ' + shares + ' ' + it.unit + tail);
     }).catch(function (err) {
       console.error(err); toast('写入失败，请检查网络后重试');
@@ -2355,129 +2341,34 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         refreshAll();
         toast('已刷新 ' + hit + ' 只标的现价' + (hit < list.length ? '，' + (list.length - hit) + ' 只未取到' : ''));
       }).catch(function (e) {
-        console.error('[database] 现价写回失败:', e);
+        console.error('[localStorage] 现价写回失败:', e);
         toast('现价写回失败，请重试');
       }).then(function () { if (btn) { btn.disabled = false; } });
     });
   }
 
   /* ============================================================
-   * 4. 数据层（资料库 SDK）
-   * ============================================================ */
-  var db = null;
-  function sdk() {
-    db = (window.__SMART_PAGE__ && window.__SMART_PAGE__.database) ? window.__SMART_PAGE__.database : null;
-    return db;
-  }
-
-  /* 分页拉取整表，本机缓冲排前。dbId + sortField 决定拉哪张表的哪一列排序 */
-  function paginatedQuery(dbId, sortField, label) {
-    var localRows = readLocalRows(dbId);
-    return new Promise(function (resolve) {
-      sdk();
-      if (!db) { resolve(localRows); return; }
-      var acc = [], guard = 0, settled = false;
-      function done() { if (settled) { return; } settled = true; resolve(localRows.concat(acc)); }
-      function step(cursor) {
-        guard++;
-        if (guard > 20) { done(); return; }
-        db.query({
-          databaseId: dbId,
-          sorts: [{ property: sortField, direction: 'descending' }],
-          pageSize: 200,
-          startCursor: cursor
-        }).then(function (result) {
-          acc = acc.concat(result.results || []);
-          var next = result.nextCursor;
-          if (result.hasMore && next && next !== cursor && (result.results || []).length) { step(next); }
-          else { done(); }
-        }).catch(function (err) {
-          console.error('[database] ' + label + ' 读取失败:', err);
-          done();
-        });
-      }
-      step(undefined);
-    });
-  }
-  function loadPositions() { return paginatedQuery(POS_DB_ID, '买入日期', '持仓台账'); }
-  function loadLogs() { return paginatedQuery(LOG_DB_ID, '交易日期', '交易日志'); }
-
-  /* 把任意格式的 select 字段值归一到当前 schema 的 option ID：
-     1) 原值已是当前 schema 里的某个 option.id → 直接返回；
-     2) 原值是某个 option.text 的字面显示 → 查表得到对应 id；
-     3) 都不是（跨账号导入、ID 已变、未知 text）→ 原样返回，由云端后续校验。 */
-  function resolveSelectId(field, raw) {
-    if (raw === null || raw === undefined) { return ''; }
-    var v = String(raw);
-    if (!v) { return ''; }
-    var opts = state.schemaOptions[field] || [];
-    for (var i = 0; i < opts.length; i++) {
-      if (opts[i].id === v) { return v; }
-    }
-    for (var j = 0; j < opts.length; j++) {
-      if (opts[j].text === v) { return opts[j].id; }
-    }
-    return v;
-  }
-
-  function loadSchema() {
-    sdk();
-    if (!db) { return Promise.resolve({}); }
-    function pick(schema) {
-      var map = {};
-      (schema.properties || []).forEach(function (f) {
-        if ((f.type === 'select' || f.type === 'multi_select') && f.config && f.config.options) {
-          map[f.name] = f.config.options;
-        }
-      });
-      return map;
-    }
-    var p1 = db.getSchema({ databaseId: POS_DB_ID }).then(pick).catch(function () { return {}; });
-    var p2 = db.getSchema({ databaseId: LOG_DB_ID }).then(pick).catch(function () { return {}; });
-    return Promise.all([p1, p2]).then(function (arr) {
-      var merged = {};
-      for (var i = 0; i < arr.length; i++) {
-        var m = arr[i];
-        for (var k in m) { if (Object.prototype.hasOwnProperty.call(m, k)) { merged[k] = m[k]; } }
-      }
-      return merged;
-    });
-  }
-
-  function reloadData() {
-    return Promise.all([loadPositions(), loadLogs()]).then(function (r) {
-      state.positions = r[0] || [];
-      state.logs = r[1] || [];
-      state.dbReady = true;
-      return null;
-    });
-  }
-
-  function setSync(mode, text) {
-    var b = $('#syncBadge');
-    if (!b) { return; }
-    b.classList.remove('ok', 'sync', 'local', 'off');
-    b.classList.add(mode);
-    setText('syncText', text);
-  }
-
-  /* ---------- 写入层：本地优先，云端写不进去也绝不丢数据 ----------
-     背景：已发布页面对「未登录访客」只放行读（query / getSchema 返回 200），
-     写（addRecord / updateRecord / deleteRecord）返回 401 not login。
-     所以新增记录改为：先试云端 → 被拒则落本机缓冲 → 顶部显示「本机保存 · N 条待同步」，
-     用户登录后点「同步本机数据」即可补传。 */
-  function isLocalId(id) { return String(id === null || id === undefined ? '' : id).indexOf('local_') === 0; }
-  function mkLocalId() { return 'local_' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 1679616).toString(36); }
+   * 4. 数据层（纯本机 localStorage）
+   * ============================================================
+   * 持仓 / 日志全部存在 localStorage 的两个 key 下，没有任何云端依赖。
+   * 历史「云端主库 + 本机兜底」架构已于 1.2.0 拆除。 */
+  var mkLocalId = (function () {
+    /* 同页面多个写并发时（如批量取现价）需要 ID 不冲突；递增计数器 + 随机后缀 */
+    var n = 0;
+    return function () {
+      return 'local_' + Date.now().toString(36) + '_' + (++n) + '_' + Math.floor(Math.random() * 1679616).toString(36);
+    };
+  })();
   function localKeyOf(databaseId) { return databaseId === LOG_DB_ID ? LS_LOCAL_LOG : LS_LOCAL_POS; }
   function readLocalRows(databaseId) {
     var a = readJSON(localKeyOf(databaseId));
     return Object.prototype.toString.call(a) === '[object Array]' ? a : [];
   }
   function writeLocalRows(databaseId, arr) { writeJSON(localKeyOf(databaseId), arr || []); }
-  /* {text|number|select|date…} → 扁平行，和云端 query 返回的行同构，渲染层无需改动 */
+  /* {text|number|select|date…} → 扁平行，渲染层无需改动。select 字段的 value 就是 text。 */
   var PROP_KEYS = ['text', 'number', 'select', 'multi_select', 'date', 'checkbox'];
   function flattenProps(props) {
-    var out = {}, i, j;
+    var out = {}, i;
     for (var k in props) {
       if (!Object.prototype.hasOwnProperty.call(props, k)) { continue; }
       var v = props[k] || {}, picked = false;
@@ -2491,10 +2382,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function saveLocalAdd(databaseId, props) {
     var arr = readLocalRows(databaseId);
     var row = flattenProps(props);
-    row._id = mkLocalId(); row._local = true; row._savedAt = new Date().toISOString();
+    row._id = mkLocalId();
     arr.unshift(row);
     writeLocalRows(databaseId, arr);
-    updatePendingUI();
     return row;
   }
   function saveLocalUpdate(databaseId, recordId, props) {
@@ -2507,114 +2397,59 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       }
     }
     if (found) { writeLocalRows(databaseId, arr); }
-    updatePendingUI();
     return found;
   }
   function saveLocalDelete(databaseId, recordId) {
     var arr = readLocalRows(databaseId), out = [], i;
     for (i = 0; i < arr.length; i++) { if (arr[i]._id !== recordId) { out.push(arr[i]); } }
     writeLocalRows(databaseId, out);
-    updatePendingUI();
     return true;
   }
-  function pendingLocalCount() { return readLocalRows(POS_DB_ID).length + readLocalRows(LOG_DB_ID).length; }
 
-  /* 统一写：op ∈ 'create' | 'update' | 'delete'。
-     create 失败时落本机缓冲（'local' 模式），update/delete 失败代表真离线（'off'） */
+  /* select 字段的选项硬编码。三张表（操作类型 / 纪律执行 / 违规类型）的下拉
+     由此提供；'持仓状态' 不在下拉里（仅程序内赋 '持有中'），不在此列。
+     id 留作占位以便未来若接回云端时无痛迁移；当前 select 渲染 id 与 text 同值。 */
+  var LOCAL_SCHEMA_OPTIONS = {
+    '操作类型':   [ { id: '买入',   text: '买入' },
+                   { id: '加仓',   text: '加仓' },
+                   { id: '减仓',   text: '减仓' },
+                   { id: '清仓',   text: '清仓' },
+                   { id: '调止损', text: '调止损' },
+                   { id: '调目标', text: '调目标' } ],
+    '纪律执行':   [ { id: '严格遵守', text: '严格遵守' },
+                   { id: '基本遵守', text: '基本遵守' },
+                   { id: '偏离',     text: '偏离' },
+                   { id: '严重违规', text: '严重违规' } ],
+    '违规类型':   [ { id: '追涨杀跌',   text: '追涨杀跌' },
+                   { id: '扛单不止损', text: '扛单不止损' },
+                   { id: '频繁交易',   text: '频繁交易' },
+                   { id: '亏损加仓',   text: '亏损加仓' },
+                   { id: '情绪化交易', text: '情绪化交易' } ]
+  };
+  function loadSchema() { return Promise.resolve(LOCAL_SCHEMA_OPTIONS); }
+
+  function loadPositions() { return Promise.resolve(readLocalRows(POS_DB_ID)); }
+  function loadLogs()      { return Promise.resolve(readLocalRows(LOG_DB_ID)); }
+
+  function reloadData() {
+    state.positions = readLocalRows(POS_DB_ID);
+    state.logs = readLocalRows(LOG_DB_ID);
+    return Promise.resolve(null);
+  }
+
+  /* 统一写：op ∈ 'create' | 'update' | 'delete'。所有路径都直接落本机。 */
   function writeOne(dbId, op, recordId, props) {
-    if (op === 'create') {
-      sdk();
-      if (!db) { saveLocalAdd(dbId, props); setSync('local', '本机保存'); return Promise.resolve({ cloud: false }); }
-      setSync('sync', '同步中');
-      return db.addRecord({ databaseId: dbId, properties: props }).then(function () {
-        setSync('ok', '已同步'); return { cloud: true };
-      }).catch(function (err) {
-        console.warn('[database] 云端写入被拒，已转存本机:', err && err.message);
-        saveLocalAdd(dbId, props);
-        setSync('local', '本机保存');
-        return { cloud: false };
-      });
-    }
-    if (op === 'update' || op === 'delete') {
-      if (isLocalId(recordId)) {
-        if (op === 'update') { saveLocalUpdate(dbId, recordId, props); }
-        else { saveLocalDelete(dbId, recordId); }
-        return Promise.resolve({ cloud: false });
-      }
-      sdk();
-      if (!db) { return Promise.reject(new Error('离线模式')); }
-      setSync('sync', '同步中');
-      var call = op === 'update'
-        ? db.updateRecord({ databaseId: dbId, recordId: recordId, properties: props })
-        : db.deleteRecord({ databaseId: dbId, recordId: recordId });
-      return call.then(function () {
-        setSync('ok', '已同步'); return { cloud: true };
-      }).catch(function (err) { setSync('off', '离线模式'); throw err; });
-    }
-    return Promise.reject(new Error('writeOne: unknown op ' + op));
+    if (op === 'create') { saveLocalAdd(dbId, props); }
+    else if (op === 'update') { saveLocalUpdate(dbId, recordId, props); }
+    else if (op === 'delete') { saveLocalDelete(dbId, recordId); }
+    else { return Promise.reject(new Error('writeOne: unknown op ' + op)); }
+    return Promise.resolve();
   }
   function addPosition(props) { return writeOne(POS_DB_ID, 'create', null, props); }
   function updatePosition(recordId, props) { return writeOne(POS_DB_ID, 'update', recordId, props); }
   function deletePosition(recordId) { return writeOne(POS_DB_ID, 'delete', recordId, null); }
   function addLog(props) { return writeOne(LOG_DB_ID, 'create', null, props); }
   function deleteLog(recordId) { return writeOne(LOG_DB_ID, 'delete', recordId, null); }
-
-  /* 把本机缓冲的记录补传到云端；成功的立即从缓冲移除 */
-  function syncLocalBuffer(btn) {
-    var plan = [], i;
-    function flattenToProps(row) {
-      var props = {}, k;
-      for (k in row) {
-        if (!Object.prototype.hasOwnProperty.call(row, k)) { continue; }
-        if (k.charAt(0) === '_') { continue; }
-        var v = row[k];
-        if (/日期$/.test(k)) { props[k] = { date: String(v === null || v === undefined ? '' : v).slice(0, 10) }; }
-        else if (typeof v === 'number') { props[k] = { number: v }; }
-        else { props[k] = { text: String(v === null || v === undefined ? '' : v) }; }
-      }
-      return props;
-    }
-    var posRows = readLocalRows(POS_DB_ID), logRows = readLocalRows(LOG_DB_ID);
-    for (i = 0; i < posRows.length; i++) { plan.push({ databaseId: POS_DB_ID, row: posRows[i] }); }
-    for (i = 0; i < logRows.length; i++) { plan.push({ databaseId: LOG_DB_ID, row: logRows[i] }); }
-    if (!plan.length) { toast('本机没有待同步的数据'); return; }
-    sdk();
-    if (!db) { toast('当前无法连接资料库，请稍后再试'); return; }
-    if (btn) { btn.disabled = true; }
-    setSync('sync', '同步中');
-    var okN = 0;
-    function step(idx) {
-      if (idx >= plan.length) { return Promise.resolve(); }
-      var it = plan[idx];
-      var call = it.databaseId === POS_DB_ID
-        ? db.addRecord({ databaseId: POS_DB_ID, properties: flattenToProps(it.row) })
-        : db.addRecord({ databaseId: LOG_DB_ID, properties: flattenToProps(it.row) });
-      return call.then(function () {
-        saveLocalDelete(it.databaseId, it.row._id);
-        okN++;
-        return step(idx + 1);
-      });
-    }
-    step(0).then(function () {
-      return reloadData();
-    }).then(function () {
-      refreshAll();
-      updatePendingUI();
-      if (okN === plan.length) { setSync('ok', '已同步'); toast('已同步 ' + okN + ' 条到云端'); }
-      else { setSync('local', '本机保存'); toast('已同步 ' + okN + ' / ' + plan.length + ' 条，其余仍在本机'); }
-    }).catch(function (err) {
-      console.error(err); setSync('local', '本机保存');
-      toast('同步中断：仍在本机的数据不会丢失，可稍后重试');
-    }).then(function () { if (btn) { btn.disabled = false; } });
-  }
-
-  /* 顶部「待同步」提示与按钮的显隐（纯 UI，不碰业务数据） */
-  function updatePendingUI() {
-    var n = pendingLocalCount();
-    var wrap = $('#pendingWrap');
-    if (wrap) { wrap.classList.toggle('hidden', n === 0); }
-    setText('pendingText', n > 0 ? ('本机暂存 ' + n + ' 条待同步') : '');
-  }
 
   /* ============================================================
    * 5. 渲染层（只读 state，互不调用）
@@ -2636,8 +2471,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         html += '<div class="titem ' + it.tone + '">' +
           '<span class="tdot"></span>' +
           '<div class="tbody">' +
-          '<div class="tname" data-sp-bindable="database" data-sp-database-id="' + POS_DB_ID + '">' + esc(it.title) + '</div>' +
-          '<div class="tdesc" data-sp-bindable="database" data-sp-database-id="' + POS_DB_ID + '">' + esc(it.desc) + '</div>' +
+          '<div class="tname">' + esc(it.title) + '</div>' +
+          '<div class="tdesc">' + esc(it.desc) + '</div>' +
           '<div class="tacts">' +
           (it.act ? '<button class="btn sm" data-today-act="' + esc(it.act) + '" data-today-pos="' + esc(it.posId || '') + '" data-today-tab="' + esc(it.tab || '') + '">' + esc(it.act) + '</button>' : '') +
           '<button class="btn sm" data-today-goto="' + esc(it.tab || '') + '">查看</button>' +
@@ -2756,9 +2591,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       var stTag = node.querySelector('[data-status]');
       stTag.textContent = a.label;
       stTag.className = 'tag ' + (LEVEL_TO_TAG[a.level] || 'gray');
-      if (a.stale) { node.querySelector('[data-stale]').classList.remove('hidden'); }
-      if (a.local) { node.querySelector('[data-local]').classList.remove('hidden'); }
-      node.querySelector('[data-calc="price"]').textContent = fmtByTick(a.price, a.tick) + ' / ' + fmtByTick(a.cost, a.tick);
+      if (a.stale) { node.querySelector('[data-stale]').classList.remove('hidden'); }node.querySelector('[data-calc="price"]').textContent = fmtByTick(a.price, a.tick) + ' / ' + fmtByTick(a.cost, a.tick);
       var pnlEl2 = node.querySelector('[data-calc="pnl"]');
       pnlEl2.textContent = fmtMoney(a.pnl) + ' (' + fmtPct(a.pnlRate) + ')';
       pnlEl2.className = 'v ' + pnlClass(a.pnl);
@@ -2785,17 +2618,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       if (saveBtn) { saveBtn.setAttribute('data-id', a.id); }
       if (patrolBtn) { patrolBtn.setAttribute('data-id', a.id); }
       if (ruleBtn) { ruleBtn.setAttribute('data-id', a.id); }
-      if (delBtn) { delBtn.setAttribute('data-id', a.id); }
-      setBind(card);
-      list.appendChild(node);
+      if (delBtn) { delBtn.setAttribute('data-id', a.id); } list.appendChild(node);
     }
     if (shown === 0) { list.innerHTML = '<div class="empty">当前筛选条件下没有持仓。</div>'; }
-  }
-
-  function setBind(el) {
-    if (!el || !el.setAttribute) { return; }
-    el.setAttribute('data-sp-bindable', 'database');
-    el.setAttribute('data-sp-database-id', POS_DB_ID);
   }
 
   function renderRuleEngine() {
@@ -2843,7 +2668,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       h += '</ul></div>';
     }
     out.innerHTML = h;
-    setBind(out);
   }
 
   function renderDiscipline() {
@@ -2919,16 +2743,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       dTag.className = 'tag ' + (dv === '完全遵守' ? 'ok' : (dv === '部分违反' ? 'warn' : (dv === '严重违反' ? 'danger' : 'gray')));
       var del = node.querySelector('[data-act="del-log"]');
       del.setAttribute('data-id', r._id || '');
-      var row = node.querySelector('.logrow');
-      setBindLog(row);
       box.appendChild(node);
     }
-  }
-
-  function setBindLog(el) {
-    if (!el || !el.setAttribute) { return; }
-    el.setAttribute('data-sp-bindable', 'database');
-    el.setAttribute('data-sp-database-id', LOG_DB_ID);
   }
 
   function renderParams() {
@@ -2965,7 +2781,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       var opts = state.schemaOptions[f] || [];
       var cur = sel.value;
       var h = '<option value="">请选择</option>';
-      for (var i = 0; i < opts.length; i++) { h += '<option value="' + esc(opts[i].id) + '">' + esc(opts[i].text) + '</option>'; }
+      /* select 的 value 用 text 作规范值；旧备份里若残留 option.id 仍可在下拉中按 text 匹配不上时直接显示 fallback。 */
+      for (var i = 0; i < opts.length; i++) { h += '<option value="' + esc(opts[i].text) + '">' + esc(opts[i].text) + '</option>'; }
       sel.innerHTML = h;
       if (cur) { sel.value = cur; }
     });
@@ -3098,7 +2915,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         var tick = it && it.tick ? it.tick : 0.01;
         refreshAll(); toast('已取到现价 ' + fmtByTick(q.price, tick) + ' 并写回台账');
       }).catch(function (e) {
-        console.error('[database] 单只取价写回失败:', e);
+        console.error('[localStorage] 单只取价写回失败:', e);
         toast('现价写回失败，请重试');
       }).then(function () { if (btn) { btn.disabled = false; } });
     }, true); /* 用户主动取价，强制刷新，不走 60 秒缓存 */
@@ -3199,15 +3016,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   }
 
   function onBackup() {
-    var pendN = pendingLocalCount();
     var payload = {
       exportedAt: new Date().toISOString(),
       params: state.params,
-      /* 主台账只导出「已在云端」的记录；本机待同步的另存一段，
-         恢复时按原样写回本机缓冲 —— 既不丢数据，也不会重复上云造出重复记录 */
-      positions: state.positions.filter(function (r) { return !r._local; }),
-      logs: state.logs.filter(function (r) { return !r._local; }),
-      pendingLocal: { positions: readLocalRows(POS_DB_ID), logs: readLocalRows(LOG_DB_ID) }
+      positions: state.positions,
+      logs: state.logs
     };
     var blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     var url = URL.createObjectURL(blob);
@@ -3217,7 +3030,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     document.body.appendChild(a);
     a.click();
     setTimeout(function () { document.body.removeChild(a); URL.revokeObjectURL(url); }, 0);
-    toast(pendN > 0 ? ('备份已导出（含本机待同步 ' + pendN + ' 条）') : '备份文件已导出');
+    toast('备份文件已导出（' + payload.positions.length + ' 条持仓 / ' + payload.logs.length + ' 条日志）');
   }
 
   function onRestoreFile(file) {
@@ -3252,7 +3065,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         var properties = {};
         properties['股票代码'] = { text: String(r['股票代码'] || '') };
         properties['股票名称'] = { text: String(r['股票名称'] || '') };
-        if (r['持仓状态']) { properties['持仓状态'] = { select: resolveSelectId('持仓状态', r['持仓状态']) }; }
+        if (r['持仓状态']) { properties['持仓状态'] = { select: String(r['持仓状态']) }; }
         properties['持仓股数'] = { number: num(r['持仓股数']) };
         properties['成本价'] = { number: num(r['成本价']) };
         properties['现价'] = { number: num(r['现价']) };
@@ -3267,26 +3080,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         var properties = {};
         if (r['交易日期']) { properties['交易日期'] = { date: dayOnly(r['交易日期']) }; }
         properties['股票代码'] = { text: String(r['股票代码'] || '') };
-        if (r['操作类型']) { properties['操作类型'] = { select: resolveSelectId('操作类型', r['操作类型']) }; }
+        if (r['操作类型']) { properties['操作类型'] = { select: String(r['操作类型']) }; }
         properties['成交价'] = { number: num(r['成交价']) };
         properties['成交股数'] = { number: num(r['成交股数']) };
-        if (r['纪律执行']) { properties['纪律执行'] = { select: resolveSelectId('纪律执行', r['纪律执行']) }; }
-        if (r['违规类型']) { properties['违规类型'] = { select: resolveSelectId('违规类型', r['违规类型']) }; }
+        if (r['纪律执行']) { properties['纪律执行'] = { select: String(r['纪律执行']) }; }
+        if (r['违规类型']) { properties['违规类型'] = { select: String(r['违规类型']) }; }
         if (r['盈亏金额'] !== null && r['盈亏金额'] !== undefined && r['盈亏金额'] !== '') { properties['盈亏金额'] = { number: num(r['盈亏金额']) }; }
         properties['复盘备注'] = { text: String(r['复盘备注'] || '') };
         tasks.push(function () { return addLog(properties); });
       });
-      /* 备份里的「本机待同步」段：原样写回本机缓冲，不重复上云 */
-      var pend = (data && data.pendingLocal) || {};
-      if (Object.prototype.toString.call(pend.positions) === '[object Array]' && pend.positions.length) {
-        writeLocalRows(POS_DB_ID, readLocalRows(POS_DB_ID).concat(pend.positions));
-      }
-      if (Object.prototype.toString.call(pend.logs) === '[object Array]' && pend.logs.length) {
-        writeLocalRows(LOG_DB_ID, readLocalRows(LOG_DB_ID).concat(pend.logs));
-      }
-      setSync('sync', '同步中');
       runSequential(tasks, 0).then(reloadData).then(function () {
-        refreshAll(); updatePendingUI(); toast('已导入 ' + tasks.length + ' 条记录');
+        refreshAll(); toast('已导入 ' + tasks.length + ' 条记录');
       }).catch(function (err) {
         console.error(err); toast('导入过程中断，请重试');
       });
@@ -3443,8 +3247,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             state.quote = null;
             return reloadData().then(function () { return res; });
           }).then(function (res) {
-            refreshAll(); updatePendingUI();
-            toast(res && res.cloud === false ? '已存入本机台账，登录后点「同步本机数据」上云' : '已存入持仓台账并同步');
+            refreshAll();
+            toast('已存入持仓台账');
           }).catch(function (err) {
             console.error(err); toast('写入失败，请检查网络后重试');
           }).then(function () { saveBtn.disabled = false; });
@@ -3612,8 +3416,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           });
           return reloadData().then(function () { return res; });
         }).then(function (res) {
-          refreshAll(); updatePendingUI();
-          toast(res && res.cloud === false ? '日志已存本机，登录后点「同步本机数据」上云' : '交易日志已写入并同步');
+          refreshAll();
+          toast('交易日志已写入');
         }).catch(function (err) {
           console.error(err); toast('写入失败，草稿已为你保留');
         }).then(function () { if (submitBtn) { submitBtn.disabled = false; } });
@@ -3645,8 +3449,6 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     if (caBtn) { caBtn.addEventListener('click', function () { onClearAll(caBtn); }); }
     var bb = $('#btnBackup');
     if (bb) { bb.addEventListener('click', onBackup); }
-    var sl = $('#btnSyncLocal');
-    if (sl) { sl.addEventListener('click', function () { syncLocalBuffer(sl); }); }
     var br = $('#btnRestore');
     var fi = $('#fileRestore');
     if (br && fi) {
@@ -3728,25 +3530,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       if (dateEl && !dateEl.value) { dateEl.value = todayStr(); }
     }
 
-    setSync('sync', '连接中');
-    updatePendingUI();
+    /* 纯本机架构：schema 选项硬编码，数据同步读入即用，没有异步 SDK 初始化 */
     loadSchema().then(function (opts) {
       state.schemaOptions = opts || {};
-      return reloadData();
-    }).then(function () {
-      /* 有本机待同步数据时不谎报「已同步」 */
-      if (pendingLocalCount() > 0) { setSync('off', '本机保存'); }
-      else { setSync('ok', '已同步'); }
+      reloadData();
       refreshAll();
-      updatePendingUI();
       if (restoreRiskDraft) { restoreRiskDraft(); }
       if (restoreLogDraft) { restoreLogDraft(); }
-    }).catch(function (err) {
-      console.error('[database] 初始化异常:', err);
-      state.online = false;
-      setSync('off', '本机保存');
-      refreshAll();
-      updatePendingUI();
     });
   }
 
