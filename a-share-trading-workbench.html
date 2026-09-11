@@ -173,9 +173,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .pcard{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;}
 .pcard.risk{border-color:#f0c9c9;background:linear-gradient(180deg,#fffafa,#fff);}
 .pcard.warn{border-color:#f0dfc2;background:linear-gradient(180deg,#fffdf8,#fff);}
-.pcard-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px;}
+.pcard-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:9px;}
 .pcard-h .code{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
-.pcard-h .name{font-size:13px;color:var(--text-2);}
+.pcard-h .name{font-size:13.5px;font-weight:600;color:var(--text);}
 .pcard-h .spacer{flex:1 1 auto;}
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
 .metric{background:var(--gray-soft);border-radius:9px;padding:7px 9px;}
@@ -206,6 +206,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .logrow{border:1px solid var(--line);border-radius:11px;padding:10px 12px;display:flex;gap:11px;align-items:flex-start;flex-wrap:wrap;}
 .logrow .lc{flex:1 1 220px;min-width:0;}
 .logrow .lt{font-size:12.5px;font-weight:600;}
+.logrow .lt .name{font-weight:500;color:var(--text-2);margin-left:5px;}
 .logrow .ld{font-size:12px;color:var(--text-2);}
 .logrow .lr{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
 
@@ -1139,7 +1140,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 <template id="tpl-log">
   <div class="logrow" data-sp-bindable="database" data-sp-database-id="d96S6pyZZBxZ3nBJj1oyO0">
     <div class="lc">
-      <div class="lt"><span data-field="股票代码">--</span> · <span data-field="操作类型">--</span> · <span class="muted" data-date>--</span></div>
+      <div class="lt"><span data-field="股票代码">--</span><span class="name" data-field="股票名称">--</span> · <span data-field="操作类型">--</span> · <span class="muted" data-date>--</span></div>
       <div class="ld"><span data-field="违规类型">--</span> · <span data-field="复盘备注"></span></div>
     </div>
     <div class="lr" data-pnl>--</div>
@@ -2897,6 +2898,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       var r = sorted[i];
       var node = tpl.content.cloneNode(true);
       node.querySelector('[data-field="股票代码"]').textContent = r['股票代码'] || '';
+      node.querySelector('[data-field="股票名称"]').textContent = r['股票名称'] || '';
       node.querySelector('[data-field="操作类型"]').textContent = r['操作类型'] || '';
       node.querySelector('[data-date]').textContent = dayOnly(r['交易日期']);
       var v = String(r['违规类型'] || '无');
