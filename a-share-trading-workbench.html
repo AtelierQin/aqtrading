@@ -1232,6 +1232,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
   function setText(id, txt) { var el = document.getElementById(id); if (el) { el.textContent = txt; } }
   function setHidden(el, bool) { if (!el) { return; } el.classList.toggle('hidden', !!bool); }
+  /* 把高频触发（input 键入、resize 等）收敛到每次停顿后再跑一次 */
+  function debounce(fn, ms) {
+    var t = null;
+    return function () {
+      var args = arguments, ctx = this;
+      if (t) { clearTimeout(t); }
+      t = setTimeout(function () { t = null; fn.apply(ctx, args); }, ms || 150);
+    };
+  }
 
   /* Promise-based confirm dialog：替代 window.confirm。opts = {title, body, okText, cancelText, danger}。
      ESC = 取消；Enter（在 Ok 按钮聚焦时）= 确认。 */
@@ -2000,7 +2009,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       code: normCode(codeEl.value),
       name: nameEl.value.trim(),
       capital: state.params.capital,
-      riskPct: 2,
+      riskPct: state.params.riskPct,
       entry: entry,
       stop: num(stopEl.value),
       rr: state.params.rr,
@@ -3317,31 +3326,31 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
       /* 当前价：用户手动改时，若计划进场价还是空/等于旧现价，就跟随更新 */
       if (lastEl) {
-        lastEl.addEventListener('input', function () {
+        lastEl.addEventListener('input', debounce(function () {
           var v = num(lastEl.value);
           if (v > 0 && entryEl && (!entryEl.value || rf.getAttribute('data-entry-synced') === '1')) {
             entryEl.value = toFixed2(v);
             rf.setAttribute('data-entry-synced', '1');
           }
           recalcRisk('pct');
-        });
+        }, 150));
       }
       /* 计划进场价：以「进场价 + 止损幅度」推出止损价与目标价 */
       if (entryEl) {
-        entryEl.addEventListener('input', function () {
+        entryEl.addEventListener('input', debounce(function () {
           rf.setAttribute('data-entry-synced', '0');
           recalcRisk('pct');
-        });
+        }, 150));
       }
       /* 止损幅度 ↔ 止损价 双向反算 */
       if (stopPctEl) {
-        stopPctEl.addEventListener('input', function () { recalcRisk('pct'); });
+        stopPctEl.addEventListener('input', debounce(function () { recalcRisk('pct'); }, 150));
       }
       if (stopEl) {
-        stopEl.addEventListener('input', function () { recalcRisk('stop'); });
+        stopEl.addEventListener('input', debounce(function () { recalcRisk('stop'); }, 150));
       }
       if (rrEl) {
-        rrEl.addEventListener('input', function () { recalcRisk('pct'); });
+        rrEl.addEventListener('input', debounce(function () { recalcRisk('pct'); }, 150));
       }
       if (capEl) {
         capEl.addEventListener('change', function () {
