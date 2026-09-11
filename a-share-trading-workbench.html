@@ -1131,6 +1131,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
    * ============================================================ */
   var POS_DB_ID = '9lETwrJdhMy10JAoJ8vqnD'; // use this constant instead of the literal in JS
   var LOG_DB_ID = 'd96S6pyZZBxZ3nBJj1oyO0'; // use this constant instead of the literal in JS
+
+  /* 风险等级 → UI class 的查表。assessPosition() 返回的 level 取值范围：
+     danger / warn / target / watch / ok / (其它)；两张表对应 .tag 与 .notice 各自的
+     配色，缺失 key 时各自回落到 gray / yellow（与原嵌套三元一致）。 */
+  var LEVEL_TO_TAG = { danger: 'danger', warn: 'danger', target: 'warn', ok: 'ok' };
+  var LEVEL_TO_NOTICE = { danger: 'red', warn: 'red', target: 'yellow', ok: 'green' };
   var LS_PARAMS = 'wb_astock_risk_params';
   var LS_PATROL = 'wb_astock_last_patrol';
   var LS_DRAFT = 'wb_astock_draft_log';
@@ -2661,7 +2667,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       node.querySelector('[data-field="股票名称"]').textContent = a.name;
       var stTag = node.querySelector('[data-status]');
       stTag.textContent = a.label;
-      stTag.className = 'tag ' + (a.level === 'danger' || a.level === 'warn' ? 'danger' : (a.level === 'target' ? 'warn' : (a.level === 'ok' ? 'ok' : 'gray')));
+      stTag.className = 'tag ' + (LEVEL_TO_TAG[a.level] || 'gray');
       if (a.stale) { node.querySelector('[data-stale]').style.display = ''; }
       if (a.local) { node.querySelector('[data-local]').style.display = ''; }
       node.querySelector('[data-calc="price"]').textContent = fmtByTick(a.price, a.tick) + ' / ' + fmtByTick(a.cost, a.tick);
@@ -2679,7 +2685,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       var msg = node.querySelector('[data-msg]');
       if (a.reasons.length) {
         msg.style.display = '';
-        msg.className = 'notice ' + (a.level === 'danger' || a.level === 'warn' ? 'red' : (a.level === 'target' ? 'yellow' : (a.level === 'ok' ? 'green' : 'yellow')));
+        msg.className = 'notice ' + (LEVEL_TO_NOTICE[a.level] || 'yellow');
         msg.textContent = a.reasons.join(' ') + ' 建议：' + a.action;
       }
       var quoteBtn = node.querySelector('[data-act="quote"]');
