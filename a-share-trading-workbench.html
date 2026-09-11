@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="A股交易纪律工作台：风控计算、持仓台账、交易纪律复盘的单页工具，支持云端资料库同步与本机兜底。">
 <meta name="theme-color" content="#1f4bd8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' qt.gtimg.cn; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self';">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' qt.gtimg.cn hq.sinajs.cn; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' push2.eastmoney.com;">
 <link rel="icon" href="data:,">
 <title>A股交易纪律工作台</title>
 <style>
@@ -247,6 +247,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .quickrow .hint{font-size:12px;color:var(--text-3);}
 .quickrow .hint.q-ok{color:var(--down);}
 .quickrow .hint.q-warn{color:var(--warn);}
+.quickrow .hint.q-stale{color:var(--text-3);font-style:italic;}
 .lockrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;}
 .lockrow .tiny{width:52px;height:28px;padding:0 4px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--text);font-size:12.5px;font-weight:600;text-align:center;font-family:inherit;}
 .lockrow .tiny:focus{outline:2px solid var(--primary-soft);border-color:var(--primary);}
@@ -974,10 +975,21 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
           <h2>更新日志</h2>
           <span class="spacer"></span>
-          <span class="hint">当前版本 1.2.0 · 覆盖发布，链接不变</span>
+          <span class="hint">当前版本 1.3.0 · 覆盖发布，链接不变</span>
         </div>
         <p>页面采用三段式版本号 <code>1.x.y</code>：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本都覆盖发布到同一个在线地址，收藏一个链接即可，无需重新分享。下面按版本从新到旧记录改了什么、修了什么。</p>
         <div class="tl">
+          <div class="tlitem">
+            <h3><span class="ver">1.3.0</span>行情源三路轮询 + 港股支持<span class="tlmeta">2026-09-12</span></h3>
+            <ul>
+              <li><b>三路 race 编排器</b>：请求实时报价时同时打腾讯 / 新浪 / 东财三个源，<b>谁先返有效报价就用谁的</b>，其余被忽略。腾讯 GBK 编码问题（如 STAR/北交所）经常导致解析失败，新浪 UTF-8 / 不同域名走另一条网络路径可作兜底；东财 CORS fetch 提供第三道防线。同一接口可同时覆盖 A 股 / ETF / 港股</li>
+              <li><b>localStorage 持久缓存</b>：报价写入 <code>wb_astock_quote_cache</code>（内存 + LS 双写）。fresh TTL 5 分钟（直接返回不重拉）、stale TTL 24 小时（三路全失败时降级返回，UI 标「报价可能过期」）。刷新页面 / 切 tab / 重开浏览器都先看到上次报价，不会一片空白</li>
+              <li><b>港股支持</b>：代码识别扩展为 <code>hk00700</code> 或纯 5 位数字（00700 → hk00700）。腾讯 / 新浪都用 <code>rt_hk</code> 前缀请求；东财 <code>secid=116.{code}</code> 路径不稳定，港股编排器只走腾讯 + 新浪两路。<code>instrumentOf</code> 识别港股：T+0、HKD 两位小数、无涨跌幅限制、1 手兜底 100 股</li>
+              <li>CSP <code>script-src</code> 加 <code>hq.sinajs.cn</code>；<code>connect-src</code> 加 <code>push2.eastmoney.com</code></li>
+              <li>「一键刷新全仓现价」改成每只走 race 编排器，结果先缓存再回写台账；并发上限 6，避免一次推给三个源太多请求触发东财节流</li>
+              <li>取价提示在 stale 时追加「三个源都不可达，用的是缓存旧价」，斜体灰色以与正常报价区分</li>
+            </ul>
+          </div>
           <div class="tlitem">
             <h3><span class="ver">1.2.0</span>纯本机存储<span class="tlmeta">2026-09-11</span></h3>
             <ul>
@@ -1067,7 +1079,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             <tr><td>图标与图表</td><td>全部为内联 SVG 手写，未使用任何图标字体或 emoji</td></tr>
             <tr><td>数据存储</td><td>纯本机 localStorage：持仓台账（<code>wb_astock_local_pos</code>）、交易日志（<code>wb_astock_local_log</code>），加上风控参数 / 巡检日期 / 表单草稿共 6 个 key。无云端依赖、无 401 风险</td></tr>
             <tr><td>数据同步</td><td>无。同一浏览器内多标签页实时共享 localStorage；跨设备 / 跨浏览器通过顶部的「导出备份 / 导入恢复」手动同步（JSON 快照，无条数上限）</td></tr>
-            <tr><td>行情来源</td><td>腾讯（主通道）、东方财富（备用通道），均为公开行情接口</td></tr>
+            <tr><td>行情来源</td><td>腾讯 / 新浪 / 东方财富三路 race（谁先返有效用谁）；A 股与 ETF 三路全打通，港股走腾讯 + 新浪；localStorage 5 分钟 fresh、24 小时 stale 兜底</td></tr>
             <tr><td>备份方式</td><td>顶部「导出备份」得到 JSON 快照；「导入恢复」可还原，导入不设条数上限</td></tr>
             <tr><td>上线验证</td><td>每次改动均通过六道门禁：语法检查、纯逻辑单测、浏览器端到端、资料库两道规则检查、外链与 emoji 自检</td></tr>
           </tbody>
@@ -1800,17 +1812,42 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
    *      行情不可达时自动降级为手动填写当前价，页面其余功能不受影响。
    * ============================================================ */
   var QUOTE_SRC_TENCENT = 'https://qt.gtimg.cn/q=';
+  var QUOTE_SRC_SINA = 'https://hq.sinajs.cn/list=';
   var QUOTE_SRC_EM = 'https://push2.eastmoney.com/api/qt/stock/get';
-  var QUOTE_TTL = 60000;
+  /* 内存缓存：5 分钟内视为 fresh；超 24 小时直接丢弃。
+     localStorage 持久化同一份，使刷新页面 / 切 tab 后不必重新拉。 */
+  var QUOTE_TTL_FRESH = 5 * 60 * 1000;
+  var QUOTE_TTL_STALE = 24 * 60 * 60 * 1000;
+  var LS_QUOTE_CACHE = 'wb_astock_quote_cache';
+  /* 旧版兼容：以前用 QUOTE_TTL=60000 单一常量；现在 fresh / stale 分两层 */
+  var QUOTE_TTL = QUOTE_TTL_FRESH;
   var quoteCache = {};
+  loadQuoteCacheFromLS();
 
+  /* 把用户输入归一到标准代码：
+     · A 股：纯 6 位数字（如 600519、920xxx）
+     · 港股：hk 前缀 5 位数字（hk00700）或纯 0 开头 5 位数字（00700 → hk00700）
+       —— 港股代码 5 位是港交所惯例，最右边的 0 不可省略。 */
   function normCode(v) {
-    return String(v === null || v === undefined ? '' : v).replace(/\D/g, '').slice(0, 6);
+    var raw = String(v === null || v === undefined ? '' : v).trim();
+    if (!raw) { return ''; }
+    var lower = raw.toLowerCase();
+    if (lower.indexOf('hk') === 0) {
+      var tail = raw.slice(2).replace(/\D/g, '');
+      return 'hk' + tail.slice(0, 5).padStart(5, '0');
+    }
+    var digits = raw.replace(/\D/g, '');
+    /* 纯 5 位且首位 0 → 视作港股（避免与 A 股 6 位 0xxxxx 冲突） */
+    if (digits.length === 5 && digits.charAt(0) === '0') {
+      return 'hk' + digits;
+    }
+    return digits.slice(0, 6);
   }
 
-  /* 6 位代码 → 交易所前缀：sh 沪市 / sz 深市 / bj 北交所 */
+  /* 6 位代码 → 交易所前缀：sh 沪市 / sz 深市 / bj 北交所 / hk 港交所 */
   function marketPrefix(code) {
     var c = normCode(code);
+    if (c.indexOf('hk') === 0 && c.length === 7) { return 'hk'; }
     if (c.length !== 6) { return ''; }
     var h1 = c.charAt(0), h2 = c.slice(0, 2);
     if (c.slice(0, 3) === '920') { return 'bj'; }
@@ -1823,10 +1860,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     return '';
   }
 
+  /* 东财 secid：A 股 1./0.；港股 116. */
   function secidOf(code) {
     var p = marketPrefix(code);
     if (!p) { return ''; }
-    return (p === 'sh' ? '1.' : '0.') + normCode(code);
+    var digits = normCode(code).replace(/^hk/, '');
+    if (p === 'hk') { return '116.' + digits; }
+    return (p === 'sh' ? '1.' : '0.') + digits;
   }
 
   /* ---------- 标的识别：类型 / T+0 或 T+1 / 最小变动单位 / 涨跌幅限制 ----------
@@ -1844,6 +1884,15 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     if (c.length !== 6) { return it; }
 
     var h1 = c.charAt(0), h2 = c.slice(0, 2), h3 = c.slice(0, 3);
+
+    /* 港股：T+0（与 A 股 ETF 同样当日可买卖），HKD 两位小数，无 10% 涨跌停限制。
+       港股 1 手由发行人决定（每只不同，常见 100 / 200 / 500 / 1000 股），
+       这里保守按 100 股兜底。*/
+    if (c.indexOf('hk') === 0) {
+      it.kind = '港股'; it.short = '港股'; it.t0 = true; it.tick = 0.01;
+      it.limit = 0; it.limitText = '无涨跌幅限制'; it.lot = 100; it.unit = '股';
+      return it;
+    }
 
     /* 可转债 / 债券：T+0，最小变动 0.001 元，1 手 = 10 张 */
     if (h2 === '11' || h2 === '12' || h2 === '13') {
@@ -1936,13 +1985,45 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     };
   }
 
+  /* localStorage 持久缓存：内存 + LS 双写。
+     - cacheQuote：写入内存 + 异步 LS（避免阻塞）
+     - cachedQuote：返回 { quote, fresh, cachedAt }；fresh=false 但未超 stale 仍可用作兜底
+     - loadQuoteCacheFromLS：启动时一次读入，过期清理 */
+  function loadQuoteCacheFromLS() {
+    try {
+      var data = readJSON(LS_QUOTE_CACHE);
+      if (!data || typeof data !== 'object') { return; }
+      var now = Date.now();
+      Object.keys(data).forEach(function (code) {
+        var e = data[code];
+        if (!e || typeof e.at !== 'number' || typeof e.quote !== 'object') { return; }
+        if (now - e.at > QUOTE_TTL_STALE) { return; } /* 过期丢弃 */
+        quoteCache[code] = e;
+      });
+    } catch (e) { /* LS 损坏时静默降级到内存缓存 */ }
+  }
+  function persistQuoteCache() {
+    try {
+      var data = {}, now = Date.now();
+      Object.keys(quoteCache).forEach(function (code) {
+        var e = quoteCache[code];
+        if (now - e.at <= QUOTE_TTL_STALE) { data[code] = e; }
+      });
+      writeJSON(LS_QUOTE_CACHE, data);
+    } catch (e) { /* 写入失败不影响本次 */ }
+  }
   function cacheQuote(q) {
-    if (q && q.code) { quoteCache[q.code] = { at: Date.now(), quote: q }; }
+    if (!q || !q.code) { return; }
+    quoteCache[q.code] = { at: Date.now(), quote: q };
+    persistQuoteCache();
   }
   function cachedQuote(code) {
-    var c = quoteCache[normCode(code)];
-    if (c && (Date.now() - c.at) < QUOTE_TTL) { return c.quote; }
-    return null;
+    var c = normCode(code);
+    var e = quoteCache[c];
+    if (!e) { return null; }
+    var age = Date.now() - e.at;
+    if (age > QUOTE_TTL_STALE) { return null; }
+    return { quote: e.quote, fresh: age < QUOTE_TTL_FRESH, cachedAt: e.at, age: age };
   }
 
   /* 主通道：腾讯行情，script 标签 JSONP 绕开跨域；一次请求可传多只。
@@ -1955,9 +2036,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     if (!reqs || !reqs.length) { cb(new Error('没有可查询的代码')); return; }
     var query = [], names = [], i;
     for (i = 0; i < reqs.length; i++) {
-      query.push(reqs[i].prefix + reqs[i].code);
-      names.push('v_' + reqs[i].prefix + reqs[i].code);
+      var p = sourcePrefix('tencent', reqs[i].code);
+      if (!p) { continue; }
+      query.push(p + reqs[i].code);
+      names.push('v_' + p + reqs[i].code);
     }
+    if (!query.length) { cb(new Error('没有可查询的代码')); return; }
     for (i = 0; i < names.length; i++) { try { delete window[names[i]]; } catch (e) { /* noop */ } }
     var done = false;
     var timer = null;
@@ -1995,6 +2079,99 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     document.head.appendChild(script);
   }
 
+  /* 不同数据源对同一市场的「行情前缀」不同：
+     · A 股：腾讯 sh/sz/bj；新浪 sh/sz/bj
+     · 港股：腾讯 rt_hk；新浪 rt_hk（A 股用 hk 前缀也认，但 rt_hk 更标准）
+     返回空串 = 不支持 */
+  function sourcePrefix(source, code) {
+    var p = marketPrefix(code);
+    if (!p) { return ''; }
+    if (p === 'hk') { return 'rt_hk'; }
+    return p;
+  }
+
+  /* 新浪行情报文解析：hq_str_sh600519="贵州茅台,1890.00,1880.00,1895.00,1885.00,1892.00,12.00,0.64,..."
+     字段顺序（新浪 A 股 / 港股一致）：0 name | 1 open | 2 prev_close | 3 price
+       | 4 high | 5 low | 6 change_amt | 7 change_pct | 8 bid | 9 ask
+       | 10 vol | 11 amount | ... | 倒数第2 date | 末尾 time */
+  function parseSinaQuote(raw, code) {
+    if (!raw) { return null; }
+    var parts = String(raw).split(',');
+    if (parts.length < 8) { return null; }
+    var price = num(parts[3]);
+    if (!(price > 0)) { return null; }
+    var name = String(parts[0] || '').replace(/\s+/g, '');
+    var reliable = name.length > 0 && name.indexOf('�') === -1;
+    var timeStr = '';
+    if (parts.length >= 32) { timeStr = String(parts[parts.length - 1] || '') + ' ' + String(parts[parts.length - 2] || ''); }
+    return {
+      code: normCode(code),
+      name: reliable ? name : '',
+      nameReliable: reliable,
+      price: price,
+      prevClose: num(parts[2]),
+      open: num(parts[1]),
+      high: num(parts[4]),
+      low: num(parts[5]),
+      change: num(parts[6]),
+      changePct: num(parts[7]),
+      time: timeStr.trim()
+    };
+  }
+
+  /* 新浪主通道：script JSONP 绕开跨域；与腾讯类似防 window 全局污染。
+     同样支持 rt_hk 港股前缀。注意新浪部分接口对 Referer 敏感，
+     浏览器自动设置当前页 URL 作为 Referer；file:// 协议下可能失败，
+     由 orchestrator 的 stale fallback 兜底。 */
+  function fetchQuotesSina(reqs, cb) {
+    if (!reqs || !reqs.length) { cb(new Error('没有可查询的代码')); return; }
+    var list = [], names = [], i;
+    for (i = 0; i < reqs.length; i++) {
+      var p = sourcePrefix('sina', reqs[i].code);
+      if (!p) { continue; }
+      list.push(p + reqs[i].code);
+      names.push('hq_str_' + p + reqs[i].code);
+    }
+    if (!list.length) { cb(new Error('没有可查询的代码')); return; }
+    for (i = 0; i < names.length; i++) { try { delete window[names[i]]; } catch (e) { /* noop */ } }
+    var done = false;
+    var timer = null;
+    var script = document.createElement('script');
+    function cleanup() {
+      if (timer) { clearTimeout(timer); }
+      if (script && script.parentNode) { script.parentNode.removeChild(script); }
+      for (var k = 0; k < names.length; k++) { try { delete window[names[k]]; } catch (e) { /* noop */ } }
+    }
+    timer = setTimeout(function () {
+      if (done) { return; }
+      done = true; cleanup(); cb(new Error('行情请求超时'));
+    }, 6000);
+    script.setAttribute('charset', 'gbk');
+    script.onerror = function () {
+      if (done) { return; }
+      done = true; cleanup(); cb(new Error('行情源不可达'));
+    };
+    script.onload = function () {
+      if (done) { return; }
+      done = true;
+      var out = {}, any = false;
+      for (var k = 0; k < reqs.length; k++) {
+        var p = sourcePrefix('sina', reqs[k].code);
+        if (!p) { continue; }
+        var raw = '';
+        try { raw = window['hq_str_' + p + reqs[k].code]; } catch (e) { raw = ''; }
+        var q = parseSinaQuote(raw, reqs[k].code);
+        try { delete window['hq_str_' + p + reqs[k].code]; } catch (e) { /* noop */ }
+        if (q) { q.code = reqs[k].code; out[reqs[k].code] = q; any = true; }
+      }
+      cleanup();
+      if (!any) { cb(new Error('未取到有效报价')); return; }
+      cb(null, out);
+    };
+    script.src = QUOTE_SRC_SINA + list.join(',') + '&r=' + Date.now();
+    document.head.appendChild(script);
+  }
+
   /* 备通道：东方财富（UTF-8 + CORS），一次只查一只 */
   function fetchQuoteEm(code, cb) {
     var secid = secidOf(code);
@@ -2020,20 +2197,60 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       });
   }
 
-  /* 统一入口：缓存 → 主通道 → 备通道；force=true 时跳过缓存强制取价 */
+  /* 统一入口（1.3.0 三路 race 编排器）：
+     ① 缓存 fresh → 直接返回
+     ② 缓存 stale 但 force=false → 异步继续刷；同步先返回 stale
+     ③ 否则并发三个源，谁先返有效用谁；其余被 settled 标记忽略
+     ④ 三路全失败 → 返回 stale（若有），否则报「行情源不可达」
+     cb 签名：cb(err, quote, cached, stale) — cached=true 表示来自缓存；stale=true 表示 stale 兜底 */
   function requestQuote(code, cb, force) {
     var c = normCode(code);
-    if (c.length !== 6 || !marketPrefix(c)) { cb(new Error('请输入 6 位股票代码')); return; }
+    if (!c || !marketPrefix(c)) { cb(new Error('请输入正确的股票代码（A 股 6 位 / 港股 hk00700）')); return; }
     if (!force) {
       var hit = cachedQuote(c);
-      if (hit) { cb(null, hit, true); return; }
+      if (hit) {
+        if (hit.fresh) { cb(null, hit.quote, true, false); return; }
+        /* stale：先返回旧值让 UI 不空着，同时后台继续尝试刷新 */
+        cb(null, hit.quote, true, true);
+        force = true; /* 后台刷新走 fresh 路径（不递归触发 stale） */
+      }
     }
-    fetchQuotesTencent([{ prefix: marketPrefix(c), code: c }], function (err, map) {
-      if (!err && map && map[c]) { cacheQuote(map[c]); cb(null, map[c], false); return; }
-      fetchQuoteEm(c, function (err2, q) {
-        if (!err2 && q) { cacheQuote(q); cb(null, q, false); return; }
-        cb(err2 || err || new Error('行情源不可达'));
-      });
+    var isHK = (c.indexOf('hk') === 0);
+    var sources = isHK ? ['tencent', 'sina'] : ['tencent', 'sina', 'em'];
+    var settled = false, pending = sources.length, lastErr = null;
+    function commit(q, fromCache, stale) {
+      if (settled) { return; }
+      settled = true;
+      cacheQuote(q);
+      cb(null, q, fromCache, !!stale);
+    }
+    function failOne(err) {
+      if (settled) { return; }
+      lastErr = err;
+      pending--;
+      if (pending > 0) { return; }
+      /* 三路全失败：尝试 stale 兜底 */
+      var st = cachedQuote(c);
+      if (st) { commit(st.quote, true, true); return; }
+      cb(lastErr || new Error('行情源不可达'));
+    }
+    sources.forEach(function (kind) {
+      if (kind === 'tencent') {
+        fetchQuotesTencent([{ code: c }], function (err, map) {
+          if (err || !map || !map[c]) { failOne(err || new Error('tencent')); return; }
+          commit(map[c], false, false);
+        });
+      } else if (kind === 'sina') {
+        fetchQuotesSina([{ code: c }], function (err, map) {
+          if (err || !map || !map[c]) { failOne(err || new Error('sina')); return; }
+          commit(map[c], false, false);
+        });
+      } else if (kind === 'em') {
+        fetchQuoteEm(c, function (err, q) {
+          if (err || !q) { failOne(err || new Error('em')); return; }
+          commit(q, false, false);
+        });
+      }
     });
   }
 
@@ -2133,7 +2350,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function renderInstrument(it, targetId) {
     var box = $('#' + (targetId || 'instRow'));
     if (!box) { return; }
-    if (!it || !it.code || it.code.length !== 6) {
+    if (!it || !it.code || (it.code.length !== 6 && !(it.code.indexOf('hk') === 0 && it.code.length === 7))) {
       box.innerHTML = '<span class="hint">输入代码后，这里会显示标的类型与交易机制</span>';
       return;
     }
@@ -2172,8 +2389,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     var f = $('#riskForm');
     if (!f) { return; }
     var code = normCode(f.querySelector('[name="riskCode"]').value);
-    /* 代码够 6 位就先按代码识别标的类型，标签与价格小数位立刻跟上，不用等行情 */
-    if (code.length === 6) {
+    /* A 股 6 位 / 港股 7 位（含 hk 前缀）才识别标的类型 */
+    var codeLen = code.indexOf('hk') === 0 ? 7 : 6;
+    if (code.length === codeLen && marketPrefix(code)) {
       var it = instrumentOf(code, f.querySelector('[name="riskName"]').value);
       state.instrument = it;
       syncPriceDec();
@@ -2184,8 +2402,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       syncPriceDec();
       renderInstrument(null);
     }
-    if (code.length !== 6) {
-      setQuoteTip(code.length ? '还需 ' + (6 - code.length) + ' 位数字' : '等待输入股票代码', '');
+    if (code.length !== codeLen) {
+      var need = codeLen - code.length;
+      setQuoteTip(need > 0 ? '还需 ' + need + ' 位' + (code.indexOf('hk') === 0 ? '（港股 5 位）' : '数字') : '等待输入股票代码', '');
       return;
     }
     if (!marketPrefix(code)) { setQuoteTip('无法识别 ' + code + ' 属于哪个市场，请核对代码', 'warn'); return; }
@@ -2249,8 +2468,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     if (n) { n.removeAttribute('data-touched'); }
     renderInstrument(manualInstrument(), 'manualInstRow');
     var code = normCode(c.value);
-    if (code.length !== 6) {
-      setManualTip(code.length ? '还需 ' + (6 - code.length) + ' 位数字' : '等待输入股票代码', '');
+    var codeLen = code.indexOf('hk') === 0 ? 7 : 6;
+    if (code.length !== codeLen) {
+      var need = codeLen - code.length;
+      setManualTip(need > 0 ? '还需 ' + need + ' 位' + (code.indexOf('hk') === 0 ? '（港股 5 位）' : '数字') : '等待输入股票代码', '');
       return;
     }
     if (!marketPrefix(code)) { setManualTip('无法识别 ' + code + ' 属于哪个市场，请核对代码', 'warn'); return; }
@@ -2286,7 +2507,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     var codeEl = manualEl('mCode');
     if (!codeEl) { return; }
     var code = normCode(codeEl.value);
-    if (code.length !== 6) { toast('请输入 6 位股票代码'); codeEl.focus(); return; }
+    if (code.length !== 6 && !(code.indexOf('hk') === 0 && code.length === 7)) { toast('请输入 6 位 A 股代码或 hk00700 港股代码'); codeEl.focus(); return; }
     if (!marketPrefix(code)) { toast('无法识别 ' + code + ' 属于哪个市场'); return; }
 
     var sharesEl = manualEl('mShares');
@@ -2371,7 +2592,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     var c = normCode(code);
     var seq = ++quoteSeq;
     setQuoteTip('正在获取 ' + c + ' 行情…', '');
-    requestQuote(c, function (err, q) {
+    requestQuote(c, function (err, q, cached, stale) {
       if (seq !== quoteSeq) { return; } /* 已有更新的请求，丢弃本次结果 */
       if (err || !q) {
         setQuoteTip('行情源不可达，请在「当前价」手动填一个价格，其余仍会自动算', 'warn');
@@ -2384,6 +2605,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         return;
       }
       applyQuoteToForm(q);
+      /* stale 兜底：在已取价提示后追加「报价可能过期」标记 */
+      if (stale) {
+        var tip = $('#quoteTip');
+        if (tip) { tip.textContent = tip.textContent + '（三个源都不可达，用的是缓存旧价）'; tip.classList.add('q-stale'); }
+      }
     }, force === true);
   }
 
@@ -2391,55 +2617,63 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function onRefreshAllPrices(btn) {
     var list = activePositions();
     if (!list.length) { toast('暂无在持标的'); return; }
-    var reqs = [], seen = {}, i;
+    var seen = {}, codes = [], i;
     for (i = 0; i < list.length; i++) {
-      var pfx = marketPrefix(list[i]['股票代码']);
       var cd = normCode(list[i]['股票代码']);
-      if (!pfx || seen[cd]) { continue; } /* 同一代码只查一次 */
+      if (!marketPrefix(cd) || seen[cd]) { continue; }
       seen[cd] = 1;
-      reqs.push({ prefix: pfx, code: cd });
+      codes.push(cd);
     }
-    if (!reqs.length) { toast('持仓代码格式不正确，无法取价'); return; }
+    if (!codes.length) { toast('持仓代码格式不正确，无法取价'); return; }
     if (btn) { btn.disabled = true; }
-    fetchQuotesTencent(reqs, function (err, map) {
-      if (err || !map) {
-        toast('行情源不可达，请在持仓卡片里手动更新现价');
-        if (btn) { btn.disabled = false; }
-        return;
-      }
-      var tasks = [], hit = 0;
-      for (i = 0; i < list.length; i++) {
-        var code = normCode(list[i]['股票代码']);
-        var q = map[code];
-        if (!q) { continue; }
-        hit++;
-        cacheQuote(q);
-        (function (id, price, name) {
-          tasks.push(function () {
-            var properties = {};
-            properties['现价'] = { number: price };
-            properties['巡检日期'] = { date: todayStr() };
-            if (name) { properties['股票名称'] = { text: name }; }
-            return updatePosition(id, properties);
+    /* 每只走 requestQuote（缓存 + 三路 race + stale 兜底），结果先缓存再回写台账。
+       并发上限 6：超过就串行，避免一次给三个源推太多。 */
+    var tasks = [], hit = 0, staleHit = 0, total = codes.length;
+    function refreshOne(code) {
+      return new Promise(function (resolve) {
+        requestQuote(code, function (err, q, cached, stale) {
+          if (err || !q) { resolve(); return; }
+          hit++;
+          if (stale) { staleHit++; }
+          cacheQuote(q);
+          /* 找出所有用这个 code 的持仓行，每条都更新现价 */
+          var matched = [];
+          for (var j = 0; j < list.length; j++) {
+            if (normCode(list[j]['股票代码']) === code) { matched.push(list[j]); }
+          }
+          var writes = matched.map(function (p) {
+            return function () {
+              var properties = {};
+              properties['现价'] = { number: q.price };
+              properties['巡检日期'] = { date: todayStr() };
+              if (q.name) { properties['股票名称'] = { text: q.name }; }
+              return updatePosition(p._id, properties);
+            };
           });
-        })(list[i]._id, q.price, q.name);
-      }
-      if (!hit) {
-        toast('未取到任何有效报价，请检查代码或手动更新');
-        if (btn) { btn.disabled = false; }
-        return;
-      }
-      runSequential(tasks, 0).then(function () {
-        state.lastPatrol = todayStr(); savePatrol();
-        return reloadData();
-      }).then(function () {
-        refreshAll();
-        toast('已刷新 ' + hit + ' 只标的现价' + (hit < list.length ? '，' + (list.length - hit) + ' 只未取到' : ''));
-      }).catch(function (e) {
-        console.error('[localStorage] 现价写回失败:', e);
-        toast('现价写回失败，请重试');
-      }).then(function () { if (btn) { btn.disabled = false; } });
-    });
+          runSequential(writes, 0).then(resolve, resolve);
+        }, true);
+      });
+    }
+    function runLimited(idx) {
+      if (idx >= codes.length) { return Promise.all(tasks); }
+      var batch = codes.slice(idx, idx + 6);
+      var ps = batch.map(function (cd) { tasks.push(refreshOne(cd)); return Promise.resolve(); });
+      return Promise.all(ps).then(function () { return runLimited(idx + 6); });
+    }
+    runLimited(0).then(function () {
+      state.lastPatrol = todayStr(); savePatrol();
+      return reloadData();
+    }).then(function () {
+      refreshAll();
+      if (btn) { btn.disabled = false; }
+      var tail = staleHit > 0 ? '（其中 ' + staleHit + ' 只用的是缓存旧价）' : '';
+      if (hit === 0) { toast('行情源全部不可达，请在卡片里手动更新现价'); return; }
+      toast('已刷新 ' + hit + ' / ' + total + ' 只标的现价' + tail +
+        (hit < total ? '，未取到的 ' + (total - hit) + ' 只可在卡片里手动填' : ''));
+    }).catch(function (e) {
+      console.error('[localStorage] 现价写回失败:', e);
+      toast('现价写回失败，请重试');
+    }).then(function () { if (btn) { btn.disabled = false; } });
   }
 
   /* ============================================================
@@ -3027,7 +3261,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     }
     if (!target) { toast('未找到该持仓记录'); return; }
     var code = normCode(target['股票代码']);
-    if (code.length !== 6 || !marketPrefix(code)) { toast('该持仓代码格式不正确，无法取价'); return; }
+    if ((code.length !== 6 && !(code.indexOf('hk') === 0 && code.length === 7)) || !marketPrefix(code)) { toast('该持仓代码格式不正确（A股 6 位 / 港股 hk00700），无法取价'); return; }
     if (btn) { btn.disabled = true; }
     var card = closestClass(btn, 'pcard');
     if (card) {
@@ -3351,7 +3585,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       rf.addEventListener('submit', function (e) {
         e.preventDefault();
         var code = normCode(codeEl && codeEl.value);
-        if (code.length !== 6) { toast('请输入 6 位股票代码'); if (codeEl) { codeEl.focus(); } return; }
+        if (code.length !== 6 && !(code.indexOf('hk') === 0 && code.length === 7)) { toast('请输入 6 位 A 股代码或 hk00700 港股代码'); if (codeEl) { codeEl.focus(); } return; }
         if (!marketPrefix(code)) { toast('无法识别 ' + code + ' 属于哪个市场，请核对代码'); return; }
         recalcRisk('pct');
         loadQuote(code, true); /* 强制取最新价 */
