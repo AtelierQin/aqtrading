@@ -126,6 +126,9 @@ svg{display:block;}
 button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--primary);outline-offset:2px;box-shadow:0 0 0 3px rgba(31,75,216,.35);}
 /* a11y: 当 <label> 包住 <input>/<select>/<textarea> 时（去掉 for/id 重写），输入元素须块级显示，避免与 label 文字挤在同一行 */
 .field label>input,.field label>select,.field label>textarea{display:block;margin-top:5px;}
+
+/* 显示切换 utility class —— 替代 inline style="display:none" 与 .style.display 赋值 */
+.hidden{display:none!important;}
 .field .tip{font-size:11px;color:var(--text-3);}
 
 .stat{background:var(--gray-soft);border-radius:12px;padding:11px 12px;}
@@ -356,7 +359,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       </div>
       <div class="spacer"></div>
       <span class="badge off" id="syncBadge"><span class="dot"></span><span id="syncText">连接中</span></span>
-      <span class="pendingchip" id="pendingWrap" style="display:none">
+      <span class="pendingchip hidden" id="pendingWrap">
         <svg class="ico" viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v3"/><path d="M12 18v3"/><path d="M3 12h3"/><path d="M18 12h3"/><circle cx="12" cy="12" r="4"/></svg>
         <span id="pendingText"></span>
         <button type="button" class="btn xs" id="btnSyncLocal">同步本机数据</button>
@@ -369,7 +372,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M5 21h14"/></svg>
         导入恢复
       </button>
-      <input type="file" id="fileRestore" accept="application/json,.json" style="display:none">
+      <input type="file" id="fileRestore" accept="application/json,.json" class="hidden">
     </div>
 
     <!-- ============ 今天要处理 ============ -->
@@ -537,7 +540,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             手工录入
           </button>
         </div>
-        <form id="manualForm" autocomplete="off" style="display:none">
+        <form id="manualForm" autocomplete="off" class="hidden">
           <div class="grid4">
             <div class="field">
               <label>股票代码 <span class="req">必填</span>
@@ -1094,8 +1097,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <span class="name" data-field="股票名称">--</span>
       <span class="tag gray" data-status>--</span>
       <span class="spacer"></span>
-      <span class="tag gray" data-stale style="display:none">待巡检</span>
-      <span class="tag warn" data-local style="display:none">本机待同步</span>
+      <span class="tag gray hidden" data-stale>待巡检</span>
+      <span class="tag warn hidden" data-local>本机待同步</span>
     </div>
     <div class="metrics">
       <div class="metric"><div class="k">现价 / 成本</div><div class="v" data-calc="price">--</div></div>
@@ -1219,6 +1222,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function $(sel) { return document.querySelector(sel); }
   function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
   function setText(id, txt) { var el = document.getElementById(id); if (el) { el.textContent = txt; } }
+  function setHidden(el, bool) { if (!el) { return; } el.classList.toggle('hidden', !!bool); }
 
   var toastTimer = null;
   function toast(msg) {
@@ -2060,7 +2064,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function openManualForm() {
     var f = $('#manualForm');
     if (!f) { return; }
-    f.style.display = '';
+    f.classList.remove('hidden');
     var d = manualEl('mBuyDate');
     if (d && !d.value) { d.value = todayStr(); }
     renderInstrument(manualInstrument(), 'manualInstRow');
@@ -2069,7 +2073,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   }
   function collapseManualForm() {
     var f = $('#manualForm');
-    if (f) { f.style.display = 'none'; }
+    if (f) { f.classList.add('hidden'); }
   }
   function resetManualForm() {
     var names = ['mCode', 'mName', 'mShares', 'mCost', 'mLast', 'mStop', 'mTarget', 'mNote'];
@@ -2536,7 +2540,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function updatePendingUI() {
     var n = pendingLocalCount();
     var wrap = $('#pendingWrap');
-    if (wrap) { wrap.style.display = n > 0 ? '' : 'none'; }
+    if (wrap) { wrap.classList.toggle('hidden', n === 0); }
     setText('pendingText', n > 0 ? ('本机暂存 ' + n + ' 条待同步') : '');
   }
 
@@ -2680,8 +2684,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       var stTag = node.querySelector('[data-status]');
       stTag.textContent = a.label;
       stTag.className = 'tag ' + (LEVEL_TO_TAG[a.level] || 'gray');
-      if (a.stale) { node.querySelector('[data-stale]').style.display = ''; }
-      if (a.local) { node.querySelector('[data-local]').style.display = ''; }
+      if (a.stale) { node.querySelector('[data-stale]').classList.remove('hidden'); }
+      if (a.local) { node.querySelector('[data-local]').classList.remove('hidden'); }
       node.querySelector('[data-calc="price"]').textContent = fmtByTick(a.price, a.tick) + ' / ' + fmtByTick(a.cost, a.tick);
       var pnlEl2 = node.querySelector('[data-calc="pnl"]');
       pnlEl2.textContent = fmtMoney(a.pnl) + ' (' + fmtPct(a.pnlRate) + ')';
@@ -2696,7 +2700,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       node.querySelector('[data-lastpatrol]').textContent = a.lastPatrol ? '上次巡检 ' + a.lastPatrol : '未登记巡检';
       var msg = node.querySelector('[data-msg]');
       if (a.reasons.length) {
-        msg.style.display = '';
+        msg.classList.remove('hidden');
         msg.className = 'notice ' + (LEVEL_TO_NOTICE[a.level] || 'yellow');
         msg.textContent = a.reasons.join(' ') + ' 建议：' + a.action;
       }
