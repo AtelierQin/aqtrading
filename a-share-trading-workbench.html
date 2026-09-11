@@ -2626,17 +2626,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     }
     if (!codes.length) { toast('持仓代码格式不正确，无法取价'); return; }
     if (btn) { btn.disabled = true; }
-    /* 每只走 requestQuote（缓存 + 三路 race + stale 兜底），结果先缓存再回写台账。
-       并发上限 6：超过就串行，避免一次给三个源推太多。 */
-    var tasks = [], hit = 0, staleHit = 0, total = codes.length;
+    /* 每只走 requestQuote（缓存 + 三路 race + stale 兜底，force=true 跳过 fresh 缓存）。
+       单一 Promise.all 即可 —— requestQuote 内部已是三路 race，不用再加限流。
+       每只解析后：找到对应持仓行 → 串行 updatePosition 写回现价/巡检日/名称。 */
+    var hits = [], staleHit = 0, total = codes.length;
     function refreshOne(code) {
       return new Promise(function (resolve) {
         requestQuote(code, function (err, q, cached, stale) {
           if (err || !q) { resolve(); return; }
-          hit++;
+          hits.push({ code: code, quote: q, stale: !!stale });
           if (stale) { staleHit++; }
-          cacheQuote(q);
-          /* 找出所有用这个 code 的持仓行，每条都更新现价 */
           var matched = [];
           for (var j = 0; j < list.length; j++) {
             if (normCode(list[j]['股票代码']) === code) { matched.push(list[j]); }
@@ -2654,18 +2653,14 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         }, true);
       });
     }
-    function runLimited(idx) {
-      if (idx >= codes.length) { return Promise.all(tasks); }
-      var batch = codes.slice(idx, idx + 6);
-      var ps = batch.map(function (cd) { tasks.push(refreshOne(cd)); return Promise.resolve(); });
-      return Promise.all(ps).then(function () { return runLimited(idx + 6); });
-    }
-    runLimited(0).then(function () {
+    Promise.all(codes.map(refreshOne)).then(function () {
+      if (hits.length === 0) { return null; }
       state.lastPatrol = todayStr(); savePatrol();
       return reloadData();
     }).then(function () {
       refreshAll();
       if (btn) { btn.disabled = false; }
+      var hit = hits.length;
       var tail = staleHit > 0 ? '（其中 ' + staleHit + ' 只用的是缓存旧价）' : '';
       if (hit === 0) { toast('行情源全部不可达，请在卡片里手动更新现价'); return; }
       toast('已刷新 ' + hit + ' / ' + total + ' 只标的现价' + tail +
