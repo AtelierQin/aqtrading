@@ -1126,8 +1126,8 @@ svg{display:block;}
   /* ============================================================
    * 0. 常量与工具
    * ============================================================ */
-  var POS_DB_ID = '9lETwrJdhMy10JAoJ8vqnD';
-  var LOG_DB_ID = 'd96S6pyZZBxZ3nBJj1oyO0';
+  var POS_DB_ID = '9lETwrJdhMy10JAoJ8vqnD'; // use this constant instead of the literal in JS
+  var LOG_DB_ID = 'd96S6pyZZBxZ3nBJj1oyO0'; // use this constant instead of the literal in JS
   var LS_PARAMS = 'wb_astock_risk_params';
   var LS_PATROL = 'wb_astock_last_patrol';
   var LS_DRAFT = 'wb_astock_draft_log';
@@ -2277,7 +2277,7 @@ svg{display:block;}
         guard++;
         if (guard > 20) { done(); return; }
         db.query({
-          databaseId: '9lETwrJdhMy10JAoJ8vqnD',
+          databaseId: POS_DB_ID,
           sorts: [{ property: '买入日期', direction: 'descending' }],
           pageSize: 200,
           startCursor: cursor
@@ -2306,7 +2306,7 @@ svg{display:block;}
         guard++;
         if (guard > 20) { done(); return; }
         db.query({
-          databaseId: 'd96S6pyZZBxZ3nBJj1oyO0',
+          databaseId: LOG_DB_ID,
           sorts: [{ property: '交易日期', direction: 'descending' }],
           pageSize: 200,
           startCursor: cursor
@@ -2336,8 +2336,8 @@ svg{display:block;}
       });
       return map;
     }
-    var p1 = db.getSchema({ databaseId: '9lETwrJdhMy10JAoJ8vqnD' }).then(pick)['catch'](function () { return {}; });
-    var p2 = db.getSchema({ databaseId: 'd96S6pyZZBxZ3nBJj1oyO0' }).then(pick)['catch'](function () { return {}; });
+    var p1 = db.getSchema({ databaseId: POS_DB_ID }).then(pick)['catch'](function () { return {}; });
+    var p2 = db.getSchema({ databaseId: LOG_DB_ID }).then(pick)['catch'](function () { return {}; });
     return Promise.all([p1, p2]).then(function (arr) {
       var merged = {};
       for (var i = 0; i < arr.length; i++) {
@@ -2427,7 +2427,7 @@ svg{display:block;}
     sdk();
     if (db) {
       setSync('sync', '同步中');
-      return db.addRecord({ databaseId: '9lETwrJdhMy10JAoJ8vqnD', properties: props }).then(function () {
+      return db.addRecord({ databaseId: POS_DB_ID, properties: props }).then(function () {
         setSync('ok', '已同步'); return { cloud: true };
       })['catch'](function (err) {
         console.warn('[database] 云端写入被拒，已转存本机:', err && err.message);
@@ -2445,7 +2445,7 @@ svg{display:block;}
     sdk();
     if (!db) { return Promise.reject(new Error('离线模式')); }
     setSync('sync', '同步中');
-    return db.updateRecord({ databaseId: '9lETwrJdhMy10JAoJ8vqnD', recordId: recordId, properties: props }).then(function () {
+    return db.updateRecord({ databaseId: POS_DB_ID, recordId: recordId, properties: props }).then(function () {
       setSync('ok', '已同步'); return { cloud: true };
     })['catch'](function (err) { setSync('off', '离线模式'); throw err; });
   }
@@ -2453,7 +2453,7 @@ svg{display:block;}
     sdk();
     if (db) {
       setSync('sync', '同步中');
-      return db.addRecord({ databaseId: 'd96S6pyZZBxZ3nBJj1oyO0', properties: props }).then(function () {
+      return db.addRecord({ databaseId: LOG_DB_ID, properties: props }).then(function () {
         setSync('ok', '已同步'); return { cloud: true };
       })['catch'](function (err) {
         console.warn('[database] 云端写入被拒，已转存本机:', err && err.message);
@@ -2471,7 +2471,7 @@ svg{display:block;}
     sdk();
     if (!db) { return Promise.reject(new Error('离线模式')); }
     setSync('sync', '同步中');
-    return db.deleteRecord({ databaseId: 'd96S6pyZZBxZ3nBJj1oyO0', recordId: recordId }).then(function () {
+    return db.deleteRecord({ databaseId: LOG_DB_ID, recordId: recordId }).then(function () {
       setSync('ok', '已同步'); return { cloud: true };
     })['catch'](function (err) { setSync('off', '离线模式'); throw err; });
   }
@@ -2480,7 +2480,7 @@ svg{display:block;}
     sdk();
     if (!db) { return Promise.reject(new Error('离线模式')); }
     setSync('sync', '同步中');
-    return db.deleteRecord({ databaseId: '9lETwrJdhMy10JAoJ8vqnD', recordId: recordId }).then(function () {
+    return db.deleteRecord({ databaseId: POS_DB_ID, recordId: recordId }).then(function () {
       setSync('ok', '已同步'); return { cloud: true };
     })['catch'](function (err) { setSync('off', '离线模式'); throw err; });
   }
@@ -2512,10 +2512,9 @@ svg{display:block;}
     function step(idx) {
       if (idx >= plan.length) { return Promise.resolve(); }
       var it = plan[idx];
-      /* databaseId 必须是字面量：此处按表分别写死 */
       var call = it.databaseId === POS_DB_ID
-        ? db.addRecord({ databaseId: '9lETwrJdhMy10JAoJ8vqnD', properties: flattenToProps(it.row) })
-        : db.addRecord({ databaseId: 'd96S6pyZZBxZ3nBJj1oyO0', properties: flattenToProps(it.row) });
+        ? db.addRecord({ databaseId: POS_DB_ID, properties: flattenToProps(it.row) })
+        : db.addRecord({ databaseId: LOG_DB_ID, properties: flattenToProps(it.row) });
       return call.then(function () {
         saveLocalDelete(it.databaseId, it.row._id);
         okN++;
@@ -2563,8 +2562,8 @@ svg{display:block;}
         html += '<div class="titem ' + it.tone + '">' +
           '<span class="tdot"></span>' +
           '<div class="tbody">' +
-          '<div class="tname" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD">' + esc(it.title) + '</div>' +
-          '<div class="tdesc" data-sp-bindable="database" data-sp-database-id="9lETwrJdhMy10JAoJ8vqnD">' + esc(it.desc) + '</div>' +
+          '<div class="tname" data-sp-bindable="database" data-sp-database-id="' + POS_DB_ID + '">' + esc(it.title) + '</div>' +
+          '<div class="tdesc" data-sp-bindable="database" data-sp-database-id="' + POS_DB_ID + '">' + esc(it.desc) + '</div>' +
           '<div class="tacts">' +
           (it.act ? '<button class="btn sm" data-today-act="' + esc(it.act) + '" data-today-pos="' + esc(it.posId || '') + '" data-today-tab="' + esc(it.tab || '') + '">' + esc(it.act) + '</button>' : '') +
           '<button class="btn sm" data-today-goto="' + esc(it.tab || '') + '">查看</button>' +
@@ -2722,7 +2721,7 @@ svg{display:block;}
   function setBind(el) {
     if (!el || !el.setAttribute) { return; }
     el.setAttribute('data-sp-bindable', 'database');
-    el.setAttribute('data-sp-database-id', '9lETwrJdhMy10JAoJ8vqnD');
+    el.setAttribute('data-sp-database-id', POS_DB_ID);
   }
 
   function renderRuleEngine() {
@@ -2854,7 +2853,7 @@ svg{display:block;}
   function setBindLog(el) {
     if (!el || !el.setAttribute) { return; }
     el.setAttribute('data-sp-bindable', 'database');
-    el.setAttribute('data-sp-database-id', 'd96S6pyZZBxZ3nBJj1oyO0');
+    el.setAttribute('data-sp-database-id', LOG_DB_ID);
   }
 
   function renderParams() {
