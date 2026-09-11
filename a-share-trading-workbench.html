@@ -315,33 +315,35 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       <div class="brand-mark">
         <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 5-7 4 4"/><path d="M3 21h18"/></svg>
       </div>
+  <nav role="tablist" aria-label="主导航">
       <div class="brand-txt"><b>A股交易纪律台</b><span>规则化执行系统</span></div>
     </div>
-    <button class="navitem on" data-tab="risk">
+    <button class="navitem on" data-tab="risk" id="nav-risk" role="tab" aria-selected="true" aria-controls="sec-risk">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>
       风控计算
     </button>
-    <button class="navitem" data-tab="pos">
+    <button class="navitem" data-tab="pos" id="nav-pos" role="tab" aria-selected="false" aria-controls="sec-pos">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
       持仓巡检
     </button>
-    <button class="navitem" data-tab="rule">
+    <button class="navitem" data-tab="rule" id="nav-rule" role="tab" aria-selected="false" aria-controls="sec-rule">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
       加减仓规则
     </button>
-    <button class="navitem" data-tab="disc">
+    <button class="navitem" data-tab="disc" id="nav-disc" role="tab" aria-selected="false" aria-controls="sec-disc">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.6-3.4 8-8 9-4.6-1-8-4.4-8-9V7l8-4z"/><path d="M12 8v4M12 15h.01"/></svg>
       交易纪律
     </button>
-    <button class="navitem" data-tab="doc">
+    <button class="navitem" data-tab="doc" id="nav-doc" role="tab" aria-selected="false" aria-controls="sec-doc">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.3 5.2-5.2 2.3 2.3-5.2 5.2-2.3z"/></svg>
       设计理念
     </button>
-    <button class="navitem" data-tab="log">
+    <button class="navitem" data-tab="log" id="nav-log" role="tab" aria-selected="false" aria-controls="sec-log">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
       更新日志
     </button>
-    <div class="side-foot">
+  </nav>
+  <div class="side-foot">
       <p>数据由资料库云端存储，多设备自动同步。</p>
     </div>
   </aside>
@@ -383,7 +385,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     </section>
 
     <!-- ============ 模块 1 风控计算 ============ -->
-    <section class="section on" id="sec-risk">
+    <section class="section on" id="sec-risk" role="tabpanel" tabindex="0" aria-labelledby="nav-risk">
       <div class="card">
         <div class="card-h">
           <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>
@@ -499,7 +501,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     </section>
 
     <!-- ============ 模块 2 持仓巡检 ============ -->
-    <section class="section" id="sec-pos">
+    <section class="section" id="sec-pos" role="tabpanel" tabindex="0" aria-labelledby="nav-pos">
       <div class="card">
         <div class="card-h">
           <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
@@ -614,7 +616,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     </section>
 
     <!-- ============ 模块 3 加减仓规则 ============ -->
-    <section class="section" id="sec-rule">
+    <section class="section" id="sec-rule" role="tabpanel" tabindex="0" aria-labelledby="nav-rule">
       <div class="card">
         <div class="card-h">
           <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
@@ -688,7 +690,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     </section>
 
     <!-- ============ 模块 4 交易纪律 ============ -->
-    <section class="section" id="sec-disc">
+    <section class="section" id="sec-disc" role="tabpanel" tabindex="0" aria-labelledby="nav-disc">
       <div class="card">
         <div class="card-h">
           <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M12 8v4M12 15h.01"/></svg>
@@ -805,7 +807,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     </section>
 
     <!-- ============ 页签 5 设计理念 ============ -->
-    <section class="section" id="sec-doc">
+    <section class="section" id="sec-doc" role="tabpanel" tabindex="0" aria-labelledby="nav-doc">
       <div class="card doc">
         <div class="card-h">
           <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.3 5.2-5.2 2.3 2.3-5.2 5.2-2.3z"/></svg>
@@ -950,7 +952,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     </section>
 
     <!-- ============ 页签 6 更新日志 ============ -->
-    <section class="section" id="sec-log">
+    <section class="section" id="sec-log" role="tabpanel" tabindex="0" aria-labelledby="nav-log">
       <div class="card doc">
         <div class="card-h">
           <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
@@ -1057,28 +1059,28 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   </main>
 </div>
 
-<nav class="tabs-m">
-  <button class="on" data-tab="risk">
+<nav class="tabs-m" role="tablist" aria-label="底部导航">
+  <button class="on" data-tab="risk" id="m-risk" role="tab" aria-selected="true" aria-controls="sec-risk">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>
     风控
   </button>
-  <button data-tab="pos">
+  <button data-tab="pos" id="m-pos" role="tab" aria-selected="false" aria-controls="sec-pos">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
     巡检
   </button>
-  <button data-tab="rule">
+  <button data-tab="rule" id="m-rule" role="tab" aria-selected="false" aria-controls="sec-rule">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
     加减仓
   </button>
-  <button data-tab="disc">
+  <button data-tab="disc" id="m-disc" role="tab" aria-selected="false" aria-controls="sec-disc">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.6-3.4 8-8 9-4.6-1-8-4.4-8-9V7l8-4z"/><path d="M12 8v4M12 15h.01"/></svg>
     纪律
   </button>
-  <button data-tab="doc">
+  <button data-tab="doc" id="m-doc" role="tab" aria-selected="false" aria-controls="sec-doc">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.3 5.2-5.2 2.3 2.3-5.2 5.2-2.3z"/></svg>
     理念
   </button>
-  <button data-tab="log">
+  <button data-tab="log" id="m-log" role="tab" aria-selected="false" aria-controls="sec-log">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
     日志
   </button>
@@ -2947,8 +2949,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     $$('.section').forEach(function (s) { s.classList.remove('on'); });
     var sec = document.getElementById('sec-' + tab);
     if (sec) { sec.classList.add('on'); }
-    $$('.navitem').forEach(function (b) { if (b.getAttribute('data-tab') === tab) { b.classList.add('on'); } else { b.classList.remove('on'); } });
-    $$('.tabs-m button').forEach(function (b) { if (b.getAttribute('data-tab') === tab) { b.classList.add('on'); } else { b.classList.remove('on'); } });
+    $$('.navitem').forEach(function (b) { if (b.getAttribute('data-tab') === tab) { b.classList.add('on'); b.setAttribute('aria-selected', 'true'); } else { b.classList.remove('on'); b.setAttribute('aria-selected', 'false'); } });
+    $$('.tabs-m button').forEach(function (b) { if (b.getAttribute('data-tab') === tab) { b.classList.add('on'); b.setAttribute('aria-selected', 'true'); } else { b.classList.remove('on'); b.setAttribute('aria-selected', 'false'); } });
     window.scrollTo(0, 0);
   }
 
