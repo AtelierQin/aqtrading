@@ -1436,8 +1436,13 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function assessPosition(p) {
     var cost = num(p['成本价']), price = num(p['现价']), stop = num(p['止损价']), target = num(p['目标价']);
     var shares = num(p['持仓股数']);
+    /* 自愈历史 bug：旧版本在用户拿不到行情时，会把 code 当 name 存进库
+       （onManualSave 里 `trim() || code` 的兜底）。这里读出时若发现 name===code，
+       视为无名称，渲染时只显示代码，避免「代码 代码」重复。 */
+    var rawName = p['股票名称'] || '';
+    var name = (rawName && rawName === p['股票代码']) ? '' : rawName;
     var out = {
-      id: p._id, code: p['股票代码'] || '', name: p['股票名称'] || '',
+      id: p._id, code: p['股票代码'] || '', name: name,
       shares: shares, cost: cost, price: price, stop: stop, target: target,
       costValue: shares * cost, marketValue: shares * price, pnl: 0, pnlRate: 0,
       distToStop: 0, distToTarget: 0, stopPct: 0, level: 'ok', label: '正常持有',
@@ -2212,7 +2217,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 
     var it = manualInstrument();
     var nameEl = manualEl('mName');
-    var name = ((nameEl ? nameEl.value : '') || '').trim() || code;
+    var name = ((nameEl ? nameEl.value : '') || '').trim(); /* 不再用 code 兜底：行情拿不到名时存空串，避免持仓卡片显示「代码 代码」重复 */
     var lastEl = manualEl('mLast');
     var last = num(lastEl ? lastEl.value : 0);
     if (!(last > 0)) { last = cost; }
