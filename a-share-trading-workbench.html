@@ -40,6 +40,9 @@ body{
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
 }
+/* 让 :root rem = 浏览器默认 16px，使后续 rem 化能随用户字号缩放；
+     body 14px 写死不缩放，只是 a11y 视觉基线 —— 后续若改 rem 会从 body 这一行开始替换。 */
+html{font-size:100%;}
 button{font-family:inherit;}
 input,select,textarea{font-family:inherit;}
 svg{display:block;}
