@@ -119,6 +119,8 @@ svg{display:block;}
 }
 .field textarea{min-height:70px;font-size:15px;line-height:1.5;resize:vertical;}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(31,75,216,.1);}
+/* 键盘导航时才显示 focus ring；鼠标点击不出现 —— 避免视觉噪音又不丢键盘可达性 */
+button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,a:focus-visible,[tabindex]:focus-visible{outline:2px solid var(--primary);outline-offset:2px;box-shadow:0 0 0 3px rgba(31,75,216,.35);}
 .field .tip{font-size:11px;color:var(--text-3);}
 
 .stat{background:var(--gray-soft);border-radius:12px;padding:11px 12px;}
@@ -1199,7 +1201,6 @@ svg{display:block;}
   function $(sel) { return document.querySelector(sel); }
   function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
   function setText(id, txt) { var el = document.getElementById(id); if (el) { el.textContent = txt; } }
-  function setClass(id, cls, on) { var el = document.getElementById(id); if (el) { if (on) { el.classList.add(cls); } else { el.classList.remove(cls); } } }
 
   var toastTimer = null;
   function toast(msg) {
