@@ -73,6 +73,7 @@ svg{display:block;}
 .badge .dot{width:7px;height:7px;border-radius:50%;background:var(--text-3);}
 .badge.ok .dot{background:var(--down);}
 .badge.sync .dot{background:var(--warn);}
+.badge.local .dot{background:var(--warn);}
 .badge.off .dot{background:var(--text-3);}
 
 .btn{
@@ -2266,8 +2267,9 @@ svg{display:block;}
     return db;
   }
 
-  function loadPositions() {
-    var localRows = readLocalRows(POS_DB_ID);   /* 本机待同步的排最前，用户立刻能看到 */
+  /* 分页拉取整表，本机缓冲排前。dbId + sortField 决定拉哪张表的哪一列排序 */
+  function paginatedQuery(dbId, sortField, label) {
+    var localRows = readLocalRows(dbId);
     return new Promise(function (resolve) {
       sdk();
       if (!db) { resolve(localRows); return; }
@@ -2277,8 +2279,8 @@ svg{display:block;}
         guard++;
         if (guard > 20) { done(); return; }
         db.query({
-          databaseId: POS_DB_ID,
-          sorts: [{ property: '买入日期', direction: 'descending' }],
+          databaseId: dbId,
+          sorts: [{ property: sortField, direction: 'descending' }],
           pageSize: 200,
           startCursor: cursor
         }).then(function (result) {
@@ -2287,42 +2289,15 @@ svg{display:block;}
           if (result.hasMore && next && next !== cursor && (result.results || []).length) { step(next); }
           else { done(); }
         })['catch'](function (err) {
-          console.error('[database] 持仓台账读取失败:', err);
+          console.error('[database] ' + label + ' 读取失败:', err);
           done();
         });
       }
       step(undefined);
     });
   }
-
-  function loadLogs() {
-    var localRows = readLocalRows(LOG_DB_ID);
-    return new Promise(function (resolve) {
-      sdk();
-      if (!db) { resolve(localRows); return; }
-      var acc = [], guard = 0, settled = false;
-      function done() { if (settled) { return; } settled = true; resolve(localRows.concat(acc)); }
-      function step(cursor) {
-        guard++;
-        if (guard > 20) { done(); return; }
-        db.query({
-          databaseId: LOG_DB_ID,
-          sorts: [{ property: '交易日期', direction: 'descending' }],
-          pageSize: 200,
-          startCursor: cursor
-        }).then(function (result) {
-          acc = acc.concat(result.results || []);
-          var next = result.nextCursor;
-          if (result.hasMore && next && next !== cursor && (result.results || []).length) { step(next); }
-          else { done(); }
-        })['catch'](function (err) {
-          console.error('[database] 交易日志读取失败:', err);
-          done();
-        });
-      }
-      step(undefined);
-    });
-  }
+  function loadPositions() { return paginatedQuery(POS_DB_ID, '买入日期', '持仓台账'); }
+  function loadLogs() { return paginatedQuery(LOG_DB_ID, '交易日期', '交易日志'); }
 
   function loadSchema() {
     sdk();
@@ -2360,7 +2335,7 @@ svg{display:block;}
   function setSync(mode, text) {
     var b = $('#syncBadge');
     if (!b) { return; }
-    b.classList.remove('ok', 'sync', 'off');
+    b.classList.remove('ok', 'sync', 'local', 'off');
     b.classList.add(mode);
     setText('syncText', text);
   }
@@ -2423,67 +2398,45 @@ svg{display:block;}
   }
   function pendingLocalCount() { return readLocalRows(POS_DB_ID).length + readLocalRows(LOG_DB_ID).length; }
 
-  function addPosition(props) {
-    sdk();
-    if (db) {
+  /* 统一写：op ∈ 'create' | 'update' | 'delete'。
+     create 失败时落本机缓冲（'local' 模式），update/delete 失败代表真离线（'off'） */
+  function writeOne(dbId, op, recordId, props) {
+    if (op === 'create') {
+      sdk();
+      if (!db) { saveLocalAdd(dbId, props); setSync('local', '本机保存'); return Promise.resolve({ cloud: false }); }
       setSync('sync', '同步中');
-      return db.addRecord({ databaseId: POS_DB_ID, properties: props }).then(function () {
+      return db.addRecord({ databaseId: dbId, properties: props }).then(function () {
         setSync('ok', '已同步'); return { cloud: true };
       })['catch'](function (err) {
         console.warn('[database] 云端写入被拒，已转存本机:', err && err.message);
-        saveLocalAdd(POS_DB_ID, props);
-        setSync('off', '本机保存');
+        saveLocalAdd(dbId, props);
+        setSync('local', '本机保存');
         return { cloud: false };
       });
     }
-    saveLocalAdd(POS_DB_ID, props);
-    setSync('off', '本机保存');
-    return Promise.resolve({ cloud: false });
-  }
-  function updatePosition(recordId, props) {
-    if (isLocalId(recordId)) { saveLocalUpdate(POS_DB_ID, recordId, props); return Promise.resolve({ cloud: false }); }
-    sdk();
-    if (!db) { return Promise.reject(new Error('离线模式')); }
-    setSync('sync', '同步中');
-    return db.updateRecord({ databaseId: POS_DB_ID, recordId: recordId, properties: props }).then(function () {
-      setSync('ok', '已同步'); return { cloud: true };
-    })['catch'](function (err) { setSync('off', '离线模式'); throw err; });
-  }
-  function addLog(props) {
-    sdk();
-    if (db) {
+    if (op === 'update' || op === 'delete') {
+      if (isLocalId(recordId)) {
+        if (op === 'update') { saveLocalUpdate(dbId, recordId, props); }
+        else { saveLocalDelete(dbId, recordId); }
+        return Promise.resolve({ cloud: false });
+      }
+      sdk();
+      if (!db) { return Promise.reject(new Error('离线模式')); }
       setSync('sync', '同步中');
-      return db.addRecord({ databaseId: LOG_DB_ID, properties: props }).then(function () {
+      var call = op === 'update'
+        ? db.updateRecord({ databaseId: dbId, recordId: recordId, properties: props })
+        : db.deleteRecord({ databaseId: dbId, recordId: recordId });
+      return call.then(function () {
         setSync('ok', '已同步'); return { cloud: true };
-      })['catch'](function (err) {
-        console.warn('[database] 云端写入被拒，已转存本机:', err && err.message);
-        saveLocalAdd(LOG_DB_ID, props);
-        setSync('off', '本机保存');
-        return { cloud: false };
-      });
+      })['catch'](function (err) { setSync('off', '离线模式'); throw err; });
     }
-    saveLocalAdd(LOG_DB_ID, props);
-    setSync('off', '本机保存');
-    return Promise.resolve({ cloud: false });
+    return Promise.reject(new Error('writeOne: unknown op ' + op));
   }
-  function deleteLog(recordId) {
-    if (isLocalId(recordId)) { saveLocalDelete(LOG_DB_ID, recordId); return Promise.resolve({ cloud: false }); }
-    sdk();
-    if (!db) { return Promise.reject(new Error('离线模式')); }
-    setSync('sync', '同步中');
-    return db.deleteRecord({ databaseId: LOG_DB_ID, recordId: recordId }).then(function () {
-      setSync('ok', '已同步'); return { cloud: true };
-    })['catch'](function (err) { setSync('off', '离线模式'); throw err; });
-  }
-  function deletePosition(recordId) {
-    if (isLocalId(recordId)) { saveLocalDelete(POS_DB_ID, recordId); return Promise.resolve({ cloud: false }); }
-    sdk();
-    if (!db) { return Promise.reject(new Error('离线模式')); }
-    setSync('sync', '同步中');
-    return db.deleteRecord({ databaseId: POS_DB_ID, recordId: recordId }).then(function () {
-      setSync('ok', '已同步'); return { cloud: true };
-    })['catch'](function (err) { setSync('off', '离线模式'); throw err; });
-  }
+  function addPosition(props) { return writeOne(POS_DB_ID, 'create', null, props); }
+  function updatePosition(recordId, props) { return writeOne(POS_DB_ID, 'update', recordId, props); }
+  function deletePosition(recordId) { return writeOne(POS_DB_ID, 'delete', recordId, null); }
+  function addLog(props) { return writeOne(LOG_DB_ID, 'create', null, props); }
+  function deleteLog(recordId) { return writeOne(LOG_DB_ID, 'delete', recordId, null); }
 
   /* 把本机缓冲的记录补传到云端；成功的立即从缓冲移除 */
   function syncLocalBuffer(btn) {
@@ -2527,9 +2480,9 @@ svg{display:block;}
       refreshAll();
       updatePendingUI();
       if (okN === plan.length) { setSync('ok', '已同步'); toast('已同步 ' + okN + ' 条到云端'); }
-      else { setSync('off', '本机保存'); toast('已同步 ' + okN + ' / ' + plan.length + ' 条，其余仍在本机'); }
+      else { setSync('local', '本机保存'); toast('已同步 ' + okN + ' / ' + plan.length + ' 条，其余仍在本机'); }
     })['catch'](function (err) {
-      console.error(err); setSync('off', '本机保存');
+      console.error(err); setSync('local', '本机保存');
       toast('同步中断：仍在本机的数据不会丢失，可稍后重试');
     }).then(function () { if (btn) { btn.disabled = false; } });
   }
