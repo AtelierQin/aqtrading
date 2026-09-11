@@ -1464,13 +1464,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
        （onManualSave 里 `trim() || code` 的兜底）。这里读出时若发现 name===code，
        视为无名称，渲染时只显示代码，避免「代码 代码」重复。
        进一步：名字为空时，从缓存的行情报价顶上（不写回存储，
-       让用户在下次点「取现价」/「刷新全仓」时再正式存一次）。 */
+       让用户在下次点「取现价」/「刷新全仓」时再正式存一次）。
+       注意：不要求 nameReliable=true —— 科创板/北交所等 GBK 乱码
+       会让 nameReliable=false，但里面仍有可识别的字符。剔除 �
+       后只要还剩 ≥2 个可显字符就用。 */
     var rawName = p['股票名称'] || '';
     var name = (rawName && rawName === p['股票代码']) ? '' : rawName;
     if (!name) {
       var hit = cachedQuote(p['股票代码']);
-      if (hit && hit.quote && hit.quote.nameReliable && hit.quote.name) {
-        name = hit.quote.name;
+      if (hit && hit.quote && hit.quote.name) {
+        var cleaned = String(hit.quote.name).replace(/�/g, '').trim();
+        if (cleaned.length >= 2) { name = cleaned; }
       }
     }
     var out = {
@@ -3916,7 +3920,8 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   /* 旧版 onManualSave 在行情不可达时会把代码当 name 写进库，部分持仓的
      「股票名称」字段是空字符串或 === 代码。渲染端已用缓存报价顶上做软回退，
      这里再加一道硬回填：后台遍历无名字的持仓并请求行情，取到后写回台账。
-     节流：每只间隔 200ms，最多并发 2 个，避免同时给三个源推 N 个请求。 */
+     节流：每只间隔 200ms，最多并发 2 个，避免同时给三个源推 N 个请求。
+     与渲染端一致：nameReliable=false 时也接受，剔除 乱码后 ≥2 字符即用。 */
   function lazyBackfillNames() {
     var targets = [];
     for (var i = 0; i < state.positions.length; i++) {
@@ -3932,8 +3937,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       var p = targets[cursor++];
       active++;
       requestQuote(p['股票代码'], function (err, q) {
-        if (!err && q && q.nameReliable && q.name) {
-          updatePosition(p._id, { '股票名称': { text: q.name } }).then(reloadData).then(function () { refreshAll(); });
+        if (!err && q && q.name) {
+          var cleaned = String(q.name).replace(/�/g, '').trim();
+          if (cleaned.length >= 2) {
+            updatePosition(p._id, { '股票名称': { text: cleaned } }).then(reloadData).then(function () { refreshAll(); });
+          }
         }
         active--;
         setTimeout(next, 200);
