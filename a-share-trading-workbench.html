@@ -1771,7 +1771,12 @@ svg{display:block;}
     return null;
   }
 
-  /* 主通道：腾讯行情，script 标签 JSONP 绕开跨域；一次请求可传多只 */
+  /* 主通道：腾讯行情，script 标签 JSONP 绕开跨域；一次请求可传多只。
+     协议说明：腾讯端点 qt.gtimg.cn 返回的是 v_<prefix><code>="..." 的全局赋值
+     （无回调名），所以 window 上会短暂出现这些键。本函数做：① 在脚本注入前
+     预清场，② 在 onload 读到值后立即 delete 移除，③ 全部 window 访问包 try/catch。
+     注：因协议限制，无法彻底避开 window 上的短暂写入 —— 这是任何 callback-less
+     JSONP 的固有限制。如需完全隔离，可改用 fetch + CORS 代理（需服务端基建）。 */
   function fetchQuotesTencent(reqs, cb) {
     if (!reqs || !reqs.length) { cb(new Error('没有可查询的代码')); return; }
     var query = [], names = [], i;
@@ -1779,13 +1784,14 @@ svg{display:block;}
       query.push(reqs[i].prefix + reqs[i].code);
       names.push('v_' + reqs[i].prefix + reqs[i].code);
     }
-    for (i = 0; i < names.length; i++) { try { window[names[i]] = undefined; } catch (e) { /* noop */ } }
+    for (i = 0; i < names.length; i++) { try { delete window[names[i]]; } catch (e) { /* noop */ } }
     var done = false;
     var timer = null;
     var script = document.createElement('script');
     function cleanup() {
       if (timer) { clearTimeout(timer); }
       if (script && script.parentNode) { script.parentNode.removeChild(script); }
+      for (var k = 0; k < names.length; k++) { try { delete window[names[k]]; } catch (e) { /* noop */ } }
     }
     timer = setTimeout(function () {
       if (done) { return; }
@@ -1801,8 +1807,10 @@ svg{display:block;}
       done = true;
       var out = {}, any = false;
       for (var k = 0; k < reqs.length; k++) {
-        var q = parseTencentQuote(window[names[k]]);
-        try { window[names[k]] = undefined; } catch (e) { /* noop */ }
+        var raw = '';
+        try { raw = window[names[k]]; } catch (e) { raw = ''; }
+        var q = parseTencentQuote(raw);
+        try { delete window[names[k]]; } catch (e) { /* noop */ }
         if (q) { q.code = reqs[k].code; out[reqs[k].code] = q; any = true; }
       }
       cleanup();
