@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="description" content="A股交易纪律工作台：风控计算、持仓台账、交易纪律复盘的单页工具，支持云端资料库同步与本机兜底。">
 <meta name="theme-color" content="#1f4bd8">
-<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' qt.gtimg.cn hq.sinajs.cn; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' push2.eastmoney.com;">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' qt.gtimg.cn hq.sinajs.cn; style-src 'self' 'unsafe-inline'; img-src 'self' data:; connect-src 'self' push2.eastmoney.com http://localhost:* http://127.0.0.1:*;">
 <link rel="icon" href="data:,">
 <title>A股交易纪律工作台</title>
 <style>
@@ -386,7 +386,33 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15V3"/><path d="M7 8l5-5 5 5"/><path d="M5 21h14"/></svg>
         导入恢复
       </button>
+      <button class="btn sm" id="btnFuyaoSettings" title="浮摇（同花顺）数据源配置" aria-expanded="false" aria-controls="fuyaoPanel">
+        <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+        <span id="fuyaoStatusDot" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:var(--text-3);vertical-align:middle;margin-right:4px"></span>
+        数据源
+      </button>
       <input type="file" id="fileRestore" accept="application/json,.json" class="hidden">
+    </div>
+    <div id="fuyaoPanel" class="card hidden" style="margin:8px 0 12px">
+      <div class="card-h">
+        <h2 style="font-size:14px">浮摇（同花顺）数据源</h2>
+        <span class="spacer"></span>
+        <span class="hint" id="fuyaoStatus">未配置</span>
+      </div>
+      <p style="font-size:12.5px;color:var(--text-2);margin:0 0 10px">
+        浮摇（同花顺官方金融数据 API）作为可选第 4 路行情源 —— <b>A 股专用（港股走新浪/腾讯）</b>。
+        启动方式：终端跑 <code style="background:var(--gray-soft);padding:1px 5px;border-radius:4px">FUYAO_API_KEY=xxx node fuyao-proxy.js</code>，
+        API key 只存在反代进程里，<b>不会写到浏览器或 LS</b>。
+      </p>
+      <div class="grid2" style="grid-template-columns:1fr auto auto auto">
+        <div class="field" style="margin:0">
+          <label>反代地址
+          <input type="text" id="fuyaoProxyInput" placeholder="http://localhost:8787/fuyao"></label>
+        </div>
+        <button type="button" class="btn sm" id="fuyaoTestBtn" style="align-self:end">测试</button>
+        <button type="button" class="btn sm primary" id="fuyaoSaveBtn" style="align-self:end">保存</button>
+        <button type="button" class="btn sm" id="fuyaoClearBtn" style="align-self:end">清除</button>
+      </div>
     </div>
 
     <!-- ============ 今天要处理 ============ -->
@@ -975,10 +1001,22 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
           <h2>更新日志</h2>
           <span class="spacer"></span>
-          <span class="hint">当前版本 1.3.0 · 覆盖发布，链接不变</span>
+          <span class="hint">当前版本 1.4.0 · 覆盖发布，链接不变</span>
         </div>
         <p>页面采用三段式版本号 <code>1.x.y</code>：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本都覆盖发布到同一个在线地址，收藏一个链接即可，无需重新分享。下面按版本从新到旧记录改了什么、修了什么。</p>
         <div class="tl">
+          <div class="tlitem">
+            <h3><span class="ver">1.4.0</span>可选接入同花顺浮摇（第 4 路行情源）<span class="tlmeta">2026-09-12</span></h3>
+            <ul>
+              <li><b>新增可选第 4 路行情源：浮摇（同花顺金融数据 API）</b>，通过用户本机反代 <code>fuyao-proxy.js</code> 调用。<b>API key 永远不写到浏览器 / LS / GitHub</b>，只在用户反代进程的环境变量里</li>
+              <li>反代脚本 40 行 Node.js（无 npm 依赖），仅绑 127.0.0.1:8787。终端一行启动：<code>FUYAO_API_KEY=xxx node fuyao-proxy.js</code></li>
+              <li>header 区新增折叠式「数据源」面板：填反代 URL → 测试 → 保存。状态点 4 色（绿 / 黄 / 红 / 灰）反映反代可达、key 错、限流、未配置</li>
+              <li>race 编排器：浮摇配置后自动注入到 A 股 sources（排在腾讯之前）；港股路径跳过（无港股源）。任一源失败不影响其它</li>
+              <li>未配置浮摇时三路 race 行为完全不变 —— 这是一次纯增量接入</li>
+              <li>CSP <code>connect-src</code> 加 <code>http://localhost:* http://127.0.0.1:*</code> 允许本机反代</li>
+              <li>新增伴生文件 <code>fuyao-proxy.js</code>（独立 Node 脚本）。仓库 README 已在脚本头部说明用法</li>
+            </ul>
+          </div>
           <div class="tlitem">
             <h3><span class="ver">1.3.0</span>行情源三路轮询 + 港股支持<span class="tlmeta">2026-09-12</span></h3>
             <ul>
@@ -1079,7 +1117,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             <tr><td>图标与图表</td><td>全部为内联 SVG 手写，未使用任何图标字体或 emoji</td></tr>
             <tr><td>数据存储</td><td>纯本机 localStorage：持仓台账（<code>wb_astock_local_pos</code>）、交易日志（<code>wb_astock_local_log</code>），加上风控参数 / 巡检日期 / 表单草稿共 6 个 key。无云端依赖、无 401 风险</td></tr>
             <tr><td>数据同步</td><td>无。同一浏览器内多标签页实时共享 localStorage；跨设备 / 跨浏览器通过顶部的「导出备份 / 导入恢复」手动同步（JSON 快照，无条数上限）</td></tr>
-            <tr><td>行情来源</td><td>腾讯 / 新浪 / 东方财富三路 race（谁先返有效用谁）；A 股与 ETF 三路全打通，港股走腾讯 + 新浪；localStorage 5 分钟 fresh、24 小时 stale 兜底</td></tr>
+            <tr><td>行情来源</td><td>腾讯 / 新浪 / 东财 三路 race；可选第 4 路「浮摇（同花顺）」走用户自跑的反代（key 不进前端）；A 股 + ETF 全打通，港股走腾讯 + 新浪；localStorage 5 分钟 fresh、24 小时 stale 兜底</td></tr>
             <tr><td>备份方式</td><td>顶部「导出备份」得到 JSON 快照；「导入恢复」可还原，导入不设条数上限</td></tr>
             <tr><td>上线验证</td><td>每次改动均通过六道门禁：语法检查、纯逻辑单测、浏览器端到端、资料库两道规则检查、外链与 emoji 自检</td></tr>
           </tbody>
@@ -2184,6 +2222,103 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     document.head.appendChild(script);
   }
 
+  /* 浮摇（同花顺）反代配置 —— 只存反代 URL，不存 API key。
+     key 通过 `FUYAO_API_KEY=xxx node fuyao-proxy.js` 注入反代进程。
+     前端永远不接触 key，浏览器 / DevTools / LS 全部看不到。 */
+  var LS_FUYAO_CONFIG = 'wb_fuyao_config';
+  var FUYAO_DEFAULT_PROXY = 'http://localhost:8787/fuyao';
+  function loadFuyaoConfig() {
+    var c = readJSON(LS_FUYAO_CONFIG);
+    return (c && typeof c === 'object' && c.proxy) ? { proxy: c.proxy } : null;
+  }
+  function saveFuyaoConfig(cfg) { writeJSON(LS_FUYAO_CONFIG, cfg || { proxy: '' }); }
+  function fuyaoConfigured() { return !!loadFuyaoConfig(); }
+
+  /* 把 /api/... 拼到反代 URL：原 fuyao 端点 /api/a-share/prices/snapshot
+     走反代后变 http://localhost:8787/fuyao/a-share/prices/snapshot */
+  function fuyaoUrl(pathAndQuery) {
+    var base = String(loadFuyaoConfig().proxy || '').replace(/\/$/, '');
+    return base + String(pathAndQuery || '').replace(/^\/api/, '');
+  }
+
+  /* 浮摇 snapshot 端点：单只 / 批量走同一接口（thscodes 逗号分隔）。
+     字段名（snake_case）：code, name, last_price, open, high, low, prev_close,
+     volume, turnover, change_price, change_rate, turnover_rate, update_time。
+     仅支持 A 股（沪深北）；港股走新浪 / 腾讯。 */
+  function fetchQuotesFuyao(reqs, cb) {
+    if (!fuyaoConfigured()) { cb(new Error('浮摇未配置')); return; }
+    if (!reqs || !reqs.length) { cb(new Error('没有可查询的代码')); return; }
+    var ths = [], codes = [], i;
+    for (i = 0; i < reqs.length; i++) {
+      var c = normCode(reqs[i].code);
+      var p = marketPrefix(c);
+      if (!p || p === 'hk') { continue; }
+      ths.push(c + '.' + p.toUpperCase());
+      codes.push(c);
+    }
+    if (!ths.length) { cb(new Error('没有 A 股可查询的代码')); return; }
+    var settled = false, timer = null;
+    function done(err, out) { if (settled) { return; } settled = true; if (timer) { clearTimeout(timer); } cb(err, out); }
+    timer = setTimeout(function () { done(new Error('行情请求超时')); }, 5000);
+    fetch(fuyaoUrl('/api/a-share/prices/snapshot?thscodes=' + encodeURIComponent(ths.join(','))))
+      .then(function (res) {
+        if (res.status === 401 || res.status === 403) { done(new Error('浮摇 key 错（HTTP ' + res.status + '，检查反代进程的 FUYAO_API_KEY）')); return null; }
+        if (res.status === 429) { done(new Error('浮摇触发限流（HTTP 429）')); return null; }
+        if (!res.ok) { done(new Error('浮摇 HTTP ' + res.status)); return null; }
+        return res.json();
+      })
+      .then(function (json) {
+        if (!json) { return; }
+        if (json.code !== 0) { done(new Error('浮摇业务码 ' + json.code + (json.message ? '：' + json.message : ''))); return; }
+        var items = (json.data && json.data.item) || [];
+        var out = {}, any = false;
+        for (var k = 0; k < codes.length; k++) {
+          var item = items[k];
+          if (!item || !(num(item.last_price) > 0)) { continue; }
+          var rawName = String(item.name || '').trim();
+          var cleaned = rawName.replace(/�/g, '').trim();
+          out[codes[k]] = {
+            code: codes[k],
+            name: cleaned,
+            nameReliable: cleaned.length >= 2,
+            price: num(item.last_price),
+            prevClose: num(item.prev_close),
+            open: num(item.open),
+            high: num(item.high),
+            low: num(item.low),
+            change: num(item.change_price),
+            changePct: num(item.change_rate),
+            time: String(item.update_time || '')
+          };
+          any = true;
+        }
+        if (!any) { done(new Error('浮摇未返回有效报价')); return; }
+        done(null, out);
+      })
+      .catch(function (err) {
+        done(new Error('浮摇不可达：' + (err && err.message ? err.message : '网络错')));
+      });
+  }
+
+  /* 浮摇配置变更时更新 header 状态点（绿 / 黄 / 红 / 灰） */
+  function paintFuyaoStatus(state) {
+    var dot = $('#fuyaoStatusDot');
+    var text = $('#fuyaoStatus');
+    if (!dot || !text) { return; }
+    var color = 'var(--text-3)'; /* 灰 = 未配置 */
+    var msg = '未配置';
+    if (state === 'ok') { color = 'var(--down)'; msg = '已配置 · 上次取价成功'; }
+    else if (state === 'bad-key') { color = '#d93838'; msg = 'key 错（HTTP 401/403）'; }
+    else if (state === 'rate-limit') { color = '#c8791a'; msg = '触发限流（HTTP 429）'; }
+    else if (state === 'unreachable') { color = '#d93838'; msg = '反代不可达（确认 node fuyao-proxy.js 已跑）'; }
+    else if (state === 'configured') { color = '#c8791a'; msg = '已配置 · 待测试'; }
+    dot.style.background = color;
+    text.textContent = msg;
+  }
+  function paintFuyaoStatusByConfig() {
+    paintFuyaoStatus(fuyaoConfigured() ? 'configured' : 'unconfigured');
+  }
+
   /* 备通道：东方财富（UTF-8 + CORS），一次只查一只 */
   function fetchQuoteEm(code, cb) {
     var secid = secidOf(code);
@@ -2228,7 +2363,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       }
     }
     var isHK = (c.indexOf('hk') === 0);
-    var sources = isHK ? ['tencent', 'sina'] : ['tencent', 'sina', 'em'];
+    /* A 股：浮摇（同花顺，可选）+ 腾讯 + 新浪 + 东财。港股：腾讯 + 新浪（无港股源）。
+       把浮摇排在腾讯前面：它有付费配额，最可能第一个返有效；
+       其它三路仍是 race 兜底。任何一路失败都不影响其它。 */
+    var sources;
+    if (isHK) { sources = ['tencent', 'sina']; }
+    else {
+      sources = [];
+      if (fuyaoConfigured()) { sources.push('fuyao'); }
+      sources.push('tencent', 'sina', 'em');
+    }
     var settled = false, pending = sources.length, lastErr = null;
     function commit(q, fromCache, stale) {
       if (settled) { return; }
@@ -2261,6 +2405,16 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         fetchQuoteEm(c, function (err, q) {
           if (err || !q) { failOne(err || new Error('em')); return; }
           commit(q, false, false);
+        });
+      } else if (kind === 'fuyao') {
+        fetchQuotesFuyao([{ code: c }], function (err, map) {
+          if (err || !map || !map[c]) { failOne(err || new Error('fuyao')); return; }
+          commit(map[c], false, false);
+          /* 浮摇成功 → 标绿 + 状态文案 */
+          var msg = String(err && err.message || '');
+          if (msg.indexOf('401') >= 0 || msg.indexOf('403') >= 0) { paintFuyaoStatus('bad-key'); }
+          else if (msg.indexOf('429') >= 0) { paintFuyaoStatus('rate-limit'); }
+          else { paintFuyaoStatus('ok'); }
         });
       }
     });
@@ -3834,6 +3988,70 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         onRestoreFile(f);
       });
     }
+
+    /* 浮摇设置面板：折叠 / 测试 / 保存 / 清除 */
+    var fyPanel = $('#fuyaoPanel');
+    var fyBtn = $('#btnFuyaoSettings');
+    var fyInput = $('#fuyaoProxyInput');
+    var fyTest = $('#fuyaoTestBtn');
+    var fySave = $('#fuyaoSaveBtn');
+    var fyClear = $('#fuyaoClearBtn');
+    function syncFuyaoInput() {
+      if (!fyInput) { return; }
+      var cur = loadFuyaoConfig();
+      fyInput.value = cur ? cur.proxy : FUYAO_DEFAULT_PROXY;
+    }
+    if (fyBtn && fyPanel) {
+      fyBtn.addEventListener('click', function () {
+        var open = fyPanel.classList.contains('hidden');
+        if (open) { syncFuyaoInput(); fyPanel.classList.remove('hidden'); fyBtn.setAttribute('aria-expanded', 'true'); }
+        else { fyPanel.classList.add('hidden'); fyBtn.setAttribute('aria-expanded', 'false'); }
+      });
+    }
+    if (fySave) {
+      fySave.addEventListener('click', function () {
+        var url = String(fyInput.value || '').trim();
+        if (!url) { toast('反代地址不能为空'); return; }
+        saveFuyaoConfig({ proxy: url });
+        paintFuyaoStatus('configured');
+        toast('已保存，下次取价生效');
+      });
+    }
+    if (fyClear) {
+      fyClear.addEventListener('click', function () {
+        saveFuyaoConfig({ proxy: '' });
+        paintFuyaoStatus('unconfigured');
+        toast('已清除浮摇配置');
+      });
+    }
+    if (fyTest) {
+      fyTest.addEventListener('click', function () {
+        var url = String(fyInput.value || '').trim();
+        if (!url) { paintFuyaoStatus('unreachable'); toast('请先填反代地址'); return; }
+        /* 临时写一份 cfg（不持久），让 fetchQuotesFuyao 用上 */
+        saveFuyaoConfig({ proxy: url });
+        fySave.disabled = true; fyTest.disabled = true; fyTest.textContent = '测试中…';
+        var testCode = '000001';
+        fetchQuotesFuyao([{ code: testCode }], function (err, map) {
+          fySave.disabled = false; fyTest.disabled = false; fyTest.textContent = '测试';
+          if (err) {
+            var msg = String(err.message || '');
+            if (msg.indexOf('401') >= 0 || msg.indexOf('403') >= 0) { paintFuyaoStatus('bad-key'); }
+            else if (msg.indexOf('429') >= 0) { paintFuyaoStatus('rate-limit'); }
+            else { paintFuyaoStatus('unreachable'); }
+            toast('测试失败：' + msg);
+            return;
+          }
+          if (map && map[testCode] && map[testCode].price > 0) {
+            paintFuyaoStatus('ok');
+            toast('测试成功（' + testCode + ' 报价：¥' + map[testCode].price.toFixed(3) + '）');
+          } else {
+            paintFuyaoStatus('unreachable');
+            toast('测试失败：未取到有效报价');
+          }
+        });
+      });
+    }
   }
 
   /* ---------------- 心理陷阱卡片 ---------------- */
@@ -3882,6 +4100,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function init() {
     loadParams();
     loadPatrol();
+    paintFuyaoStatusByConfig(); /* 同步浮摇状态点（未配置 / 已配置） */
     /* 装饰性 SVG 不向屏幕阅读器暴露。启发式跳过两类非装饰 SVG：
        1) 父级带 role="img"（显式标注为内容图）；2) 父级 <button> 内同时含可见文字（按钮的 SVG 已有文字做 accessible name）。
        此外，渲染过程中由 JS 注入的 SVG（renderTraps / refreshAll）也会在插入后被本规则标 hidden，
