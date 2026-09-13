@@ -170,6 +170,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
 .pcard-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;margin-bottom:9px;}
 .pcard-h .code{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
 .pcard-h .name{font-size:13.5px;font-weight:600;color:var(--text);}
+.pcard-h .name.name-fallback{color:var(--text-3);font-weight:500;font-style:italic;}
 .pcard-h .spacer{flex:1 1 auto;}
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
 .metric{background:var(--gray-soft);border-radius:9px;padding:7px 9px;}
@@ -1619,15 +1620,17 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
        后只要还剩 ≥2 个可显字符就用。 */
     var rawName = p['股票名称'] || '';
     var name = (rawName && rawName === p['股票代码']) ? '' : rawName;
+    /* name 字段解析优先级（防止持仓卡头部留空）：
+       ① stored rawName（已剔除 name===code 自愈）
+       ② 4 个源缓存里最长且清洗过的名字（bestNameFor 跨 tencent/sina/em/fuyao 汇聚）
+       ③ 实在没有时用 code 作占位 —— 比留空好，让卡片永远有名字可看 */
     if (!name) {
-      var hit = cachedQuote(p['股票代码']);
-      if (hit && hit.quote && hit.quote.name) {
-        var cleaned = String(hit.quote.name).replace(/�/g, '').trim();
-        if (cleaned.length >= 2) { name = cleaned; }
-      }
+      name = bestNameFor(p['股票代码']);
     }
+    var nameIsFallback = !name;
+    if (!name) { name = p['股票代码'] || ''; }
     var out = {
-      id: p._id, code: p['股票代码'] || '', name: name,
+      id: p._id, code: p['股票代码'] || '', name: name, nameIsFallback: nameIsFallback,
       shares: shares, cost: cost, price: price, stop: stop, target: target,
       costValue: shares * cost, marketValue: shares * price, pnl: 0, pnlRate: 0,
       distToStop: 0, distToTarget: 0, stopPct: 0, level: 'ok', label: '正常持有',
@@ -1983,6 +1986,10 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   /* 旧版兼容：以前用 QUOTE_TTL=60000 单一常量；现在 fresh / stale 分两层 */
   var QUOTE_TTL = QUOTE_TTL_FRESH;
   var quoteCache = {};
+  /* 按源分桶：相同代码不同源各存一份，多源汇聚名字用。
+     GBK 乱码场景下，某些源 name 字段全是 替代字符，另一些源是干净 UTF-8，
+     bestNameFor() 跨桶选最长清洗名。 */
+  var quoteCacheBySource = { tencent: {}, sina: {}, em: {}, fuyao: {} };
   loadQuoteCacheFromLS();
 
   /* 把用户输入归一到标准代码：
@@ -2173,9 +2180,12 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       writeJSON(LS_QUOTE_CACHE, data);
     } catch (e) { /* 写入失败不影响本次 */ }
   }
-  function cacheQuote(q) {
+  function cacheQuote(q, source) {
     if (!q || !q.code) { return; }
     quoteCache[q.code] = { at: Date.now(), quote: q };
+    if (source && quoteCacheBySource[source]) {
+      quoteCacheBySource[source][q.code] = { at: Date.now(), quote: q };
+    }
     persistQuoteCache();
   }
   function cachedQuote(code) {
@@ -2185,6 +2195,29 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
     var age = Date.now() - e.at;
     if (age > QUOTE_TTL_STALE) { return null; }
     return { quote: e.quote, fresh: age < QUOTE_TTL_FRESH, cachedAt: e.at, age: age };
+  }
+
+  /* 多源汇聚：从 4 个源缓存里挑「剔除 替代字符后最长」的 name。
+     解决 STAR/北交所这类代码部分源 GBK 乱码的问题。 */
+  function bestNameFor(code) {
+    var c = normCode(code);
+    var best = '', bestLen = 0, sources = ['tencent', 'sina', 'em', 'fuyao'], i, k;
+    for (i = 0; i < sources.length; i++) {
+      var bucket = quoteCacheBySource[sources[i]];
+      var e = bucket && bucket[c];
+      if (!e) { continue; }
+      if (Date.now() - e.at > QUOTE_TTL_STALE) { continue; }
+      var cleaned = String((e.quote && e.quote.name) || '').replace(/�/g, '').trim();
+      if (cleaned.length > bestLen) { best = cleaned; bestLen = cleaned.length; }
+    }
+    /* 主缓存兜底：如果按源分桶都没有（兼容旧 LS 数据），从 quoteCache 也试一次 */
+    if (!best) {
+      var main = quoteCache[c];
+      if (main && Date.now() - main.at <= QUOTE_TTL_STALE) {
+        best = String((main.quote && main.quote.name) || '').replace(/�/g, '').trim();
+      }
+    }
+    return best;
   }
 
   /* 主通道：腾讯行情，script 标签 JSONP 绕开跨域；一次请求可传多只。
@@ -2230,7 +2263,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         try { raw = window[names[k]]; } catch (e) { raw = ''; }
         var q = parseTencentQuote(raw);
         try { delete window[names[k]]; } catch (e) { /* noop */ }
-        if (q) { q.code = reqs[k].code; out[reqs[k].code] = q; any = true; }
+        if (q) { q.code = reqs[k].code; out[reqs[k].code] = q; any = true; cacheQuote(q, 'tencent'); }
       }
       cleanup();
       if (!any) { cb(new Error('未取到有效报价')); return; }
@@ -2323,7 +2356,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         try { raw = window['hq_str_' + p + reqs[k].code]; } catch (e) { raw = ''; }
         var q = parseSinaQuote(raw, reqs[k].code);
         try { delete window['hq_str_' + p + reqs[k].code]; } catch (e) { /* noop */ }
-        if (q) { q.code = reqs[k].code; out[reqs[k].code] = q; any = true; }
+        if (q) { q.code = reqs[k].code; out[reqs[k].code] = q; any = true; cacheQuote(q, 'sina'); }
       }
       cleanup();
       if (!any) { cb(new Error('未取到有效报价')); return; }
@@ -2445,6 +2478,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
           any = true;
         }
         if (!any) { done(new Error('浮摇未返回有效报价')); return; }
+        for (var fk = 0; fk < codes.length; fk++) { if (out[codes[fk]]) { cacheQuote(out[codes[fk]], 'fuyao'); } }
         done(null, out);
       })
       .catch(function (err) {
@@ -2494,6 +2528,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
         done = true; clearTimeout(timer);
         var q = parseEmQuote(json, code);
         if (!q) { cb(new Error('该代码暂无有效报价')); return; }
+        cacheQuote(q, 'em');
         cb(null, q);
       }).catch(function () {
         if (done) { return; }
@@ -3241,7 +3276,11 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       if (a.level === 'danger' || a.level === 'warn') { card.classList.add('risk'); }
       else if (a.level === 'target' || a.level === 'watch') { card.classList.add('warn'); }
       node.querySelector('[data-field="股票代码"]').textContent = a.code;
-      node.querySelector('[data-field="股票名称"]').textContent = a.name;
+      var nameSpan = node.querySelector('[data-field="股票名称"]');
+      nameSpan.textContent = a.name;
+      /* fallback 占位（用代码当名字）加灰 + 提示，告诉用户这是占位不是真名 */
+      nameSpan.classList.toggle('name-fallback', !!a.nameIsFallback);
+      nameSpan.title = a.nameIsFallback ? '行情源均未返回真实公司名，先用代码占位；点「取现价」取一次后会替换' : '';
       var stTag = node.querySelector('[data-status]');
       stTag.textContent = a.label;
       stTag.className = 'tag ' + (LEVEL_TO_TAG[a.level] || 'gray');
