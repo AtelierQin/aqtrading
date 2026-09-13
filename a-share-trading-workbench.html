@@ -2115,7 +2115,9 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
   function parseTencentQuote(raw) {
     if (!raw) { return null; }
     var parts = String(raw).split('~');
-    if (parts.length < 35) { return null; }
+    /* 阈值从 35 降到 10：腾讯 ETF 响应只有约 30-32 段（少了 PE/PB 等股票专属字段），
+       老阈值直接拒绝 ETF。最少只要有 name[1] / code[2] / price[3] 三段就够用。 */
+    if (parts.length < 10) { return null; }
     var price = num(parts[3]);
     if (!(price > 0)) { return null; }
     var name = String(parts[1] || '').replace(/\s+/g, '');
@@ -2573,32 +2575,36 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
       cacheQuote(q);
       cb(null, q, fromCache, !!stale);
     }
-    function failOne(err) {
+    function failOne(err, kind) {
       if (settled) { return; }
+      if (err && kind) { sourceErrors[kind] = err.message || String(err); }
       lastErr = err;
       pending--;
       if (pending > 0) { return; }
-      /* 三路全失败：尝试 stale 兜底 */
+      /* 三路全失败：诊断日志 + 尝试 stale 兜底 */
+      console.warn('[quote] 三路 race 全失败 · code=' + c, JSON.parse(JSON.stringify(sourceErrors)));
       var st = cachedQuote(c);
       if (st) { commit(st.quote, true, true); return; }
-      cb(lastErr || new Error('行情源不可达'));
+      var msg = (lastErr && lastErr.message) || '行情源不可达';
+      cb(new Error(msg));
     }
+    var sourceErrors = {};
     sources.forEach(function (kind) {
       if (kind === 'tencent') {
         fetchQuotesTencent([{ code: c }], function (err, map) {
-          if (err || !map || !map[c]) { markSourceStat('tencent', false, 0); failOne(err || new Error('tencent')); return; }
+          if (err || !map || !map[c]) { markSourceStat('tencent', false, 0); failOne(err || new Error('tencent'), 'tencent'); return; }
           markSourceStat('tencent', true);
           commit(map[c], false, false);
         });
       } else if (kind === 'sina') {
         fetchQuotesSina([{ code: c }], function (err, map) {
-          if (err || !map || !map[c]) { markSourceStat('sina', false, 0); failOne(err || new Error('sina')); return; }
+          if (err || !map || !map[c]) { markSourceStat('sina', false, 0); failOne(err || new Error('sina'), 'sina'); return; }
           markSourceStat('sina', true);
           commit(map[c], false, false);
         });
       } else if (kind === 'em') {
         fetchQuoteEm(c, function (err, q) {
-          if (err || !q) { markSourceStat('em', false, 0); failOne(err || new Error('em')); return; }
+          if (err || !q) { markSourceStat('em', false, 0); failOne(err || new Error('em'), 'em'); return; }
           markSourceStat('em', true);
           commit(q, false, false);
         });
@@ -2609,7 +2615,7 @@ button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-vis
             var ko = (msg.indexOf('401') >= 0 || msg.indexOf('403') >= 0) ? 401
                    : (msg.indexOf('429') >= 0) ? 429 : 0;
             markSourceStat('fuyao', false, ko);
-            failOne(err || new Error('fuyao'));
+            failOne(err || new Error('fuyao'), 'fuyao');
             return;
           }
           markSourceStat('fuyao', true);
