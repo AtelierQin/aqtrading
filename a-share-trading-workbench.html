@@ -211,6 +211,21 @@ svg{display:block;}
 .rplan .rpl-trail.trig{color:var(--up);font-weight:600;}
 .rplan .rpl-trail.trig b{color:var(--up);}
 
+/* ---------- 风格选择 ---------- */
+.stylepick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;}
+@media (max-width:768px){.stylepick{grid-template-columns:1fr;}}
+.stylepick .sp{
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:13px 14px;background:var(--card);cursor:pointer;text-align:left;
+  transition:border-color var(--dur-fast) var(--ease),background var(--dur-fast) var(--ease);
+}
+.stylepick .sp:hover{background:var(--gray-soft);}
+.stylepick .sp.on{border-color:var(--primary);background:var(--primary-tint);box-shadow:0 0 0 1px var(--primary);}
+.stylepick .sp-n{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.01em;color:var(--text);}
+.stylepick .sp.on .sp-n{color:var(--primary-ink);}
+.stylepick .sp-s{font-size:var(--fs-base);color:var(--text-2);margin-top:3px;}
+.stylepick .sp-m{font-size:var(--fs-xs);color:var(--text-3);margin-top:6px;line-height:1.6;}
+
 /* ---------- 持仓卡片：现在该做（规则自动判定的结论）---------- */
 .verdict{
   border:1px solid var(--line);border-left:3px solid var(--text-3);
@@ -1055,6 +1070,25 @@ body{
 
       <div class="card">
         <div class="card-h">
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
+          <h2>我的策略</h2>
+          <span class="spacer"></span>
+          <span class="hint">选风格 = 选止损宽度，其余阈值全部由它推出</span>
+        </div>
+
+        <div class="stylepick" id="stylePick"></div>
+        <div id="styleWhy" class="mt-3"></div>
+
+        <div class="card-h mt-4"><h2 class="fs-135">由此确定的整套规则</h2><span class="spacer"></span><span class="hint" id="styleRuleHint">--</span></div>
+        <table class="tbl">
+          <thead><tr><th>规则</th><th>阈值</th><th>换算</th></tr></thead>
+          <tbody id="styleRuleRows"></tbody>
+        </table>
+        <div id="styleAlerts" class="mt-3"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">
           <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 5-7 4 4"/></svg>
           <h2 id="gProgTitle">进度</h2>
           <span class="spacer"></span>
@@ -1654,6 +1688,12 @@ body{
           <div class="tlitem" id="v153">
             <h3><span class="ver is-latest">1.5.3</span>更新日志页重排 + 技术说明并入设计理念<span class="tlmeta">2026-09-15</span></h3>
             <ul>
+              <li><b>整条链贯通了：目标 → 风格 → 整套阈值 → 每笔动作。</b>设计时发现一件事：那六个「固定规则」常量其实全是<b>止损宽度的固定倍数</b> —— 加仓 8%(1.6R) / 上界 11.5%(2.3R) / 减仓 15%(3R) / 25%(5R) / 移动止盈 40%(8R) / 回撤 8%(1.6R)，在 5% 止损下正好等于原来那组数字。也就是说整套规则只有一个自变量</li>
+              <li><b>新增「我的策略」卡</b>：三选一的交易风格（趋势跟随 8% / 波段 5% / 短线 3%），选完立刻推出全部阈值并列出 R 倍数换算</li>
+              <li><b>换风格 = 全站重算</b>：建仓页的默认止损幅度（5% → 8%）、持仓卡上的加仓 / 减仓触发价、移动止盈线、减仓计划清单、最低盈亏比，全部跟着变。已建立的持仓不自动改止损，需要时用卡片上的「按规则校准」</li>
+              <li>单笔可以偏离风格：手工改过止损幅度后打标记，风格切换不再覆盖；点「重置」回到风格默认</li>
+              <li>「固定规则」卡改为动态渲染，并补一张「以上阈值从哪来」说明推导来源</li>
+              <li>新增 <b>style/derive</b> 测试组（18 条断言，含「三种风格都保持同一组 R 倍数」的不变量）—— 内置测试 91 → <b>109 条</b></li>
               <li><b>把规则变成自动执行的，而不是需要你翻页查的</b>。此前要知道一只持仓该做什么，得去「加减仓规则」页：选标的 → 选均线状态 → 选加仓次数 → 点「生成建议」，六步才出一个结论。现在每张持仓卡片顶部直接显示「现在该做」，含<b>动作 + 股数 + 执行价</b></li>
               <li><b>规则的两个输入都改成自动取</b>：加仓次数从交易日志里该标的的「加仓」记录条数统计；均线状态由每张卡上的「判断均线」按 fuyao 日线判定并写回持仓（未判定时按「未跌破」处理，不误触发破线减半）</li>
               <li><b>删除「规则引擎」卡</b>。它的功能已全部落到持仓卡片上，且不再需要手工输入。加减仓规则页只留「固定规则」口径 + 「全仓减仓计划」清单</li>
@@ -2156,7 +2196,10 @@ body{
     online: true,
     dbReady: false,
     srcEditId: '',
-    lastLossAt: 0
+    lastLossAt: 0,
+    style: null,
+    constraints: null,
+    goal: null
   });
 
   /* 一次性迁移 + meta 记录 */
@@ -2454,6 +2497,76 @@ body{
    * 默认值 15% 回撤 / 8 连亏 → 2.01%，正是原先写死的那个 2%。
    * 区别在于：现在这个 2% 有推导过程，改目标它就会跟着动。
    * ============================================================ */
+  /* ============================================================
+   * 策略层：交易风格 = 止损宽度，其余阈值全部是它的固定倍数
+   * ------------------------------------------------------------
+   * 这套倍数关系不是新发明的 —— 原先那六个写死的常量
+   * （加仓 8 / 上界 11.5 / 减仓 15 / 25 / 移动止盈 40 / 回撤 8）
+   * 在 5% 止损下正好等于 1.6R / 2.3R / 3R / 5R / 8R / 1.6R。
+   * 也就是说：整套规则其实只有一个自变量。
+   * ============================================================ */
+  var R_MULT = {
+    ADD: 1.6,        /* 加仓触发 */
+    ADD_TOP: 2.3,    /* 加仓窗口上界 */
+    REDUCE1: 3.0,    /* 第一减仓 */
+    REDUCE2: 5.0,    /* 第二减仓 */
+    TRAIL_ON: 8.0,   /* 移动止盈启用 */
+    TRAIL_BACK: 1.6  /* 移动止盈回撤 */
+  };
+
+  var STYLES = {
+    trend: {
+      id: 'trend', name: '趋势跟随', stopPct: 8,
+      hold: '2 周 ~ 3 个月', freq: '每周 1 ~ 2 笔',
+      why: '顺着已经走出来的趋势做。止损放宽，是为了不被一次正常回踩甩下车 —— 代价是单笔亏损容忍度高，所以仓位必须相应缩小。'
+    },
+    swing: {
+      id: 'swing', name: '波段', stopPct: 5,
+      hold: '数天 ~ 数周', freq: '每周 2 ~ 5 笔',
+      why: '吃一段明确的方向。止损收到「跌到这里就说明看错了」的位置，盈亏比与胜率都比较均衡。'
+    },
+    short: {
+      id: 'short', name: '短线', stopPct: 3,
+      hold: '1 ~ 3 天', freq: '每周 5 笔以内',
+      why: '只做短促的爆发，靠小止损多次试探。容错靠次数而不是靠单笔，所以单笔仓位更小、对执行速度要求更高。'
+    }
+  };
+
+  /* 风格 → 全部规则阈值（纯函数，便于单测） */
+  function styleRules(styleId) {
+    var st = STYLES[styleId] || STYLES.swing;
+    var s = st.stopPct;
+    var r1 = function (m) { return Math.round(s * m * 10) / 10; };
+    return {
+      styleId: st.id, styleName: st.name, stopPct: s,
+      hold: st.hold, freq: st.freq, why: st.why,
+      addAtPct: r1(R_MULT.ADD),
+      addZoneTopPct: r1(R_MULT.ADD_TOP),
+      reduce1Pct: r1(R_MULT.REDUCE1),
+      reduce2Pct: r1(R_MULT.REDUCE2),
+      trailOnPct: Math.round(r1(R_MULT.TRAIL_ON)),
+      trailBackPct: r1(R_MULT.TRAIL_BACK),
+      /* 最低盈亏比 = 第一减仓的 R 倍数。止损比风格更宽 → 实际盈亏比跌破它 → 告警 */
+      rrMin: R_MULT.REDUCE1
+    };
+  }
+
+  /* 把风格算出的阈值写进 TRADE_RULES。
+     下游（建仓 / 持仓卡 / 规则引擎 / 减仓计划）读的都是它，所以一处生效、全站跟随。 */
+  function applyStyle(styleId) {
+    var r = styleRules(styleId);
+    TRADE_RULES.ADD_AT_PCT = r.addAtPct;
+    TRADE_RULES.ADD_ZONE_TOP_PCT = r.addZoneTopPct;
+    TRADE_RULES.REDUCE1_PCT = r.reduce1Pct;
+    TRADE_RULES.REDUCE2_PCT = r.reduce2Pct;
+    TRADE_RULES.TRAIL_ON_PCT = r.trailOnPct;
+    TRADE_RULES.TRAIL_BACK_PCT = r.trailBackPct;
+    TRADE_RULES.RR_MIN = r.rrMin;
+    TRADE_RULES.STOP_DEFAULT_PCT = r.stopPct;
+    state.style = r;
+    return r;
+  }
+
   var DEFAULT_GOAL = {
     capital: 100000,       /* 本金 */
     targetPct: 20,         /* 年内目标收益 % */
@@ -2461,6 +2574,7 @@ body{
     surviveLosses: 8,      /* 希望扛住的连续亏损次数 */
     maxPositions: 3,       /* 最多同时持有几只 */
     maxSinglePct: 30,      /* 单票集中度上限 —— 与目标无关，是分散度约束 */
+    styleId: 'swing',      /* 交易风格 —— 决定止损宽度与全部规则阈值 */
     yearStart: ''          /* 年度起始日，留空取当年 1 月 1 日 */
   };
 
@@ -2658,6 +2772,8 @@ body{
   function loadParams() {
     var p = readJSON(LS_PARAMS) || {};
     var goal = loadGoal(p);
+    /* 风格必须先应用：TRADE_RULES 被下游（减仓计划 / 持仓卡 / 建仓）读取 */
+    applyStyle(goal.styleId);
     var c = deriveConstraints(goal);
     state.goal = goal;
     state.params = {
@@ -2665,18 +2781,16 @@ body{
       riskPct: c.riskPct,
       maxPortfolioRiskPct: c.maxPortfolioPct,
       maxSinglePct: c.maxSinglePct,
-      rr: num(p.rr) || TRADE_RULES.RR_MIN,
-      trailOnPct: Math.min(TRAIL_ON_MAX, Math.max(TRAIL_ON_MIN, num(p.trailOnPct) || TRADE_RULES.TRAIL_ON_PCT)),
-      trailBackPct: Math.min(TRAIL_BACK_MAX, Math.max(TRAIL_BACK_MIN, num(p.trailBackPct) || TRADE_RULES.TRAIL_BACK_PCT))
+      /* 以下三项由风格决定，不再单独存 —— 存了就会与风格脱节 */
+      rr: TRADE_RULES.RR_MIN,
+      trailOnPct: TRADE_RULES.TRAIL_ON_PCT,
+      trailBackPct: TRADE_RULES.TRAIL_BACK_PCT
     };
     state.constraints = c;
   }
   function saveParams() {
     var p = readJSON(LS_PARAMS) || {};
-    p.goal = state.goal;
-    p.rr = state.params.rr;
-    p.trailOnPct = state.params.trailOnPct;
-    p.trailBackPct = state.params.trailBackPct;
+    p.goal = state.goal;   /* rr / trail* 由 goal.styleId 推导，不单独持久化 */
     writeJSON(LS_PARAMS, p);
   }
   function loadPatrol() { state.lastPatrol = localStorage.getItem(LS_PATROL) || ''; }
@@ -5369,6 +5483,21 @@ body{
     var s = document.getElementById('sec-goal');
     return s ? s.querySelector('[name="' + name + '"]') : null;
   }
+  /* 把风格的止损宽度同步到建仓页的默认止损幅度。
+     只在用户没有为本笔手工改过时写入 —— 单笔可以偏离风格，但默认值该跟随。 */
+  function syncStyleToForm(force) {
+    var f = document.getElementById('riskForm');
+    if (!f) { return; }
+    var el = f.querySelector('[name="riskStopPct"]');
+    if (!el) { return; }
+    var want = toFixed2(TRADE_RULES.STOP_DEFAULT_PCT);
+    if (!force && el.getAttribute('data-touched') === '1') { return; }
+    if (el.value !== want) {
+      el.value = want;
+      recalcRisk('pct');
+    }
+  }
+
   /* 把目标推导出的单笔风险同步到风控计算页（隐藏域 + 锁定标签） */
   function syncRiskLock() {
     var pct = state.params ? num(state.params.riskPct) : TRADE_RULES.RISK_PCT;
@@ -5380,6 +5509,66 @@ body{
     var tag = document.getElementById('riskLockTag');
     if (tag) {
       tag.textContent = '单笔最大亏损 ' + toFixed2(pct) + '%（锁定·由目标推导）';
+    }
+  }
+
+  /* 策略卡：三个风格按钮 + 由风格推出的整套规则表 */
+  function renderStyle() {
+    var st = state.style || styleRules((state.goal || {}).styleId);
+    var pick = document.getElementById('stylePick');
+    if (pick) {
+      var html = '';
+      for (var k in STYLES) {
+        if (!Object.prototype.hasOwnProperty.call(STYLES, k)) { continue; }
+        var s = STYLES[k];
+        var on = (s.id === st.styleId) ? ' on' : '';
+        html += '<button type="button" class="sp' + on + '" data-style="' + esc(s.id) + '">' +
+          '<div class="sp-n">' + esc(s.name) + '</div>' +
+          '<div class="sp-s">止损 ' + toFixed2(s.stopPct) + '%　' + esc(s.hold) + '</div>' +
+          '<div class="sp-m">' + esc(s.freq) + '</div>' +
+          '</button>';
+      }
+      pick.innerHTML = html;
+    }
+
+    var why = document.getElementById('styleWhy');
+    if (why) {
+      why.innerHTML = '<div class="notice blue" style="margin:0"><b>' + esc(st.styleName) + '</b>：' + esc(st.why) + '</div>';
+    }
+
+    setText('styleRuleHint', '止损 ' + toFixed2(st.stopPct) + '% 的固定倍数');
+    var rows = document.getElementById('styleRuleRows');
+    if (rows) {
+      var defs = [
+        ['加仓触发', st.addAtPct + '%', (st.addAtPct / st.stopPct).toFixed(1) + 'R'],
+        ['加仓窗口上界', st.addZoneTopPct + '%', (st.addZoneTopPct / st.stopPct).toFixed(1) + 'R'],
+        ['第一减仓（止盈位）', st.reduce1Pct + '%', (st.reduce1Pct / st.stopPct).toFixed(1) + 'R'],
+        ['第二减仓', st.reduce2Pct + '%', (st.reduce2Pct / st.stopPct).toFixed(1) + 'R'],
+        ['移动止盈启用', st.trailOnPct + '%', (st.trailOnPct / st.stopPct).toFixed(1) + 'R'],
+        ['移动止盈回撤', st.trailBackPct + '%', (st.trailBackPct / st.stopPct).toFixed(1) + 'R'],
+        ['最低盈亏比', st.rrMin + ' : 1', '= 第一减仓的 R 倍数']
+      ];
+      var rh = '';
+      for (var i = 0; i < defs.length; i++) {
+        rh += '<tr><td>' + esc(defs[i][0]) + '</td><td class="n"><b>' + esc(defs[i][1]) + '</b></td><td class="n muted">' + esc(defs[i][2]) + '</td></tr>';
+      }
+      rows.innerHTML = rh;
+    }
+
+    var box = document.getElementById('styleAlerts');
+    if (box) {
+      var it = instrumentOf('600519', '');
+      var lim = num(it.limit) || 10;
+      var a = '';
+      var noise = lim * 0.4;
+      if (st.stopPct <= noise) {
+        a += '<div class="notice yellow">止损 ' + toFixed2(st.stopPct) + '% 低于主板单日振幅的四成（' + toFixed2(noise) + '%），一次正常的日内波动就可能把你扫出去。短线风格要接受更高的被扫概率，请靠<b>减小单笔仓位</b>而不是放宽止损来承受。</div>';
+      }
+      if (st.stopPct > lim) {
+        a += '<div class="notice red">止损 ' + toFixed2(st.stopPct) + '% 已超过主板单日涨跌幅（±' + lim + '%），一天之内不可能触及，止损实际要跨日才生效。</div>';
+      }
+      a += '<div class="notice blue">换风格会<b>立刻重算全站阈值</b>：建仓的止损默认值、持仓卡上的加仓 / 减仓触发价、移动止盈线、减仓计划清单都跟着变。已经建立的持仓不会自动改止损，需要时用卡片上的「按规则校准」。</div>';
+      box.innerHTML = a;
     }
   }
 
@@ -5444,6 +5633,26 @@ body{
     }
     a += '<div class="notice yellow">回撤监控：按当前单笔风险 ' + toFixed2(c.riskPct) + '%，连亏 ' + num(g.surviveLosses) + ' 次会消耗掉 ' + toFixed2(g.maxDrawdownPct) + '% 的回撤额度。连续亏损到第 ' + Math.max(1, Math.round(num(g.surviveLosses) / 2)) + ' 次时，先停下来复核策略，而不是加倍找回。</div>';
     box.innerHTML = a;
+  }
+
+  function renderRuleNumbers() {
+    var st = state.style || styleRules((state.goal || {}).styleId);
+    var c = state.constraints || deriveConstraints(state.goal || {});
+    var set = function (id, v) { var e = document.getElementById(id); if (e) { e.textContent = v; } };
+    set('ruleAddAt', '+' + toFixed2(TRADE_RULES.ADD_AT_PCT) + '%');
+    set('ruleAddTop', '< +' + toFixed2(TRADE_RULES.ADD_ZONE_TOP_PCT) + '%');
+    set('ruleReduce1', '+' + toFixed2(TRADE_RULES.REDUCE1_PCT) + '%');
+    set('ruleReduce2', '+' + toFixed2(TRADE_RULES.REDUCE2_PCT) + '%');
+    set('ruleTrailOn', '+' + toFixed2(TRADE_RULES.TRAIL_ON_PCT) + '%');
+    set('ruleTrailBack', toFixed2(TRADE_RULES.TRAIL_BACK_PCT) + '%');
+    set('ruleMaxSingle', toFixed2(c.maxSinglePct) + '%');
+    set('ruleMaxPort', toFixed2(c.maxPortfolioPct) + '%');
+    set('ruleStyleName', st.styleName);
+    set('ruleStop', toFixed2(st.stopPct) + '%');
+    set('ruleRA', R_MULT.ADD.toFixed(1) + 'R');
+    set('ruleRR1', R_MULT.REDUCE1.toFixed(1) + 'R');
+    set('ruleRR2', R_MULT.REDUCE2.toFixed(1) + 'R');
+    set('ruleRTO', R_MULT.TRAIL_ON.toFixed(1) + 'R');
   }
 
   function renderParams() {
@@ -5805,7 +6014,10 @@ body{
   function refreshAll() {
     syncPriceDec();
     syncRiskLock();
+    syncStyleToForm(false);
+    renderStyle();
     renderGoal();
+    renderRuleNumbers();
     renderParams();
     syncStopChips();
     renderInstrument(state.instrument);
@@ -6469,6 +6681,23 @@ body{
         refreshAll();
       }
       sec.addEventListener('change', commit);
+      /* 风格按钮：切换后立刻重算 TRADE_RULES 与全部风控参数 */
+      sec.addEventListener('click', function (e) {
+        var b = e.target.closest ? e.target.closest('[data-style]') : null;
+        if (!b) { return; }
+        var id = b.getAttribute('data-style');
+        if (!STYLES[id]) { return; }
+        state.goal.styleId = id;
+        applyStyle(id);
+        state.params.rr = TRADE_RULES.RR_MIN;
+        state.params.trailOnPct = TRADE_RULES.TRAIL_ON_PCT;
+        state.params.trailBackPct = TRADE_RULES.TRAIL_BACK_PCT;
+        saveParams();
+        state.riskResult = null;
+        syncStyleToForm(true);
+        refreshAll();
+        toast('已切换到「' + STYLES[id].name + '」：止损 ' + toFixed2(STYLES[id].stopPct) + '%，全套阈值已重算');
+      });
       sec.addEventListener('input', function (e) {
         var t = e.target;
         if (t && t.type === 'date') { commit(); }
@@ -6523,7 +6752,11 @@ body{
       }
       /* 止损幅度 ↔ 止损价 双向反算 */
       if (stopPctEl) {
-        stopPctEl.addEventListener('input', function () { recalcRisk('pct'); });
+        stopPctEl.addEventListener('input', function () {
+          /* 单笔可以偏离风格：打过标记后，风格切换不再覆盖它 */
+          stopPctEl.setAttribute('data-touched', '1');
+          recalcRisk('pct');
+        });
       }
       if (stopEl) {
         stopEl.addEventListener('input', function () { recalcRisk('stop'); });
@@ -7002,6 +7235,29 @@ body{
     T.eq(r4.pastUnapplied.length, 0, 'corp 已应用 不重复');
     T.eq(r4.applied.length, 1, 'corp 已应用 列表计数');
   });
+  AQ.Test.group('style/derive', function (T) {
+    /* 原有六个常量应当等于「波段（5% 止损）」的 R 倍数 */
+    var sw = styleRules('swing');
+    T.eq(sw.addAtPct, 8, '波段 加仓 = 8%（1.6R）');
+    T.eq(sw.addZoneTopPct, 11.5, '波段 加仓上界 = 11.5%（2.3R）');
+    T.eq(sw.reduce1Pct, 15, '波段 第一减仓 = 15%（3R）');
+    T.eq(sw.reduce2Pct, 25, '波段 第二减仓 = 25%（5R）');
+    T.eq(sw.trailOnPct, 40, '波段 移动止盈启用 = 40%（8R）');
+    T.eq(sw.trailBackPct, 8, '波段 移动止盈回撤 = 8%（1.6R）');
+    /* 全部风格都保持同一组 R 倍数 —— 这才是「风格只改止损宽度」 */
+    ['trend', 'swing', 'short'].forEach(function (k) {
+      var r = styleRules(k);
+      T.near(r.reduce1Pct / r.stopPct, 3.0, 0.05, k + ' 第一减仓恒为 3R');
+      T.near(r.trailOnPct / r.stopPct, 8.0, 0.05, k + ' 移动止盈启用恒为 8R');
+      T.near(r.addAtPct / r.stopPct, 1.6, 0.05, k + ' 加仓触发恒为 1.6R');
+    });
+    /* 趋势止损更宽 → 绝对阈值更高 */
+    T.assert(styleRules('trend').reduce1Pct > styleRules('swing').reduce1Pct, '趋势跟随的减仓位比波段远');
+    T.assert(styleRules('short').reduce1Pct < styleRules('swing').reduce1Pct, '短线的减仓位比波段近');
+    /* 未知风格回落 */
+    T.eq(styleRules('nope').styleId, 'swing', '未知风格回落到波段');
+  });
+
   AQ.Test.group('goal/derive', function (T) {
     /* 推导链：可承受回撤 × 连亏次数 → 单笔风险 */
     var d1 = deriveConstraints({ capital: 100000, maxDrawdownPct: 15, surviveLosses: 8, maxPositions: 3, maxSinglePct: 30 });
