@@ -211,6 +211,27 @@ svg{display:block;}
 .rplan .rpl-trail.trig{color:var(--up);font-weight:600;}
 .rplan .rpl-trail.trig b{color:var(--up);}
 
+/* ---------- 持仓卡片：现在该做（规则自动判定的结论）---------- */
+.verdict{
+  border:1px solid var(--line);border-left:3px solid var(--text-3);
+  border-radius:var(--radius-sm);padding:10px 12px;margin-bottom:11px;
+  background:var(--neutral-bg);
+}
+.verdict.plus{border-left-color:var(--down);background:var(--down-tint);}
+.verdict.warn{border-left-color:var(--warn);background:var(--warn-tint);}
+.verdict.danger{border-left-color:var(--up);background:var(--up-tint);}
+.verdict.ok{border-left-color:var(--primary);background:var(--primary-tint);}
+.verdict .vd-h{display:flex;align-items:baseline;gap:8px;flex-wrap:wrap;}
+.verdict .vd-t{font-size:var(--fs-xs);color:var(--text-3);font-weight:600;letter-spacing:.04em;}
+.verdict .vd-a{font-size:var(--fs-lg);font-weight:700;letter-spacing:-.01em;}
+.verdict.plus .vd-a{color:var(--down-dark);}
+.verdict.warn .vd-a{color:var(--warn-dark);}
+.verdict.danger .vd-a{color:var(--up-dark);}
+.verdict.ok .vd-a{color:var(--text);}
+.verdict .vd-ma{font-size:var(--fs-xs);color:var(--text-3);}
+.verdict .vd-ma.unknown{color:var(--warn-dark);}
+.verdict .vd-r{font-size:var(--fs-base);color:var(--text-2);line-height:1.6;margin-top:4px;}
+
 /* ---------- 持仓卡片：规则位行（止损 / 两档止盈，全部由规则反推）---------- */
 .rulebar{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;margin-top:10px;padding:9px 11px;border-radius:var(--radius-sm);background:var(--primary-tint);border:1px solid var(--primary-line);font-size:var(--fs-base);line-height:1.6;}
 .rulebar .rb-t{font-weight:600;color:var(--primary-ink);margin-right:2px;}
@@ -1299,6 +1320,10 @@ body{
 
     <!-- ============ 模块 3 加减仓规则 ============ -->
     <section class="section" id="sec-rule">
+      <div class="notice blue" style="margin-bottom:14px">
+        <b>这些规则不是给你查的，是自动执行的。</b>每张持仓卡片顶部都有一条「现在该做」，直接给出动作、股数与点位（减仓次数从交易日志自动统计，均线状态由 fuyao 日线判定）。这一页只放规则的完整口径，供你核对。
+      </div>
+
       <div class="card">
         <div class="card-h">
           <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
@@ -1326,7 +1351,7 @@ body{
             <ul>
               <li>浮盈 ≥ <b>+15%</b>：减 <b>1/3</b> 锁利，剩余止损上移至成本价（保本）</li>
               <li>浮盈 ≥ <b>+25%</b>：再减 <b>1/3</b>，剩余止损上移至成本价 ×1.10</li>
-              <li>跌破 20 日均线且仍有浮盈：减 <b>1/2</b>，剩余止损回拉到成本价<span class="muted">（均线状态在规则引擎页点「自动判断均线」由 fuyao 日线算出）</span></li>
+              <li>跌破 20 日均线且仍有浮盈：减 <b>1/2</b>，剩余止损回拉到成本价<span class="muted">（均线状态在持仓卡片上点「判断均线」由 fuyao 日线算出）</span></li>
               <li class="up">峰值浮盈 ≥ <b>+40%</b> 后启用<b>移动止盈</b>：从阶段最高价回撤 <b>8%</b> → 清仓剩余。离场线兜底不低于成本价 ×1.25，已锁住的利润不会被回撤吃掉</li>
               <li>触及止损价：<b>清仓 100%</b>，不讨论、不等反弹</li>
               <li>单日跌幅 ≥ 7% 且未到止损：减 1/2，规避流动性风险</li>
@@ -1344,46 +1369,6 @@ body{
         <div id="reduceList"></div>
       </div>
 
-      <div class="card">
-        <div class="card-h">
-          <h2>规则引擎 · 生成今日动作</h2>
-          <span class="spacer"></span>
-          <span class="hint">先判减仓，再判加仓</span>
-        </div>
-        <div class="grid3">
-          <div class="field">
-            <label>选择标的</label>
-            <select id="rulePos" style="min-height:44px"></select>
-          </div>
-          <div class="field">
-            <label>是否跌破 20 日均线</label>
-            <div class="row-mid">
-              <select id="ruleMA" class="flex-1">
-                <option value="no">未跌破（趋势完好）</option>
-                <option value="yes">已跌破（趋势走坏）</option>
-              </select>
-              <button type="button" class="btn sm" id="btnAutoMA" title="用 fuyao 日线自动算 MA20 并判断">自动判断均线</button>
-            </div>
-            <span class="tip">需启用 fuyao 数据源；也可手动选（无法取日线时）</span>
-          </div>
-          <div class="field">
-            <label>该标的已加仓次数</label>
-            <select id="ruleAdd" style="min-height:44px">
-              <option value="0">0 次</option>
-              <option value="1">1 次</option>
-              <option value="2">2 次（已达上限）</option>
-            </select>
-          </div>
-        </div>
-        <div id="ruleMAInfo" class="mt-3"></div>
-        <div class="mt-4">
-          <button class="btn primary" id="btnRuleRun">
-            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
-            生成加减仓建议
-          </button>
-        </div>
-        <div id="ruleOut" class="mt-4"></div>
-      </div>
     </section>
 
     <!-- ============ 模块 4 交易纪律 ============ -->
@@ -1669,6 +1654,11 @@ body{
           <div class="tlitem" id="v153">
             <h3><span class="ver is-latest">1.5.3</span>更新日志页重排 + 技术说明并入设计理念<span class="tlmeta">2026-09-15</span></h3>
             <ul>
+              <li><b>把规则变成自动执行的，而不是需要你翻页查的</b>。此前要知道一只持仓该做什么，得去「加减仓规则」页：选标的 → 选均线状态 → 选加仓次数 → 点「生成建议」，六步才出一个结论。现在每张持仓卡片顶部直接显示「现在该做」，含<b>动作 + 股数 + 执行价</b></li>
+              <li><b>规则的两个输入都改成自动取</b>：加仓次数从交易日志里该标的的「加仓」记录条数统计；均线状态由每张卡上的「判断均线」按 fuyao 日线判定并写回持仓（未判定时按「未跌破」处理，不误触发破线减半）</li>
+              <li><b>删除「规则引擎」卡</b>。它的功能已全部落到持仓卡片上，且不再需要手工输入。加减仓规则页只留「固定规则」口径 + 「全仓减仓计划」清单</li>
+              <li><b>「今天要处理」补上「可加仓」这一类</b>。此前浮盈到 +8% 进入加仓窗口的标的最该动作，却什么都不显示；现在与减仓、触损一起进待办</li>
+              <li>新增 <b>均线状态</b> 持仓字段：按需由日线写入，写回后结论立即按真实均线重算</li>
               <li><b>新增「目标」页，补上链条的起点</b>。此前这个工具从「算这一笔买多少」开始，没有目标也没有策略 —— 是一台计算器，不是一套系统。现在声明「本金 / 年内目标 / 可承受回撤 / 想扛住几次连亏」，风控约束由它推导出来</li>
               <li><b>2% 不再是写死的常量，而是算出来的结果</b>：<code>单笔风险 = 1 − (1 − 可承受回撤)^(1/连亏次数)</code>。默认「15% 回撤 ÷ 8 次连亏」正好推出 2.01%，与原先那个写死的 2% 吻合 —— 区别在于现在它有推导过程，改目标它就跟着动</li>
               <li><b>组合敞口同理</b>：单笔风险 × 最多同时持仓数 = 「所有持仓同日触损」时亏掉的比例（2.01% × 3 = 6.03%）</li>
@@ -1791,6 +1781,15 @@ body{
       <span class="spacer"></span>
       <span class="tag gray" data-stale style="display:none">待巡检</span>
     </div>
+    <div class="verdict" data-verdict>
+      <div class="vd-h">
+        <span class="vd-t">现在该做</span>
+        <span class="vd-a" data-vd-action>--</span>
+        <span class="spacer"></span>
+        <span class="vd-ma" data-vd-ma></span>
+      </div>
+      <div class="vd-r" data-vd-reason></div>
+    </div>
     <div class="metrics">
       <div class="metric"><div class="k">现价 / 成本</div><div class="v" data-calc="price">--</div></div>
       <div class="metric"><div class="k">浮动盈亏</div><div class="v" data-calc="pnl">--</div></div>
@@ -1830,8 +1829,9 @@ body{
       <button class="btn sm" data-act="quote">取现价</button>
       <button class="btn sm" data-act="save-price">更新现价</button>
       <button class="btn sm" data-act="save-stop">更新止损</button>
+      <button class="btn sm" data-act="ma">判断均线</button>
       <button class="btn sm" data-act="patrol">标记已巡检</button>
-      <button class="btn sm" data-act="rule">去加减仓</button>
+      <button class="btn sm" data-act="rule">看规则</button>
       <span class="spacer"></span>
       <span class="muted fs-115" data-lastpatrol>--</span>
       <button class="btn sm danger" data-act="del-pos" title="从台账中删除该条记录">删除</button>
@@ -1951,7 +1951,7 @@ body{
         '股票代码', '股票名称', '持仓状态', '持仓股数', '成本价',
         '现价', '阶段最高价', '止损价', '目标价',
         '买入日期', '巡检日期', '备注',
-        '成本价原始', '持仓股数原始', '除权除息已应用', '日涨跌幅'
+        '成本价原始', '持仓股数原始', '除权除息已应用', '日涨跌幅', '均线状态'
       ],
       required: ['股票代码', '持仓股数', '成本价'],
       defaults: function () {
@@ -2150,12 +2150,8 @@ body{
     riskResult: null,
     quote: null,
     instrument: null,
-    advice: null,
     tab: 'risk',
     posFilter: 'all',
-    rulePosId: '',
-    ruleMA: 'no',
-    ruleAdd: 0,
     lastPatrol: '',
     online: true,
     dbReady: false,
@@ -2817,6 +2813,8 @@ body{
        止盈 = 减仓档位（成本 ×1.15 / ×1.25）；止损 = 随浮盈档位上移。
        这样「持仓卡片」与「规则引擎」对同一个价格永远给同一个答案。 */
     out.rule = ruleLevels(p);
+    /* 该做什么 —— 由规则自动判定（加仓次数取自日志，均线状态取自持仓字段） */
+    out.verdict = verdictOf(p);
     out.target = (out.rule && out.rule.target1 > 0) ? out.rule.target1
                : ((out.plan && out.plan.valid && out.plan.p1 > 0) ? out.plan.p1 : target);
     out.target2 = (out.rule && out.rule.target2 > 0) ? out.rule.target2
@@ -2931,6 +2929,16 @@ body{
       } else if (a.level === 'target') {
         /* target = 到了减仓位（可能是第一档也可能是第二档）→ 可一键执行对应档位 */
         items.push({ tone: 'yellow', pri: 2, title: a.code + an + ' ' + a.label, desc: a.action, posId: a.id, act: '一键减仓', exec: 'reduce', tab: 'pos' });
+      }
+      /* 规则判定「可加仓」的也要进待办 —— 否则浮盈到 +8% 的标的最该动作，却什么都不显示 */
+      if (a.verdict && a.verdict.buyShares > 0) {
+        var vp = a.verdict.price > 0 ? ('　@ ¥' + fmtByTick(a.verdict.price, a.verdict.tick)) : '';
+        items.push({
+          tone: 'green', pri: 2.5,
+          title: a.code + an + ' 到加仓窗口',
+          desc: a.verdict.action + vp + '　' + (a.verdict.reasons[0] || ''),
+          posId: a.id, act: '去持仓页', tab: 'pos'
+        });
       }
       if (a.stale) {
         items.push({
@@ -3124,6 +3132,63 @@ body{
     out.hit1 = price > 0 && price >= out.p1;
     out.hit2 = price > 0 && price >= out.p2;
     if (out.n1 <= 0) { out.note = '持仓不足 2 手，无法按比例部分减仓'; }
+    return out;
+  }
+
+  /* ============================================================
+   * 规则自动执行：把「要不要动作、动作多少、什么价」算到每只持仓上
+   * ------------------------------------------------------------
+   * 以前这些结论要去「加减仓规则」页手工选标的、选均线、选加仓次数
+   * 才出得来。现在两个输入都自动取：
+   *   · 加仓次数 ← 交易日志里该标的的「加仓」记录条数
+   *   · 均线状态 ← 持仓上的「均线状态」字段（按需由 fuyao 日线写入，
+   *                未判定时按「未跌破」处理，不误触发破线减仓）
+   * ============================================================ */
+  function addCountOf(code) {
+    var c = normCode(code), n = 0;
+    var logs = state.logs || [];
+    for (var i = 0; i < logs.length; i++) {
+      if (normCode(logs[i]['股票代码']) !== c) { continue; }
+      if (String(logs[i]['操作类型'] || '') === '加仓') { n++; }
+    }
+    return n;
+  }
+
+  function maBrokeOf(p) {
+    return String(p['均线状态'] || '') === 'yes';
+  }
+  function maKnownOf(p) {
+    var v = String(p['均线状态'] || '');
+    return v === 'yes' || v === 'no';
+  }
+
+  /* 自动判定：给出这只持仓此刻该做什么（含股数与点位） */
+  function verdictOf(p) {
+    var adv = adviceFor(p, maBrokeOf(p), addCountOf(p['股票代码']));
+    var it = instrumentOf(p['股票代码'] || '', p['股票名称'] || '');
+    var plan = reducePlan(p);
+    var lv = ruleLevels(p);
+    var out = {
+      action: adv.action, tone: adv.tone, reasons: adv.reasons, steps: adv.steps,
+      sellShares: adv.sellShares, buyShares: adv.buyShares,
+      afterShares: adv.afterShares, newStop: adv.newStop,
+      unit: it.unit, tick: it.tick,
+      addCount: addCountOf(p['股票代码']),
+      maKnown: maKnownOf(p),
+      maBroke: maBrokeOf(p),
+      /* 动作对应的执行价：减仓/加仓都给出具体点位 */
+      price: 0, priceLabel: ''
+    };
+    if (adv.sellShares > 0 && plan && plan.valid) {
+      var pnlRate = num(p['成本价']) > 0 ? (num(p['现价']) - num(p['成本价'])) / num(p['成本价']) * 100 : 0;
+      if (plan.hit2) { out.price = plan.p2; out.priceLabel = '第二减仓位'; }
+      else if (plan.hit1) { out.price = plan.p1; out.priceLabel = '第一减仓位'; }
+      else { out.price = num(p['现价']); out.priceLabel = '现价'; }
+    } else if (adv.buyShares > 0) {
+      /* 加仓价不追高：取现价，但提示优先在 5 日线附近 */
+      out.price = num(p['现价']);
+      out.priceLabel = '现价（不追高）';
+    }
     return out;
   }
 
@@ -4099,63 +4164,6 @@ body{
     if (!c || !c.bars || !c.bars.length) { return null; }
     if (Date.now() - c.at > MA_CACHE_TTL) { return null; }
     return c;
-  }
-
-  /* 一键取日线 → 自动判定均线状态 → 回填下拉框 */
-  function onAutoMA(btn) {
-    var pos = findPosById(state.rulePosId);
-    if (!pos) { toast('请先选择一个标的'); return; }
-    var src = findActiveFuyao();
-    if (!src) { toast('自动判断均线需要 fuyao：请在「数据源」启用并填入 API Key'); return; }
-    var code = normCode(pos['股票代码']);
-    var thscode = fuyaoThscodeOf({ prefix: marketPrefix(code), code: code });
-    if (!thscode) { toast('该标的代码格式不正确，无法取日线'); return; }
-
-    /* 命中缓存就直接用，不重复请求 */
-    var hit = maCacheGet(code);
-    if (hit) { applyMAVerdict(pos, code); return; }
-
-    if (btn) { btn.disabled = true; }
-    if (btn) { btn.textContent = '取日线中…'; }
-    fetchDailyBarsFuyao(src, thscode, MA_NEED_BARS, function (err, bars) {
-      if (btn) { btn.disabled = false; btn.textContent = '自动判断均线'; }
-      if (err) { toast('取日线失败：' + err.message); return; }
-      if (!bars || bars.length < 20) { toast('日线只有 ' + (bars ? bars.length : 0) + ' 根，不足以算 MA20'); return; }
-      stateMaCache[thscode] = { at: Date.now(), bars: bars };
-      applyMAVerdict(pos, code);
-    });
-  }
-
-  /* 把均线研判写回界面：下拉框自动选中 + 把 MA 值展示出来 */
-  function applyMAVerdict(pos, code) {
-    var cached = maCacheGet(code);
-    if (!cached) { return; }
-    var v = maVerdictFromBars(cached.bars, pos['现价']);
-    if (!v || v.below20 === null) { toast('数据不足，无法判定'); return; }
-    var sel = $('#ruleMA');
-    if (sel) { sel.value = v.below20 ? 'yes' : 'no'; state.ruleMA = sel.value; }
-    state.advice = null;
-    refreshAll();
-    toast('MA20 = ¥' + toFixed2(v.ma20) +
-      (v.ma60 !== null ? '，MA60 = ¥' + toFixed2(v.ma60) : '') +
-      '；现价 ¥' + toFixed2(v.price) + ' → ' + (v.below20 ? '已跌破 MA20' : '未跌破 MA20'));
-  }
-
-  /* 均线信息条：有缓存才显示（带数据日期与两个均线值）*/
-  function renderMAInfo(cached, price) {
-    var box = $('#ruleMAInfo');
-    if (!box) { return; }
-    if (!cached) { box.innerHTML = ''; return; }
-    var v = maVerdictFromBars(cached.bars, price);
-    if (!v) { box.innerHTML = ''; return; }
-    var cls = v.below20 ? 'up' : 'down';
-    var txt = v.below20 ? '已跌破' : '未跌破';
-    box.innerHTML = '<div class="notice ' + (v.below20 ? 'red' : 'green') + '" style="margin:0">' +
-      '<b>MA20 = ¥' + toFixed2(v.ma20) + '</b>' +
-      (v.ma60 !== null ? '　MA60 = ¥' + toFixed2(v.ma60) : '') +
-      '　现价 ¥' + toFixed2(v.price) + ' → <b>' + txt + ' MA20</b>' +
-      '<br><span class="muted">基于 ' + v.bars + ' 根前复权日线，最新一根 ' + fuyaoStampFromMs(v.lastMs).slice(0, 8).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3') + '（收盘 ¥' + toFixed2(v.lastClose) + '）</span>' +
-      '</div>';
   }
 
   /* 用「某一个具体数据源」取价：腾讯与 fuyao 都支持一次多只，原生走批量；其余类型逐只来 */
@@ -5175,6 +5183,8 @@ body{
       var saveBtn = node.querySelector('[data-act="save-price"]');
       var saveStopBtn = node.querySelector('[data-act="save-stop"]');
       var stopInput = node.querySelector('[data-input="stop"]');
+      var maBtn = node.querySelector('[data-act="ma"]');
+      if (maBtn) { maBtn.setAttribute('data-id', a.id); }
       var patrolBtn = node.querySelector('[data-act="patrol"]');
       var ruleBtn = node.querySelector('[data-act="rule"]');
       var delBtn = node.querySelector('[data-act="del-pos"]');
@@ -5192,6 +5202,37 @@ body{
       if (delBtn) { delBtn.setAttribute('data-id', a.id); }
       if (fetchCorpBtn) { fetchCorpBtn.setAttribute('data-id', a.id); }
       if (applyCorpBtn) { applyCorpBtn.setAttribute('data-id', a.id); }
+      /* 现在该做：把规则引擎的结论直接贴到卡片上，不需要用户手工生成 */
+      (function () {
+        var vd = node.querySelector('[data-verdict]');
+        if (!vd) { return; }
+        var v = a.verdict;
+        if (!v) { vd.style.display = 'none'; return; }
+        vd.style.display = '';
+        vd.className = 'verdict ' + (v.tone || 'ok');
+        var actTxt = v.action;
+        /* 动作带股数时补上执行价，让人一眼知道挂哪儿 */
+        if (v.sellShares > 0 && v.price > 0) {
+          actTxt += '　@ ¥' + fmtByTick(v.price, v.tick) + '（' + v.priceLabel + '）';
+        } else if (v.buyShares > 0 && v.price > 0) {
+          actTxt += '　@ ¥' + fmtByTick(v.price, v.tick) + '（' + v.priceLabel + '）';
+        }
+        vd.querySelector('[data-vd-action]').textContent = actTxt;
+        vd.querySelector('[data-vd-reason]').textContent = v.reasons.join(' ');
+
+        var maEl = vd.querySelector('[data-vd-ma]');
+        if (maEl) {
+          if (!v.maKnown) {
+            maEl.textContent = '均线未判定';
+            maEl.className = 'vd-ma unknown';
+            maEl.title = '点卡片底部「判断均线」取日线自动判定；未判定时按「未跌破」处理';
+          } else {
+            maEl.textContent = v.maBroke ? '已跌破 20 日线' : '未跌破 20 日线';
+            maEl.className = 'vd-ma';
+          }
+        }
+      })();
+
       /* 规则位行：止损与两档止盈全部由规则反推；规则止损高于已设位时可一键校准 */
       (function () {
         var rb = node.querySelector('[data-rulebar]');
@@ -5222,62 +5263,6 @@ body{
       list.appendChild(node);
     }
     if (shown === 0) { list.innerHTML = '<div class="empty">当前筛选条件下没有持仓。</div>'; }
-  }
-
-  function renderRuleEngine() {
-    var sel = $('#rulePos');
-    if (!sel) { return; }
-    var assessed = assessAll();
-    var keep = state.rulePosId;
-    var html = '';
-    for (var i = 0; i < assessed.length; i++) {
-      var dnm = nameOrEmpty(assessed[i].name, assessed[i].code);
-      html += '<option value="' + esc(assessed[i].id) + '">' + esc(assessed[i].code + (dnm ? ' ' + dnm : '')) + '</option>';
-    }
-    if (assessed.length === 0) { html = '<option value="">暂无在持标的</option>'; }
-    sel.innerHTML = html;
-    var exists = false;
-    for (var j = 0; j < assessed.length; j++) { if (assessed[j].id === keep) { exists = true; } }
-    if (exists) { sel.value = keep; } else if (assessed.length) { sel.value = assessed[0].id; state.rulePosId = assessed[0].id; }
-    sel.disabled = assessed.length === 0;
-
-    var maEl = $('#ruleMA'); if (maEl) { maEl.value = state.ruleMA; }
-    var addEl = $('#ruleAdd'); if (addEl) { addEl.value = String(state.ruleAdd); }
-
-    /* 均线信息条：选中的标的若有日线缓存，就把 MA20/MA60 摆出来（含数据日期）*/
-    (function () {
-      var cur = null;
-      for (var m = 0; m < assessed.length; m++) { if (assessed[m].id === sel.value) { cur = assessed[m]; break; } }
-      if (cur) { renderMAInfo(maCacheGet(cur.code), cur.price); } else { renderMAInfo(null, 0); }
-    })();
-
-    var out = $('#ruleOut');
-    if (!out) { return; }
-    var a = state.advice;
-    if (!a) {
-      out.innerHTML = '<div class="notice blue">选择标的并生成建议。判定顺序：<b>触及止损 → 跌破均线 → 浮盈 25% → 浮盈 15% → 浮盈 8% 加仓 → 浮亏禁止加仓 → 持有</b>。</div>';
-      return;
-    }
-    var toneCls = a.tone === 'danger' ? 'red' : (a.tone === 'warn' ? 'yellow' : (a.tone === 'plus' ? 'green' : 'blue'));
-    var advNm = nameOrEmpty(a.name, a.code);
-    var h = '<div class="notice ' + toneCls + '"><b>' + esc(a.code + (advNm ? ' ' + advNm : '')) + '：' + esc(a.action) + '</b></div>';
-    h += '<div class="grid4">' +
-      '<div class="stat"><div class="k">当前浮盈率</div><div class="v sm ' + pnlClass(a.pnlRate) + '">' + fmtPct(a.pnlRate) + '</div></div>' +
-      '<div class="stat"><div class="k">当前持仓</div><div class="v sm">' + fmtShares(a.shares) + ' 股</div></div>' +
-      '<div class="stat"><div class="k">调整后持仓</div><div class="v sm">' + fmtShares(a.afterShares) + ' 股</div></div>' +
-      '<div class="stat"><div class="k">调整后止损</div><div class="v sm">' + fmtPrice(a.newStop) + '</div></div>' +
-      '</div>';
-    h += '<div class="mt-3"><div class="card-h"><h2 class="fs-135">判定依据</h2></div><ul class="checklist">';
-    for (var m = 0; m < a.reasons.length; m++) { h += '<li><span class="muted">·</span><span>' + esc(a.reasons[m]) + '</span></li>'; }
-    h += '</ul></div>';
-    if (a.steps && a.steps.length) {
-      h += '<div class="mt-3"><div class="card-h"><h2 class="fs-135">执行步骤</h2></div><ul class="checklist">';
-      for (var n = 0; n < a.steps.length; n++) {
-        h += '<li><input type="checkbox" data-step><span>' + esc(a.steps[n]) + '</span></li>';
-      }
-      h += '</ul></div>';
-    }
-    out.innerHTML = h;
   }
 
   function renderDiscipline() {
@@ -5827,7 +5812,6 @@ body{
     renderToday();
     renderRisk();
     renderPositions();
-    renderRuleEngine();
     renderReduceList();
     renderDiscipline();
     renderLogs();
@@ -6220,6 +6204,49 @@ body{
     return n;
   }
 
+  /* 单只持仓：按 fuyao 日线判定均线状态并写回该持仓。
+     写回后卡片上的「现在该做」会立刻按真实均线状态重算。 */
+  function onCardMA(id, btn) {
+    var pos = findPosById(id);
+    if (!pos) { toast('该持仓已不存在'); return; }
+    var src = findActiveFuyao();
+    if (!src) { toast('判断均线需要 fuyao：请在「数据源」启用并填入 API Key'); return; }
+    var code = normCode(pos['股票代码']);
+    var thscode = fuyaoThscodeOf({ prefix: marketPrefix(code), code: code });
+    if (!thscode) { toast('该标的代码格式不正确，无法取日线'); return; }
+
+    var cached = maCacheGet(code);
+    if (cached) { writeMAVerdict(pos, code, btn); return; }
+
+    if (btn) { btn.disabled = true; btn.textContent = '取日线中…'; }
+    fetchDailyBarsFuyao(src, thscode, MA_NEED_BARS, function (err, bars) {
+      if (btn) { btn.disabled = false; btn.textContent = '判断均线'; }
+      if (err) { toast('取日线失败：' + err.message); return; }
+      if (!bars || bars.length < 20) { toast('日线只有 ' + (bars ? bars.length : 0) + ' 根，不足以算 MA20'); return; }
+      stateMaCache[thscode] = { at: Date.now(), bars: bars };
+      writeMAVerdict(pos, code, btn);
+    });
+  }
+
+  function writeMAVerdict(pos, code, btn) {
+    var cached = maCacheGet(code);
+    if (!cached) { return; }
+    var v = maVerdictFromBars(cached.bars, pos['现价']);
+    if (!v || v.below20 === null) { toast('数据不足，无法判定'); return; }
+    if (btn) { btn.disabled = true; }
+    updatePosition(pos._id, { '均线状态': { select: v.below20 ? 'yes' : 'no' } })
+      .then(reloadData).then(function () {
+        if (btn) { btn.disabled = false; }
+        refreshAll();
+        toast('MA20 ¥' + toFixed2(v.ma20) + '，现价 ¥' + toFixed2(v.price) + ' → ' +
+          (v.below20 ? '已跌破（破线减半规则生效）' : '未跌破'));
+      })['catch'](function (e) {
+        console.error(e);
+        if (btn) { btn.disabled = false; }
+        toast('写回失败，请重试');
+      });
+  }
+
   function onPatrolOne(id, btn) {
     var properties = {};
     properties['巡检日期'] = { date: todayStr() };
@@ -6298,7 +6325,7 @@ body{
     if (!tasks.length) { toast('当前没有可清空的数据'); return; }
     if (btn) { btn.disabled = true; }
     runSequential(tasks, 0).then(reloadData).then(function () {
-      state.riskResult = null; state.advice = null;
+      state.riskResult = null;
       refreshAll(); toast('已清空全部数据');
     })['catch'](function (err) {
       console.error(err); toast('清空失败，请重试');
@@ -6683,14 +6710,12 @@ body{
         else if (act === 'save-price') { onSavePrice(id, el); }
         else if (act === 'save-stop') { onSaveStop(id, el); }
         else if (act === 'align-rule') { onAlignRule(id, el); }
+        else if (act === 'ma') { onCardMA(id, el); }
         else if (act === 'patrol') { onPatrolOne(id, el); }
         else if (act === 'del-pos') { onDeletePosition(id, el); }
         else if (act === 'fetch-corp') { onFetchCorpForPos(id, el); }
         else if (act === 'apply-corp') { onApplyCorpForPos(id, el); }
-        else if (act === 'rule') {
-          state.rulePosId = id; state.advice = null;
-          switchTab('rule'); refreshAll();
-        }
+        else if (act === 'rule') { switchTab('rule'); }
       });
     }
 
@@ -6725,36 +6750,6 @@ body{
           return;
         }
         if (goto) { switchTab(goto); }
-      });
-    }
-
-    var rulePosEl = $('#rulePos');
-    if (rulePosEl) {
-      rulePosEl.addEventListener('change', function () {
-        state.rulePosId = rulePosEl.value; state.advice = null; refreshAll();
-      });
-    }
-    var autoMABtn = $('#btnAutoMA');
-    if (autoMABtn) { autoMABtn.addEventListener('click', function () { onAutoMA(autoMABtn); }); }
-    var ruleMAEl = $('#ruleMA');
-    if (ruleMAEl) {
-      ruleMAEl.addEventListener('change', function () { state.ruleMA = ruleMAEl.value; state.advice = null; refreshAll(); });
-    }
-    var ruleAddEl = $('#ruleAdd');
-    if (ruleAddEl) {
-      ruleAddEl.addEventListener('change', function () { state.ruleAdd = num(ruleAddEl.value); state.advice = null; refreshAll(); });
-    }
-    var ruleRun = $('#btnRuleRun');
-    if (ruleRun) {
-      ruleRun.addEventListener('click', function () {
-        var id = $('#rulePos') ? $('#rulePos').value : '';
-        var target = null;
-        for (var i = 0; i < state.positions.length; i++) {
-          if (state.positions[i]._id === id) { target = state.positions[i]; }
-        }
-        if (!target) { toast('请先选择一只在持标的'); return; }
-        state.advice = adviceFor(target, state.ruleMA === 'yes', state.ruleAdd);
-        refreshAll();
       });
     }
 
