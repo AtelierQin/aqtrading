@@ -804,14 +804,20 @@ body{
    功能页铺满宽度；纯阅读页不是「限宽留白」，而是「多栏排版」——
    宽屏自动分成若干 600px 文字栏，既用满宽度，又不会出现一行 100+ 字。 */
 @media (min-width:1300px){
-  /* 6 张卡片，单栏；中间留白按 4px 栅格 */
-  #sec-doc .card+.card{margin-top:16px;}
+  /* 6 张卡片自动分栏；600px 列宽 → 1448px 起 2 栏，2236px 起 3 栏 */
+  #sec-doc{columns:600px;column-gap:22px;}
+  #sec-doc .card{break-inside:avoid;-webkit-column-break-inside:avoid;margin-bottom:22px;}
 }
 @media (max-width:1299px){
   #sec-doc .card{max-width:1120px;}
 }
 /* 更新日志是时间轴，分栏会切断竖线，改为限制卡片宽度 */
-#sec-log .card{max-width:1180px;}
+/* 更新日志也走多栏（更新日志卡片大多含项目符号列表，多栏后既用宽度又易扫读）
+   1280px 以下仍走单列，让移动端阅读不受多栏断行干扰 */
+  @media (min-width:1300px){
+    #sec-log{columns:600px;column-gap:22px;}
+    #sec-log .card{break-inside:avoid;-webkit-column-break-inside:avoid;margin-bottom:22px;}
+  }
 /* 阅读页正文：比界面文字大一号，行宽按中文 45 字上下控制 */
 .doc p{font-size:var(--fs-md);}
 .doc p,.doc li,.doc ul,.tlitem li,.tlitem p{max-width:46em;}
