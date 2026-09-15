@@ -211,6 +211,17 @@ svg{display:block;}
 .rplan .rpl-trail.trig{color:var(--up);font-weight:600;}
 .rplan .rpl-trail.trig b{color:var(--up);}
 
+/* ---------- 持仓卡片：规则位行（止损 / 两档止盈，全部由规则反推）---------- */
+.rulebar{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;margin-top:10px;padding:9px 11px;border-radius:var(--radius-sm);background:var(--primary-tint);border:1px solid var(--primary-line);font-size:var(--fs-base);line-height:1.6;}
+.rulebar .rb-t{font-weight:600;color:var(--primary-ink);margin-right:2px;}
+.rulebar .rb-i{color:var(--text-2);white-space:nowrap;}
+.rulebar .rb-i b{font-variant-numeric:tabular-nums;color:var(--text);font-weight:600;}
+.rulebar .rb-note{color:var(--text-3);font-size:var(--fs-xs);}
+.rulebar.raise{background:var(--warn-tint);border-color:var(--warn-line);}
+.rulebar.raise .rb-t{color:var(--warn-dark);}
+.rulebar .rb-btn{margin-left:auto;}
+@media (max-width:768px){.rulebar .rb-btn{margin-left:0;}}
+
 /* ---------- 持仓卡片：除权除息事件行 ---------- */
 .actbar{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;margin-top:8px;padding:7px 9px;border-radius:var(--radius-sm);background:var(--neutral-bg);font-size:var(--fs-base);line-height:1.6;border:1px solid var(--line-soft);}
 .actbar .ac-t{font-weight:600;color:var(--text-2);margin-right:2px;}
@@ -997,6 +1008,10 @@ body{
             <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 10-3 6"/><path d="M20 5v6h-6"/></svg>
             刷新全仓现价
           </button>
+          <button class="btn sm" id="btnAlignRules">
+            <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
+            按规则校准
+          </button>
           <button class="btn sm primary" id="btnPatrolAll">
             <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 10-3 6"/><path d="M20 5v6h-6"/></svg>
             全仓巡检
@@ -1059,7 +1074,7 @@ body{
             <div class="field">
               <label>止损价</label>
               <input type="number" name="mStop" step="0.001" min="0" placeholder="你的实际止损位">
-              <span class="tip">留空会按「未设止损」录入，并在巡检里标红提醒</span>
+              <span class="tip">留空则按规则自动算出（成本 −5%）</span>
             </div>
             <div class="field">
               <label>目标价</label>
@@ -1229,6 +1244,7 @@ body{
           </div>
         </div>
         <div id="discAlerts" class="mt-3"></div>
+        <div id="rulesStats" class="mt-3"></div>
         <div class="mt-4">
           <div class="card-h"><h2 class="fs-135">违规类型分布</h2></div>
           <div class="bars" id="discBars"></div>
@@ -1389,57 +1405,6 @@ body{
         <p class="hint mt-2" id="srcFormHint">--</p>
       </div>
 
-      <!-- ============ 交易规则（行为约束） ============ -->
-      <div class="card" id="rulesCard">
-        <div class="card-h">
-          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 4v6c0 5-3.5 9-9 10-5.5-1-9-5-9-10V6l9-4z"/></svg>
-          <h2>交易规则（行为约束）</h2>
-          <span class="spacer"></span>
-          <span class="hint" id="rulesHint">勾选启用、调阈值。违规会被记录、不拦截 override</span>
-        </div>
-        <div class="grid2">
-          <div class="rule-row">
-            <label class="srcswitch">
-              <input type="checkbox" id="ruleStopUp" checked>
-              <span><b>止损只能上移</b> <span class="muted">— 防止「希望它别被打到」的下移陷阱</span></span>
-            </label>
-          </div>
-          <div class="rule-row">
-            <label class="srcswitch">
-              <input type="checkbox" id="ruleFomo" checked>
-              <span><b>拦截 FOMO 追涨</b> <span class="muted">— 当日涨幅超阈值禁止开仓</span></span>
-            </label>
-            <div class="row-mid mt-2">
-              <span class="muted fs-12">阈值</span>
-              <input type="number" id="ruleFomoPct" min="1" max="20" step="0.5" value="5" class="w-80">
-              <span class="muted">%</span>
-            </div>
-          </div>
-          <div class="rule-row">
-            <label class="srcswitch">
-              <input type="checkbox" id="ruleRevenge" checked>
-              <span><b>亏损后冷却</b> <span class="muted">— 上笔亏损后 N 小时禁止开仓</span></span>
-            </label>
-            <div class="row-mid mt-2">
-              <span class="muted fs-12">冷却时长</span>
-              <input type="number" id="ruleRevengeH" min="1" max="168" step="1" value="24" class="w-80">
-              <span class="muted">小时</span>
-            </div>
-          </div>
-          <div class="rule-row">
-            <label class="srcswitch">
-              <input type="checkbox" id="ruleRevengeLoss" checked>
-              <span><b>冷却门槛</b> <span class="muted">— 单笔亏损 &gt; 此值才触发冷却</span></span>
-            </label>
-            <div class="row-mid mt-2">
-              <span class="muted fs-12">亏损门槛</span>
-              <input type="number" id="ruleRevengeLossV" min="0" step="100" value="500" class="w-80">
-              <span class="muted">元</span>
-            </div>
-          </div>
-        </div>
-        <div id="rulesStats" class="mt-3"></div>
-      </div>
     </section>
 
     <!-- ============ 页签 6 设计理念 ============ -->
@@ -1591,7 +1556,8 @@ body{
             <tr><td>单笔亏损 ≤ 2%</td><td>风控计算</td><td>锁定，不可修改</td></tr>
             <tr><td>单票集中度上限</td><td>风控计算 · 巡检</td><td>可调 5–90%，超限压缩仓位并告警</td></tr>
             <tr><td>组合风险敞口上限</td><td>巡检 · 组合概览</td><td>可调 2–30%，超限告警</td></tr>
-            <tr><td>必须有止损位</td><td>巡检</td><td>止损价为空 → 标黄「未设止损」</td></tr>
+            <tr><td><b>止损位与止盈位由规则算出</b></td><td>持仓台账 · 加载时</td><td>止损位随浮盈档位上移（建仓位 → 成本价 → 成本 ×1.10 → 移动止盈线）；止盈位 = 减仓档位（成本 ×1.15 / ×1.25）。<b>缺失的止损位在每次数据加载时自动补齐</b></td></tr>
+            <tr><td>止损只能上移</td><td>持仓卡片 · 按规则校准</td><td>规则位高于已设位时给建议，一键校准只上移不下移</td></tr>
             <tr><td>盈亏比 ≥ 2</td><td>风控计算</td><td>达标才给绿色确认</td></tr>
             <tr><td>浮亏禁止加仓</td><td>加减仓规则</td><td>规则引擎直接不输出加仓建议</td></tr>
             <tr><td>加仓幅度与次数</td><td>加减仓规则</td><td>≤ 原持仓 50%，累计 ≤ 2 次</td></tr>
@@ -1673,6 +1639,15 @@ body{
         <p>页面采用三段式版本号 <code>1.1.x</code>：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本都覆盖发布到同一个在线地址，收藏一个链接即可，无需重新分享。下面按版本从新到旧记录改了什么、修了什么。</p>
         <div class="tl">
           <div class="tlitem">
+            <h3><span class="ver">1.5.0</span>止损止盈改由规则算，不再手填<span class="tlmeta">2026-09-15</span></h3>
+            <ul>
+              <li><b>每只持仓的止损位与止盈位现在由规则反推</b>，不依赖当时手填了什么。止盈位 = 减仓档位（成本 ×1.15 / ×1.25）；止损位随浮盈档位上移：未达加仓线用建仓位，达加仓线或第一减仓位后上移到成本价（保本），达第二减仓位后上移到成本 ×1.10，移动止盈启用后不低于回撤离场线</li>
+              <li><b>缺失的止损位每次数据加载时自动补齐</b>，所以「手工录入时留空止损」也不会留下一只没有风险边界的持仓。已有止损的一律不动 —— 调整已有止损是你的决定，系统只给建议</li>
+              <li><b>止损只能上移</b>：规则位高于已设位时，持仓卡片会出现提示与「按规则校准」按钮，一键写回；「组合巡检」页另有「按规则校准」一次性处理全仓</li>
+              <li><b>持仓卡片新增「规则位」一行</b>：实时显示规则算出的止损位、第一减仓位、第二减仓位，以及这个止损位是怎么来的（例如「已达第一减仓位（+15%），止损上移至成本价（保本）」）</li>
+              <li><b>删除「交易规则（行为约束）」配置模块</b>。规则改为固定值，不再提供开关与阈值输入 —— 这与工作台「固定规则，不可临场修改」的主张一致。三条硬规则（止损只能上移 / FOMO 拦截 / 亏损后冷却）仍在后台生效，违规统计移到「交易纪律」页，和纪律分放在一起看</li>
+              <li class="fix">移除随配置模块一起失效的死代码：<code>syncRulesUI</code> 与 7 处阈值绑定</li>
+            </ul>
             <h3><span class="ver">1.4.0</span>界面改为成熟产品规范<span class="tlmeta">2026-09-15</span></h3>
             <ul>
               <li><b>整体参照成熟互联网产品的界面规范</b>：Material 3 的 surface 阶梯与染色投影，Google Workspace 的表单密度与列表节奏。目标是清爽、易读、有质感，而不是花哨</li>
@@ -1926,6 +1901,14 @@ body{
       <span class="rpl-i" data-rp-2><i>2</i><b data-rp-p2>--</b> 再减 <b data-rp-n2>--</b></span>
       <span class="rpl-i rpl-ma">破 20 日线仍浮盈 减 <b data-rp-nma>--</b></span>
       <span class="rpl-i rpl-trail" data-rp-trail style="display:none"><span data-rp-trail-k>移动止盈线</span> <b data-rp-line>--</b>（峰值 <b data-rp-peak>--</b>）</span>
+    </div>
+    <div class="rulebar" data-rulebar style="display:none">
+      <span class="rb-t">规则位</span>
+      <span class="rb-i">止损 <b data-rb-stop>--</b></span>
+      <span class="rb-i">第一减仓 <b data-rb-t1>--</b></span>
+      <span class="rb-i">第二减仓 <b data-rb-t2>--</b></span>
+      <span class="rb-note" data-rb-note></span>
+      <button class="btn xs primary rb-btn" data-act="align-rule" style="display:none">按规则校准</button>
     </div>
     <div class="actbar" data-actbar style="display:none">
       <span class="ac-t">除权除息</span>
@@ -2519,6 +2502,7 @@ body{
     TRAIL_BACK_PCT: 8,        /* 从峰值回撤 8% 离场 */
 
     /* 止损 */
+    STOP_DEFAULT_PCT: 5,      /* 建仓默认止损幅度（成本 −5%），仅在持仓无止损时兜底 */
     STOP_WARN_DIST_PCT: 3,    /* 距止损 ≤ 3% 进入危险区 */
     STOP_WIDE_PCT: 8,         /* 止损幅度 > 8% 提示资金效率 */
     STOP_SINGLE_DAY_PCT: 7,   /* 单日跌幅 ≥ 7% 且未到止损 → 人工判断减半 */
@@ -2820,12 +2804,14 @@ body{
     out.distToTarget = price > 0 ? (target - price) / price * 100 : 0;
     out.stopPct = price > 0 ? (price - stop) / price * 100 : 0;
 
-    /* 目标位 = 第一减仓位（成本 × (1+REDUCE1_PCT%)），与 reducePlan / adviceFor 同源。
-       这样「持仓卡片」与「规则引擎」对同一个价格永远给同一个答案。
-       plan 无效（无成本/股数）时回退到录入时存的目标价。 */
-    out.target = (out.plan && out.plan.valid && out.plan.p1 > 0) ? out.plan.p1 : target;
-    out.target2 = (out.plan && out.plan.valid && out.plan.p2 > 0) ? out.plan.p2 : 0;
-    out.targetFromRule = !!(out.plan && out.plan.valid && out.plan.p1 > 0);
+    /* 规则位：止损与止盈都由规则反推，不依赖用户当时手填了什么。
+       止盈 = 减仓档位（成本 ×1.15 / ×1.25）；止损 = 随浮盈档位上移。
+       这样「持仓卡片」与「规则引擎」对同一个价格永远给同一个答案。 */
+    out.rule = ruleLevels(p);
+    out.target = (out.rule && out.rule.target1 > 0) ? out.rule.target1
+               : ((out.plan && out.plan.valid && out.plan.p1 > 0) ? out.plan.p1 : target);
+    out.target2 = (out.rule && out.rule.target2 > 0) ? out.rule.target2
+                : ((out.plan && out.plan.valid && out.plan.p2 > 0) ? out.plan.p2 : 0);
 
     if (out.lastPatrol) {
       out.staleDays = daysAgo(out.lastPatrol);
@@ -3008,6 +2994,76 @@ body{
     out.line = roundToTick(Math.max(peak * (1 - backPct / 100), out.floor), it.tick);
     out.triggered = price > 0 && price <= out.line;
     return out;
+  }
+
+  /* ============================================================
+   * 规则位：由持仓的浮盈档位反推止损位与止盈位（纯函数）
+   * ------------------------------------------------------------
+   * 止盈位的来源是唯一的：减仓档位（成本 ×1.15 / ×1.25）。
+   * 止损位随浮盈档位上移，与「固定规则」卡片逐条对应：
+   *   · 未达加仓线      → 保持建仓位（成本 − 默认幅度）
+   *   · 已达加仓线      → 成本价（加仓后上移到保本）
+   *   · 已达第一减仓位  → 成本价（减仓后上移到保本）
+   *   · 已达第二减仓位  → 成本 ×1.10
+   *   · 移动止盈已启用  → 不低于回撤离场线
+   * 单调约束：规则位永远不低于已有止损 —— 这条规则只说「上移」。
+   * ============================================================ */
+  function ruleLevels(p) {
+    var cost = num(p['成本价']);
+    if (!(cost > 0)) { return null; }
+    var price = num(p['现价']);
+    var curStop = num(p['止损价']);
+    var it = instrumentOf(p['股票代码'] || '', p['股票名称'] || '');
+    var tick = num(it.tick) > 0 ? num(it.tick) : 0.01;
+    var pnlRate = price > 0 ? (price - cost) / cost * 100 : 0;
+
+    /* ---- 止盈位：减仓档位，唯一来源 ---- */
+    var target1 = roundToTick(cost * (1 + TRADE_RULES.REDUCE1_PCT / 100), tick);
+    var target2 = roundToTick(cost * (1 + TRADE_RULES.REDUCE2_PCT / 100), tick);
+
+    /* ---- 止损位：按浮盈档位 ---- */
+    var base, basis;
+    if (pctGte(pnlRate, TRADE_RULES.REDUCE2_PCT)) {
+      base = cost * TRADE_RULES.STOP_AFTER_REDUCE2_MULT;
+      basis = '已达第二减仓位（+' + toFixed2(TRADE_RULES.REDUCE2_PCT) + '%），止损上移至成本价 ×' + toFixed2(TRADE_RULES.STOP_AFTER_REDUCE2_MULT);
+    } else if (pctGte(pnlRate, TRADE_RULES.REDUCE1_PCT)) {
+      base = cost * TRADE_RULES.STOP_AFTER_REDUCE1_MULT;
+      basis = '已达第一减仓位（+' + toFixed2(TRADE_RULES.REDUCE1_PCT) + '%），止损上移至成本价（保本）';
+    } else if (pctGte(pnlRate, TRADE_RULES.ADD_AT_PCT)) {
+      base = cost * TRADE_RULES.STOP_AFTER_REDUCE1_MULT;
+      basis = '已达加仓窗口（+' + toFixed2(TRADE_RULES.ADD_AT_PCT) + '%），加仓后止损上移至成本价（保本）';
+    } else {
+      base = cost * (1 - TRADE_RULES.STOP_DEFAULT_PCT / 100);
+      basis = '未达加仓线，止损维持建仓位（成本 −' + toFixed2(TRADE_RULES.STOP_DEFAULT_PCT) + '%）';
+    }
+
+    /* ---- 移动止盈：启用后取更紧的一档 ---- */
+    var tr = trailing(p);
+    var trailLine = 0;
+    if (tr.active && tr.line > 0) {
+      trailLine = tr.line;
+      if (tr.line > base) {
+        base = tr.line;
+        basis = '移动止盈已启用，止损不低于回撤离场线 ¥' + fmtByTick(tr.line, tick);
+      }
+    }
+
+    var ruleStop = roundToTick(base, tick);
+    /* 单调约束：只说上移，不下移 */
+    var effective = curStop > 0 ? Math.max(curStop, ruleStop) : ruleStop;
+
+    return {
+      tick: tick, unit: it.unit,
+      cost: cost, price: price, pnlRate: pnlRate,
+      target1: target1, target2: target2,
+      ruleStop: ruleStop,                  /* 规则算出的止损位 */
+      effectiveStop: effective,            /* 叠加「只能上移」后的实际止损位 */
+      currentStop: curStop,
+      missingStop: !(curStop > 0),         /* 从未设过止损 */
+      canRaise: curStop > 0 && ruleStop > curStop + tick / 2,   /* 规则位高于已设位，可上调 */
+      basis: basis,
+      trailLine: trailLine
+    };
   }
 
   /* 保存 / 取到新现价时把「阶段最高价」抬到历史最高：只涨不跌，避免回撤线被现价回落带低 */
@@ -4820,6 +4876,8 @@ body{
       state.positions = r[0] || [];
       state.logs = r[1] || [];
       state.dbReady = true;
+      /* 加载后立刻按规则补齐缺失的止损位：任何入口新建的持仓都不会「没有风险边界」 */
+      fillMissingStopsSync();
       return null;
     });
   }
@@ -5125,6 +5183,30 @@ body{
       if (delBtn) { delBtn.setAttribute('data-id', a.id); }
       if (fetchCorpBtn) { fetchCorpBtn.setAttribute('data-id', a.id); }
       if (applyCorpBtn) { applyCorpBtn.setAttribute('data-id', a.id); }
+      /* 规则位行：止损与两档止盈全部由规则反推；规则止损高于已设位时可一键校准 */
+      (function () {
+        var rb = node.querySelector('[data-rulebar]');
+        if (!rb) { return; }
+        var r = a.rule;
+        if (!r) { rb.style.display = 'none'; return; }
+        rb.style.display = '';
+        rb.classList.remove('raise');
+        rb.querySelector('[data-rb-stop]').textContent = '¥' + fmtByTick(r.effectiveStop, r.tick);
+        rb.querySelector('[data-rb-t1]').textContent = '¥' + fmtByTick(r.target1, r.tick);
+        rb.querySelector('[data-rb-t2]').textContent = '¥' + fmtByTick(r.target2, r.tick);
+        var noteEl = rb.querySelector('[data-rb-note]');
+        var btn = rb.querySelector('[data-act="align-rule"]');
+        if (r.canRaise) {
+          /* 规则说该上移，但从未自动改过用户的数据 —— 只给建议，一键才落库 */
+          rb.classList.add('raise');
+          noteEl.textContent = '规则建议上移到 ¥' + fmtByTick(r.ruleStop, r.tick) + '（' + r.basis + '）';
+          if (btn) { btn.style.display = ''; btn.setAttribute('data-id', a.id); }
+        } else {
+          noteEl.textContent = r.basis;
+          if (btn) { btn.style.display = 'none'; }
+        }
+      })();
+
       /* 除权除息事件行：只在 stateCorpCache 有该 thscode 时才显示 */
       var corpThscode = fuyaoThscodeOf({ prefix: marketPrefix(a.code), code: a.code });
       if (corpThscode) { renderPosCorpBar(node, a, corpThscode); }
@@ -5318,18 +5400,7 @@ body{
     });
   }
 
-  /* 规则面板：UI 同步 + 违规统计渲染 */
-  function syncRulesUI() {
-    var c = AQ.Rules.config;
-    var el;
-    el = $('#ruleStopUp'); if (el) el.checked = c.stopCanOnlyMoveUp !== false;
-    el = $('#ruleFomo'); if (el) el.checked = c.fomoEnabled !== false;
-    el = $('#ruleFomoPct'); if (el) el.value = c.fomoThresholdPct || 5;
-    el = $('#ruleRevenge'); if (el) el.checked = c.revengeEnabled !== false;
-    el = $('#ruleRevengeH'); if (el) el.value = Math.round((c.revengeCooldownMs || 86400000) / 3600000);
-    el = $('#ruleRevengeLoss'); if (el) el.checked = c.revengeLossThreshold > 0;
-    el = $('#ruleRevengeLossV'); if (el) el.value = c.revengeLossThreshold || 500;
-  }
+  /* 违规统计：渲染到「交易纪律」页 */
   function renderRulesStats() {
     var box = $('#rulesStats');
     if (!box) { return; }
@@ -5420,7 +5491,6 @@ body{
   function renderSources() {
     var listBox = $('#srcList');
     if (!listBox) { return; }
-    syncRulesUI();
     renderRulesStats();
     if (!state.sources) { loadSources(); }
     var list = state.sources.items || [];
@@ -5948,6 +6018,111 @@ body{
     });
   }
 
+  /* ============================================================
+   * 按规则校准：把规则反推出的止损 / 止盈写回持仓台账
+   * ------------------------------------------------------------
+   * 单只：只在规则止损高于已设位时才动，且只上移（规则本身不允许下移）
+   * 全仓：所有「可上调」与「从未设止损」的持仓一次性补齐
+   * 自动：初始化时对「从未设止损」的持仓静默补齐（无止损 = 没有风险边界）
+   * ============================================================ */
+  function onAlignRule(id, btn) {
+    var pos = findPosById(id);
+    if (!pos) { toast('该持仓已不存在'); return; }
+    var r = ruleLevels(pos);
+    if (!r) { toast('缺少成本价，无法计算规则位'); return; }
+    if (!r.canRaise && !r.missingStop) { toast('当前止损已不低于规则位，无需调整'); return; }
+
+    var oldStop = r.currentStop;
+    var props = {};
+    props['止损价'] = { number: r.ruleStop };
+    props['目标价'] = { number: r.target1 };   /* 止盈位与规则同源，一并校准 */
+    props['巡检日期'] = { date: todayStr() };
+
+    if (btn) { btn.disabled = true; }
+    updatePosition(id, props).then(reloadData).then(function () {
+      state.lastPatrol = todayStr(); savePatrol();
+      if (btn) { btn.disabled = false; }
+      refreshAll();
+      var was = oldStop > 0 ? ('¥' + toFixed2(oldStop) + ' → ') : '（原本未设）→ ';
+      toast('已按规则校准：止损 ' + was + '¥' + fmtByTick(r.ruleStop, r.tick) + '　' + r.basis);
+    })['catch'](function (e) {
+      console.error(e);
+      if (btn) { btn.disabled = false; }
+      toast('校准失败：' + ((e && e.message) || '请重试'));
+    });
+  }
+
+  function onAlignRulesAll(btn) {
+    var list = activePositions(), tasks = [], plan = [];
+    for (var i = 0; i < list.length; i++) {
+      var r = ruleLevels(list[i]);
+      if (!r) { continue; }
+      if (!r.canRaise && !r.missingStop) { continue; }
+      plan.push({ pos: list[i], r: r });
+    }
+    if (!plan.length) { toast('全部持仓的止损都已不低于规则位，无需校准'); return; }
+
+    var lines = [];
+    for (var k = 0; k < plan.length; k++) {
+      var nm = nameOrEmpty(plan[k].pos['股票名称'], plan[k].pos['股票代码']);
+      var o = plan[k].r.currentStop;
+      lines.push('· ' + plan[k].pos['股票代码'] + ' ' + nm + '：止损 '
+        + (o > 0 ? ('¥' + toFixed2(o) + ' → ') : '（未设）→ ')
+        + '¥' + fmtByTick(plan[k].r.ruleStop, plan[k].r.tick));
+    }
+    if (!window.confirm('按规则校准 ' + plan.length + ' 只持仓？\n\n' + lines.join('\n')
+      + '\n\n止损只会向上调整，不会下移。')) { return; }
+
+    for (var j = 0; j < plan.length; j++) {
+      (function (item) {
+        tasks.push(function () {
+          return updatePosition(item.pos._id, {
+            '止损价': { number: item.r.ruleStop },
+            '目标价': { number: item.r.target1 },
+            '巡检日期': { date: todayStr() }
+          });
+        });
+      })(plan[j]);
+    }
+
+    if (btn) { btn.disabled = true; }
+    runSequential(tasks, 0).then(function () {
+      state.lastPatrol = todayStr(); savePatrol();
+      return reloadData();
+    }).then(function () {
+      if (btn) { btn.disabled = false; }
+      refreshAll();
+      toast('已校准 ' + plan.length + ' 只持仓的规则位');
+    })['catch'](function (e) {
+      console.error(e);
+      if (btn) { btn.disabled = false; }
+      toast('校准过程中断，请重试');
+    });
+  }
+
+  /* 同步补齐「从未设止损」的持仓 —— 没有止损位等于没有风险边界。
+     每次数据加载都跑一遍，因此「手工录入时留空止损」这条路也会被自动补上。
+     已有止损的一律不动：调整已有止损是用户的决定，只给建议不自动改。 */
+  function fillMissingStopsSync() {
+    var n = 0;
+    for (var i = 0; i < state.positions.length; i++) {
+      var p = state.positions[i];
+      if (String(p['持仓状态'] || '').indexOf('清仓') !== -1) { continue; }
+      if (num(p['止损价']) > 0) { continue; }
+      var r = ruleLevels(p);
+      if (!r || !(r.ruleStop > 0)) { continue; }
+      p['止损价'] = r.ruleStop;
+      p['目标价'] = r.target1;
+      localUpdate(POS_DB_ID, p._id, {
+        '止损价': { number: r.ruleStop },
+        '目标价': { number: r.target1 }
+      });
+      n++;
+    }
+    if (n > 0) { console.log('[rules] 已按规则为 ' + n + ' 只无止损持仓补齐止损位'); }
+    return n;
+  }
+
   function onPatrolOne(id, btn) {
     var properties = {};
     properties['巡检日期'] = { date: todayStr() };
@@ -6375,6 +6550,7 @@ body{
         if (act === 'quote') { onQuoteOne(id, el); }
         else if (act === 'save-price') { onSavePrice(id, el); }
         else if (act === 'save-stop') { onSaveStop(id, el); }
+        else if (act === 'align-rule') { onAlignRule(id, el); }
         else if (act === 'patrol') { onPatrolOne(id, el); }
         else if (act === 'del-pos') { onDeletePosition(id, el); }
         else if (act === 'fetch-corp') { onFetchCorpForPos(id, el); }
@@ -6386,29 +6562,12 @@ body{
       });
     }
 
+    var alignBtn = $('#btnAlignRules');
+    if (alignBtn) { alignBtn.addEventListener('click', function () { onAlignRulesAll(alignBtn); }); }
+
     var patrolAll = $('#btnPatrolAll');
     if (patrolAll) { patrolAll.addEventListener('click', function () { onPatrolAll(patrolAll); }); }
 
-    /* === 交易规则设置面板绑定 === */
-    function bindRuleToggle(id, key, asNumber, unit) {
-      var el = $('#' + id);
-      if (!el) return;
-      el.addEventListener('change', function () {
-        var v;
-        if (asNumber) { v = num(el.value); if (unit === 'h') v = v * 3600 * 1000; }
-        else { v = el.checked; }
-        AQ.Rules.config[key] = v;
-        AQ.Rules.saveConfig();
-        renderRulesStats();
-      });
-    }
-    bindRuleToggle('ruleStopUp', 'stopCanOnlyMoveUp');
-    bindRuleToggle('ruleFomo', 'fomoEnabled');
-    bindRuleToggle('ruleFomoPct', 'fomoThresholdPct', true);
-    bindRuleToggle('ruleRevenge', 'revengeEnabled');
-    bindRuleToggle('ruleRevengeH', 'revengeCooldownMs', true, 'h');
-    bindRuleToggle('ruleRevengeLoss', 'revengeLossThreshold', true);
-    bindRuleToggle('ruleRevengeLossV', 'revengeLossThreshold', true);
 
     var pf = $('#posFilter');
     if (pf) { pf.addEventListener('change', function () { state.posFilter = pf.value; refreshAll(); }); }
@@ -6651,6 +6810,7 @@ body{
     loadSchema().then(function (opts) {
       state.schemaOptions = opts || {};
       return reloadData();
+    }).then(function () {
     }).then(function () {
       refreshAll();
       if (restoreRiskDraft) { restoreRiskDraft(); }
