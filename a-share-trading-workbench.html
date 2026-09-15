@@ -902,7 +902,11 @@ body{
       </div>
       <div class="brand-txt"><b>A股交易纪律台</b><span>规则化执行系统</span></div>
     </div>
-    <button class="navitem on" data-tab="risk">
+    <button class="navitem on" data-tab="goal">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+      目标
+    </button>
+<button class="navitem" data-tab="risk">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>
       风控计算
     </button>
@@ -962,6 +966,89 @@ body{
       <div id="todayList"></div>
     </section>
 
+    <!-- ============ 模块 0 目标 ============ -->
+    <section class="section on" id="sec-goal">
+      <div class="card">
+        <div class="card-h">
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+          <h2>我的目标</h2>
+          <span class="spacer"></span>
+          <span class="hint">改这里，下面的约束会跟着变</span>
+        </div>
+        <div class="grid4">
+          <div class="field">
+            <label>本金（¥）</label>
+            <input type="number" name="gCapital" step="10000" min="1000">
+            <span class="tip">账户总资金</span>
+          </div>
+          <div class="field">
+            <label>年内目标收益（%）</label>
+            <input type="number" name="gTarget" step="1" min="1" max="300">
+            <span class="tip">一年想把本金做到多少</span>
+          </div>
+          <div class="field">
+            <label>可承受最大回撤（%）</label>
+            <input type="number" name="gDrawdown" step="1" min="2" max="60">
+            <span class="tip">跌到这个位置你会睡不着</span>
+          </div>
+          <div class="field">
+            <label>想扛住连续亏损（次）</label>
+            <input type="number" name="gSurvive" step="1" min="1" max="30">
+            <span class="tip">连亏这么多次后，累计回撤刚好等于上面那条线</span>
+          </div>
+        </div>
+        <div class="grid4 mt-3">
+          <div class="field">
+            <label>最多同时持有（只）</label>
+            <input type="number" name="gMaxPos" step="1" min="1" max="10">
+            <span class="tip">决定组合敞口上限</span>
+          </div>
+          <div class="field">
+            <label>单票集中度上限（%）</label>
+            <input type="number" name="gMaxSingle" step="5" min="5" max="90">
+            <span class="tip">与目标无关，是分散度约束</span>
+          </div>
+          <div class="field">
+            <label>年度起始日</label>
+            <input type="date" name="gYearStart">
+            <span class="tip">留空按当年 1 月 1 日算</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
+          <h2>由此确定的约束</h2>
+          <span class="spacer"></span>
+          <span class="hint">不是拍脑袋定的数字，是上面那组目标算出来的</span>
+        </div>
+        <div class="grid4">
+          <div class="stat"><div class="k">单笔风险上限</div><div class="v" id="gRiskPct">--</div><div class="u" id="gRiskU">--</div></div>
+          <div class="stat"><div class="k">单笔风险预算</div><div class="v" id="gRiskBudget">--</div><div class="u">触损时的最大亏损额</div></div>
+          <div class="stat"><div class="k">组合敞口上限</div><div class="v" id="gPortPct">--</div><div class="u" id="gPortU">--</div></div>
+          <div class="stat"><div class="k">单票集中度</div><div class="v" id="gSinglePct">--</div><div class="u">分散度约束，与目标无关</div></div>
+        </div>
+        <div id="gDerive" class="mt-3"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-h">
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 5-7 4 4"/></svg>
+          <h2 id="gProgTitle">进度</h2>
+          <span class="spacer"></span>
+          <span class="hint" id="gProgHint">--</span>
+        </div>
+        <div class="grid4">
+          <div class="stat"><div class="k">已实现盈亏</div><div class="v sm" id="gRealized">--</div><div class="u">来自交易日志</div></div>
+          <div class="stat"><div class="k">当前浮动盈亏</div><div class="v sm" id="gFloating">--</div><div class="u">来自在持标的</div></div>
+          <div class="stat"><div class="k">合计</div><div class="v sm" id="gTotal">--</div><div class="u" id="gTotalU">--</div></div>
+          <div class="stat"><div class="k">距目标</div><div class="v sm" id="gRemain">--</div><div class="u" id="gRemainU">--</div></div>
+        </div>
+        <div id="gAlerts" class="mt-3"></div>
+      </div>
+    </section>
+
     <!-- ============ 模块 1 风控计算 ============ -->
     <section class="section on" id="sec-risk">
       <div class="card">
@@ -969,7 +1056,7 @@ body{
           <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>
           <h2>输入股票代码，自动算出买卖点位</h2>
           <span class="spacer"></span>
-          <span class="hint">先取价 → 再定止损 → 才算股数 → 最后看目标</span>
+          <span class="hint">先取价 → 再定止损 → 才算股数 → 最后看目标（单笔风险由「目标」页推导）</span>
         </div>
         <form id="riskForm" autocomplete="off">
           <div class="grid4">
@@ -1027,7 +1114,7 @@ body{
             <span class="hint" id="quoteTip">等待输入股票代码</span>
           </div>
           <div class="lockrow">
-            <span class="tag info">单笔最大亏损 2%（铁律·锁定）</span>
+            <span class="tag info" id="riskLockTag">单笔最大亏损 2%（锁定·由目标推导）</span>
             <span class="tag gray">单票上限
               <input type="number" class="tiny" name="riskMaxSingle" step="1" min="5" max="90" value="30" inputmode="numeric" aria-label="单票上限百分比">%
             </span>
@@ -1582,6 +1669,13 @@ body{
           <div class="tlitem" id="v153">
             <h3><span class="ver is-latest">1.5.3</span>更新日志页重排 + 技术说明并入设计理念<span class="tlmeta">2026-09-15</span></h3>
             <ul>
+              <li><b>新增「目标」页，补上链条的起点</b>。此前这个工具从「算这一笔买多少」开始，没有目标也没有策略 —— 是一台计算器，不是一套系统。现在声明「本金 / 年内目标 / 可承受回撤 / 想扛住几次连亏」，风控约束由它推导出来</li>
+              <li><b>2% 不再是写死的常量，而是算出来的结果</b>：<code>单笔风险 = 1 − (1 − 可承受回撤)^(1/连亏次数)</code>。默认「15% 回撤 ÷ 8 次连亏」正好推出 2.01%，与原先那个写死的 2% 吻合 —— 区别在于现在它有推导过程，改目标它就跟着动</li>
+              <li><b>组合敞口同理</b>：单笔风险 × 最多同时持仓数 = 「所有持仓同日触损」时亏掉的比例（2.01% × 3 = 6.03%）</li>
+              <li>目标一改，风控计算页的锁定值立刻同步 —— 这就是 goal → action 的传递</li>
+              <li>新增年度进度：已实现 + 浮动对上目标，并按剩余交易日折算所需年化。<b>若需要远超目标本身，直接提示「该下调目标，不是加大仓位」</b></li>
+              <li>新增回撤监控：连亏到一半（默认第 4 次）时提示先停手复核策略</li>
+              <li>新增 <b>goal/derive</b> 测试组（9 条断言）—— 内置测试 82 → <b>91 条</b></li>
               <li><b>整站减法</b>：可见文字从 9,622 字压到 2,943 字（−69%）</li>
               <li><b>导航 7 → 6 个页签</b>：更新日志从主导航移除，并入本页。它此前占着导航第 4 位，却是 6,162 字的版本历史</li>
               <li><b>规则说明从三处收成一处</b>：此前「固定规则」（加减仓页）/「退出策略」/「每条原则在哪被强制执行」把同一套阈值讲了三遍。现在只在加减仓页保留操作口径</li>
@@ -1657,7 +1751,11 @@ body{
 </div>
 
 <nav class="tabs-m">
-              <button class="on" data-tab="risk">
+              <button class="on" data-tab="goal">
+    <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/></svg>
+    目标
+  </button>
+<button data-tab="risk">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>
     风控
   </button>
@@ -2349,6 +2447,92 @@ body{
   };
   var VIOLATION_ORDER = ['chase', 'no-stop', 'overtrade', 'add-loser', 'emotional'];
 
+  /* ============================================================
+   * 目标层：所有风险约束都由目标推导，不再是硬编码常量
+   * ------------------------------------------------------------
+   * 推导链：
+   *   可承受回撤 D%  ×  想扛住的连亏次数 N
+   *     → 单笔风险 = (1 − (1−D)^(1/N)) × 100%
+   *   单笔风险 × 最多同时持仓数
+   *     → 组合敞口上限（即「全仓同日触损」亏掉的比例）
+   * 默认值 15% 回撤 / 8 连亏 → 2.01%，正是原先写死的那个 2%。
+   * 区别在于：现在这个 2% 有推导过程，改目标它就会跟着动。
+   * ============================================================ */
+  var DEFAULT_GOAL = {
+    capital: 100000,       /* 本金 */
+    targetPct: 20,         /* 年内目标收益 % */
+    maxDrawdownPct: 15,    /* 可承受的最大回撤 % */
+    surviveLosses: 8,      /* 希望扛住的连续亏损次数 */
+    maxPositions: 3,       /* 最多同时持有几只 */
+    maxSinglePct: 30,      /* 单票集中度上限 —— 与目标无关，是分散度约束 */
+    yearStart: ''          /* 年度起始日，留空取当年 1 月 1 日 */
+  };
+
+  /* 目标 → 约束。纯函数，便于单测 */
+  function deriveConstraints(goal) {
+    var g = goal || {};
+    var cap = num(g.capital) > 0 ? num(g.capital) : 100000;
+    var d = Math.min(0.6, Math.max(0.02, num(g.maxDrawdownPct) / 100 || 0.15));
+    var n = Math.min(30, Math.max(1, Math.round(num(g.surviveLosses) || 8)));
+    var pos = Math.min(10, Math.max(1, Math.round(num(g.maxPositions) || 3)));
+
+    /* 单笔风险：让 N 次连亏之后的累计回撤正好等于 D */
+    var riskPct = Math.round((1 - Math.pow(1 - d, 1 / n)) * 10000) / 100;
+    var maxPortfolioPct = riskPct * pos;
+
+    return {
+      capital: cap,
+      riskPct: riskPct,
+      riskBudget: cap * riskPct / 100,
+      maxPositions: pos,
+      maxPortfolioPct: maxPortfolioPct,
+      maxSinglePct: Math.min(90, Math.max(5, num(g.maxSinglePct) || 30)),
+      /* 供界面展示推导过程 */
+      formula: '1 − (1 − ' + toFixed2(d * 100) + '%)^(1/' + n + ') = ' + toFixed2(riskPct) + '%',
+      portfolioFormula: toFixed2(riskPct) + '% × ' + pos + ' 只 = ' + toFixed2(maxPortfolioPct) + '%'
+    };
+  }
+
+  /* 年度进度：已实现（日志）+ 浮动（持仓）对上目标 */
+  function goalProgress(goal, c) {
+    var logs = state.logs || [], pos = activePositions();
+    var realized = 0;
+    for (var i = 0; i < logs.length; i++) {
+      var v = logs[i]['盈亏金额'];
+      if (v !== null && v !== undefined && v !== '') { realized += num(v); }
+    }
+    var floating = 0;
+    for (var j = 0; j < pos.length; j++) {
+      floating += (num(pos[j]['现价']) - num(pos[j]['成本价'])) * num(pos[j]['持仓股数']);
+    }
+    var total = realized + floating;
+    var cap = c.capital;
+    var targetAmt = cap * num(goal.targetPct) / 100;
+
+    /* 剩余交易日：按自然日 × 5/7 粗估，够用 */
+    var ys = goal.yearStart ? new Date(goal.yearStart + 'T00:00:00') : new Date(new Date().getFullYear(), 0, 1);
+    var ye = new Date(ys.getFullYear() + 1, 0, 1);
+    var now = new Date();
+    var daysLeft = Math.max(0, Math.round((ye - now) / 86400000));
+    var tradeDaysLeft = Math.max(0, Math.round(daysLeft * 5 / 7));
+    var remainAmt = targetAmt - total;
+    /* 剩余时间内需要的年化 —— 若远超目标本身，说明目标已经不现实 */
+    var needAnnual = (tradeDaysLeft > 0 && cap > 0 && remainAmt !== 0)
+      ? (Math.pow(Math.max(0.01, (cap + remainAmt) / cap), 244 / tradeDaysLeft) - 1) * 100
+      : null;
+
+    return {
+      realized: realized, floating: floating, total: total,
+      totalPct: cap > 0 ? total / cap * 100 : 0,
+      targetAmt: targetAmt, remainAmt: remainAmt,
+      remainPct: cap > 0 ? remainAmt / cap * 100 : 0,
+      daysLeft: daysLeft, tradeDaysLeft: tradeDaysLeft,
+      needAnnual: needAnnual,
+      reached: total >= targetAmt,
+      yearLabel: ys.getFullYear() + ' 年'
+    };
+  }
+
   var DEFAULT_PARAMS = { capital: 100000, riskPct: TRADE_RULES.RISK_PCT, rr: TRADE_RULES.RR_MIN, maxSinglePct: TRADE_RULES.MAX_SINGLE_PCT, maxPortfolioRiskPct: TRADE_RULES.MAX_PORTFOLIO_PCT, trailOnPct: TRADE_RULES.TRAIL_ON_PCT, trailBackPct: TRADE_RULES.TRAIL_BACK_PCT };
   /* 移动止盈两个可调参数的允许区间：启用线 20–100%，回撤 3–20% */
   var TRAIL_ON_MIN = 20, TRAIL_ON_MAX = 100, TRAIL_BACK_MIN = 3, TRAIL_BACK_MAX = 20;
@@ -2463,21 +2647,42 @@ body{
   }
   function dropKey(key) { try { localStorage.removeItem(key); } catch (e) { /* 静默降级 */ } }
 
+  function loadGoal(p) {
+    var raw = (p && p.goal) || {};
+    var g = {};
+    for (var k in DEFAULT_GOAL) { if (Object.prototype.hasOwnProperty.call(DEFAULT_GOAL, k)) { g[k] = DEFAULT_GOAL[k]; } }
+    for (var k2 in raw) { if (Object.prototype.hasOwnProperty.call(raw, k2) && raw[k2] !== null && raw[k2] !== '') { g[k2] = raw[k2]; } }
+    g.capital = num(g.capital) > 0 ? num(g.capital) : DEFAULT_GOAL.capital;
+    return g;
+  }
+
+  /* 参数分两层：
+     目标层（用户填）→ 推导层（算出来的风控约束）→ 策略层（盈亏比 / 移动止盈，可调）
+     riskPct 与组合敞口不再手填，它们由目标唯一决定。 */
   function loadParams() {
     var p = readJSON(LS_PARAMS) || {};
-    var out = { capital: num(p.capital), riskPct: num(p.riskPct) || 2, rr: num(p.rr) || 2, maxSinglePct: num(p.maxSinglePct) || 30, maxPortfolioRiskPct: num(p.maxPortfolioRiskPct) || 6,
-      trailOnPct: num(p.trailOnPct) || 40, trailBackPct: num(p.trailBackPct) || 8 };
-    if (out.riskPct > 2) { out.riskPct = 2; }
-    if (!(out.capital > 0)) { out.capital = 100000; }
-    /* 两个上限允许用户调，但收在合理区间内，避免误填把风控打开成摆设 */
-    out.maxSinglePct = Math.min(90, Math.max(5, out.maxSinglePct));
-    out.maxPortfolioRiskPct = Math.min(30, Math.max(2, out.maxPortfolioRiskPct));
-    /* 移动止盈同样可调，但启用线太低会让止盈变成「一有浮盈就跑」，回撤太窄会被日内噪声扫出局 */
-    out.trailOnPct = Math.min(TRAIL_ON_MAX, Math.max(TRAIL_ON_MIN, out.trailOnPct));
-    out.trailBackPct = Math.min(TRAIL_BACK_MAX, Math.max(TRAIL_BACK_MIN, out.trailBackPct));
-    state.params = out;
+    var goal = loadGoal(p);
+    var c = deriveConstraints(goal);
+    state.goal = goal;
+    state.params = {
+      capital: goal.capital,
+      riskPct: c.riskPct,
+      maxPortfolioRiskPct: c.maxPortfolioPct,
+      maxSinglePct: c.maxSinglePct,
+      rr: num(p.rr) || TRADE_RULES.RR_MIN,
+      trailOnPct: Math.min(TRAIL_ON_MAX, Math.max(TRAIL_ON_MIN, num(p.trailOnPct) || TRADE_RULES.TRAIL_ON_PCT)),
+      trailBackPct: Math.min(TRAIL_BACK_MAX, Math.max(TRAIL_BACK_MIN, num(p.trailBackPct) || TRADE_RULES.TRAIL_BACK_PCT))
+    };
+    state.constraints = c;
   }
-  function saveParams() { writeJSON(LS_PARAMS, state.params); }
+  function saveParams() {
+    var p = readJSON(LS_PARAMS) || {};
+    p.goal = state.goal;
+    p.rr = state.params.rr;
+    p.trailOnPct = state.params.trailOnPct;
+    p.trailBackPct = state.params.trailBackPct;
+    writeJSON(LS_PARAMS, p);
+  }
   function loadPatrol() { state.lastPatrol = localStorage.getItem(LS_PATROL) || ''; }
   function savePatrol() { try { localStorage.setItem(LS_PATROL, state.lastPatrol); } catch (e) { /* noop */ } }
 
@@ -4129,7 +4334,7 @@ body{
       code: normCode(codeEl.value),
       name: nameEl.value.trim(),
       capital: state.params.capital,
-      riskPct: 2,
+      riskPct: state.params.riskPct,   /* 由目标推导，不手填 */
       entry: entry,
       stop: num(stopEl.value),
       rr: state.params.rr,
@@ -5172,6 +5377,90 @@ body{
     }
   }
 
+  /* ============================================================
+   * 目标页渲染：目标 → 约束 → 进度
+   * ============================================================ */
+  function goalFormEl(name) {
+    var s = document.getElementById('sec-goal');
+    return s ? s.querySelector('[name="' + name + '"]') : null;
+  }
+  /* 把目标推导出的单笔风险同步到风控计算页（隐藏域 + 锁定标签） */
+  function syncRiskLock() {
+    var pct = state.params ? num(state.params.riskPct) : TRADE_RULES.RISK_PCT;
+    var f = document.getElementById('riskForm');
+    if (f) {
+      var hid = f.querySelector('[name="riskPct"]');
+      if (hid) { hid.value = toFixed2(pct); }
+    }
+    var tag = document.getElementById('riskLockTag');
+    if (tag) {
+      tag.textContent = '单笔最大亏损 ' + toFixed2(pct) + '%（锁定·由目标推导）';
+    }
+  }
+
+  function renderGoalForm() {
+    var g = state.goal || DEFAULT_GOAL;
+    var set = function (n, v) { var el = goalFormEl(n); if (el && document.activeElement !== el) { el.value = v; } };
+    set('gCapital', g.capital);
+    set('gTarget', g.targetPct);
+    set('gDrawdown', g.maxDrawdownPct);
+    set('gSurvive', g.surviveLosses);
+    set('gMaxPos', g.maxPositions);
+    set('gMaxSingle', g.maxSinglePct);
+    set('gYearStart', g.yearStart || '');
+  }
+
+  function renderGoal() {
+    renderGoalForm();
+    var g = state.goal || DEFAULT_GOAL;
+    var c = state.constraints || deriveConstraints(g);
+
+    setText('gRiskPct', toFixed2(c.riskPct) + '%');
+    setText('gRiskU', c.formula);
+    setText('gRiskBudget', fmtMoney(c.riskBudget));
+    setText('gPortPct', toFixed2(c.maxPortfolioPct) + '%');
+    setText('gPortU', c.portfolioFormula);
+    setText('gSinglePct', toFixed2(c.maxSinglePct) + '%');
+
+    var d = $('#gDerive');
+    if (d) {
+      d.innerHTML = '<div class="notice blue" style="margin:0">' +
+        '<b>推导过程</b>：可承受回撤 ' + toFixed2(g.maxDrawdownPct) + '% ÷ 想扛住 ' + num(g.surviveLosses) + ' 次连亏 ' +
+        '→ 单笔风险 <b>' + toFixed2(c.riskPct) + '%</b>（<code>' + esc(c.formula) + '</code>）。' +
+        '再乘以最多同时持有的 ' + num(g.maxPositions) + ' 只 → 组合敞口上限 <b>' + toFixed2(c.maxPortfolioPct) + '%</b>，' +
+        '也就是「所有持仓同日触损」时你最多亏掉的比例。<br>' +
+        '<span class="muted">这两个数在「风控计算」里是锁死的 —— 它们不是规则本身，是规则的来处。' +
+        '想放宽它们，只能改上面的目标。</span></div>';
+    }
+
+    var pr = goalProgress(g, c);
+    setText('gProgTitle', pr.yearLabel + '进度');
+    setText('gProgHint', '目标 +' + toFixed2(g.targetPct) + '%（' + fmtMoney(pr.targetAmt) + '）');
+    setText('gRealized', fmtMoney(pr.realized));
+    setText('gFloating', fmtMoney(pr.floating));
+    setText('gTotal', fmtMoney(pr.total));
+    setText('gTotalU', fmtPct(pr.totalPct) + ' / 本金 ' + fmtMoney(c.capital));
+    var totEl = $('#gTotal'); if (totEl) { totEl.classList.remove('up', 'down'); totEl.classList.add(pnlClass(pr.total)); }
+    setText('gRemain', pr.reached ? '已达成' : fmtMoney(pr.remainAmt));
+    setText('gRemainU', pr.reached ? ('超出 ' + fmtMoney(pr.total - pr.targetAmt)) : ('还需 ' + fmtPct(pr.remainPct)));
+
+    var box = $('#gAlerts');
+    if (!box) { return; }
+    var a = '';
+    if (pr.reached) {
+      a += '<div class="notice green">已达成本年目标。按规则该做的不是加大仓位继续冲，而是守住已有收益 —— 可以考虑把目标上调，或把利润转出。</div>';
+    } else if (pr.needAnnual !== null && pr.needAnnual > num(g.targetPct) * 2.5) {
+      a += '<div class="notice red">按当前进度，剩余 ' + pr.tradeDaysLeft + ' 个交易日要做出 <b>' + toFixed2(pr.needAnnual) + '%</b> 年化才能达标 —— 这已经是目标本身（' + toFixed2(g.targetPct) + '%）的 ' + toFixed2(pr.needAnnual / num(g.targetPct)) + ' 倍。' +
+           '<b>该下调目标，不是加大仓位。</b>把目标改成现实值只需要一秒，把亏掉的本金赚回来要很久。</div>';
+    } else if (pr.needAnnual !== null && pr.needAnnual > 0) {
+      a += '<div class="notice blue">剩余 ' + pr.tradeDaysLeft + ' 个交易日（' + pr.daysLeft + ' 自然日），折合年化需 <b>' + toFixed2(pr.needAnnual) + '%</b>。仍在合理区间。</div>';
+    } else if (pr.needAnnual !== null) {
+      a += '<div class="notice green">已超出目标所需进度，后面的交易按原规则执行即可，不需要额外冒险。</div>';
+    }
+    a += '<div class="notice yellow">回撤监控：按当前单笔风险 ' + toFixed2(c.riskPct) + '%，连亏 ' + num(g.surviveLosses) + ' 次会消耗掉 ' + toFixed2(g.maxDrawdownPct) + '% 的回撤额度。连续亏损到第 ' + Math.max(1, Math.round(num(g.surviveLosses) / 2)) + ' 次时，先停下来复核策略，而不是加倍找回。</div>';
+    box.innerHTML = a;
+  }
+
   function renderParams() {
     var f = $('#riskForm');
     if (!f) { return; }
@@ -5530,6 +5819,8 @@ body{
 
   function refreshAll() {
     syncPriceDec();
+    syncRiskLock();
+    renderGoal();
     renderParams();
     syncStopChips();
     renderInstrument(state.instrument);
@@ -5610,7 +5901,7 @@ body{
       name: f.querySelector('[name="riskName"]').value.trim(),
       capital: num(f.querySelector('[name="riskCapital"]').value),
       last: num(f.querySelector('[name="riskLast"]').value),
-      riskPct: num(f.querySelector('[name="riskPct"]').value) || 2,
+      riskPct: state.params.riskPct,
       entry: num(f.querySelector('[name="riskEntry"]').value),
       stop: num(f.querySelector('[name="riskStop"]').value),
       rr: num(f.querySelector('[name="riskRR"]').value) || 2,
@@ -6122,6 +6413,41 @@ body{
       b.addEventListener('click', function () { switchTab(b.getAttribute('data-tab')); });
     });
 
+    /* ---- 目标页：改动即时重算约束 ---- */
+    (function () {
+      var sec = document.getElementById('sec-goal');
+      if (!sec) { return; }
+      var map = {
+        gCapital: 'capital', gTarget: 'targetPct', gDrawdown: 'maxDrawdownPct',
+        gSurvive: 'surviveLosses', gMaxPos: 'maxPositions',
+        gMaxSingle: 'maxSinglePct', gYearStart: 'yearStart'
+      };
+      function commit() {
+        var g = state.goal || {};
+        for (var n in map) {
+          if (!Object.prototype.hasOwnProperty.call(map, n)) { continue; }
+          var el = sec.querySelector('[name="' + n + '"]');
+          if (!el) { continue; }
+          g[map[n]] = (el.type === 'date' || el.type === 'text') ? el.value : num(el.value);
+        }
+        state.goal = g;
+        state.constraints = deriveConstraints(g);
+        /* 目标一动，风控参数立刻跟着重算 —— 这就是 goal → action 的传递 */
+        state.params.capital = g.capital;
+        state.params.riskPct = state.constraints.riskPct;
+        state.params.maxPortfolioRiskPct = state.constraints.maxPortfolioPct;
+        state.params.maxSinglePct = state.constraints.maxSinglePct;
+        saveParams();
+        state.riskResult = null;
+        refreshAll();
+      }
+      sec.addEventListener('change', commit);
+      sec.addEventListener('input', function (e) {
+        var t = e.target;
+        if (t && t.type === 'date') { commit(); }
+      });
+    })();
+
     var rf = $('#riskForm');
     if (rf) {
       var codeEl = rf.querySelector('[name="riskCode"]');
@@ -6302,7 +6628,7 @@ body{
             if (el) { el.value = ''; }
           }
           if (stopPctEl) { stopPctEl.value = '5'; }
-          var rp2 = rf.querySelector('[name="riskPct"]'); if (rp2) { rp2.value = '2'; }
+          syncRiskLock();
           if (rrEl) { rrEl.value = '2'; }
           if (capEl) { capEl.value = state.params.capital > 0 ? String(state.params.capital) : ''; }
           rf.setAttribute('data-entry-synced', '1');
@@ -6567,7 +6893,7 @@ body{
     loadSources();
     bindEvents();
     bindDraftCaches();
-    switchTab('risk');
+    switchTab('goal');
     refreshAll();
     if (restoreRiskDraft) { restoreRiskDraft(); }
     if (restoreLogDraft) { restoreLogDraft(); }
@@ -6681,6 +7007,25 @@ body{
     T.eq(r4.pastUnapplied.length, 0, 'corp 已应用 不重复');
     T.eq(r4.applied.length, 1, 'corp 已应用 列表计数');
   });
+  AQ.Test.group('goal/derive', function (T) {
+    /* 推导链：可承受回撤 × 连亏次数 → 单笔风险 */
+    var d1 = deriveConstraints({ capital: 100000, maxDrawdownPct: 15, surviveLosses: 8, maxPositions: 3, maxSinglePct: 30 });
+    T.near(d1.riskPct, 2.01, 0.01, '15% 回撤 / 8 连亏 → 单笔风险 2.01%');
+    T.near(d1.maxPortfolioPct, 6.03, 0.03, '组合敞口 = 2.01% × 3 只 = 6.03%');
+    T.near(d1.riskBudget, 2010, 15, '单笔预算 = 10 万 × 2.01%');
+    /* 放宽回撤 → 单笔风险变大 */
+    var d2 = deriveConstraints({ capital: 100000, maxDrawdownPct: 30, surviveLosses: 8, maxPositions: 3, maxSinglePct: 30 });
+    T.assert(d2.riskPct > d1.riskPct, '回撤放宽 → 单笔风险变大');
+    /* 想扛更多连亏 → 单笔风险变小 */
+    var d3 = deriveConstraints({ capital: 100000, maxDrawdownPct: 15, surviveLosses: 16, maxPositions: 3, maxSinglePct: 30 });
+    T.assert(d3.riskPct < d1.riskPct, '想扛更多连亏 → 单笔风险变小');
+    /* 边界与非法输入 */
+    T.assert(deriveConstraints({ maxDrawdownPct: 15, surviveLosses: 1 }).riskPct > 0, '连亏 1 次仍有正值');
+    T.assert(deriveConstraints({ maxDrawdownPct: 999, surviveLosses: 8 }).riskPct <= 60, '回撤上限被钳住');
+    T.assert(deriveConstraints({ maxDrawdownPct: 15, surviveLosses: 0 }).riskPct > 0, '连亏 0 次被钳到 1');
+    T.assert(deriveConstraints({}).riskPct > 0, '空目标有默认值');
+  });
+
   AQ.Test.group('util/ma', function (T) {
     /* 造 60 根日线：收盘价 10..69 */
     var bars = [];
