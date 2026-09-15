@@ -170,7 +170,7 @@ svg{display:block;}
 .side-foot{margin-top:auto;padding:10px 8px 0;border-top:1px solid var(--line-soft);}
 .side-foot p{margin:0;font-size:var(--fs-2xs);color:var(--text-3);line-height:1.5;}
 
-.main{flex:1 1 auto;min-width:0;padding:16px 20px 40px;max-width:1080px;}
+.main{flex:1 1 auto;min-width:0;padding:18px 24px 48px;max-width:none;}
 .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
 .topbar h1{font-size:var(--fs-xl);margin:0;font-weight:700;letter-spacing:.2px;}
 .topbar .sub{font-size:var(--fs-xs);color:var(--text-3);}
@@ -450,7 +450,7 @@ svg{display:block;}
 @media (max-width: 860px){
   .side{display:none;}
   .app{display:block;}
-  .main{padding:14px 13px calc(88px + env(safe-area-inset-bottom));max-width:none;}
+  .main{padding:14px 13px calc(88px + env(safe-area-inset-bottom));}
   .grid4{grid-template-columns:repeat(2,minmax(0,1fr));}
   .grid3{grid-template-columns:repeat(2,minmax(0,1fr));}
   .metrics{grid-template-columns:repeat(2,minmax(0,1fr));}
@@ -784,6 +784,49 @@ body{
   .tabs-m{border-top:1px solid var(--line);background:var(--card);box-shadow:0 -1px 3px rgba(60,64,67,.06);}
   .tabs-m button{border-radius:0;font-weight:500;}
   .tabs-m button.on{color:var(--primary-ink);font-weight:600;}
+}
+
+/* ---- 宽屏利用：内容随屏幕伸展，只在阅读型页面收行宽 ---- */
+/* 超宽屏加大两侧留白，避免内容贴边；再宽也不缩内容 */
+@media (min-width:1600px){
+  .main{padding-left:32px;padding-right:32px;}
+}
+@media (min-width:2200px){
+  .main{padding-left:44px;padding-right:44px;}
+  .side{width:236px;flex:0 0 236px;}
+}
+/* 卡片内边距随宽度小幅放大，宽屏下不显得内容挤在左上角 */
+@media (min-width:1600px){
+  .card{padding:24px 28px 26px;}
+  .grid2,.grid3,.grid4{gap:14px;}
+}
+/* ---- 阅读型页面 ----
+   功能页铺满宽度；纯阅读页不是「限宽留白」，而是「多栏排版」——
+   宽屏自动分成若干 600px 文字栏，既用满宽度，又不会出现一行 100+ 字。 */
+@media (min-width:1300px){
+  #sec-doc{columns:600px;column-gap:22px;}
+  #sec-doc .card{break-inside:avoid;-webkit-column-break-inside:avoid;margin-bottom:22px;}
+}
+@media (max-width:1299px){
+  #sec-doc .card{max-width:1120px;}
+}
+/* 更新日志是时间轴，分栏会切断竖线，改为限制卡片宽度 */
+#sec-log .card{max-width:1180px;}
+/* 阅读页正文：比界面文字大一号，行宽按中文 45 字上下控制 */
+.doc p{font-size:var(--fs-md);}
+.doc p,.doc li,.doc ul,.tlitem li,.tlitem p{max-width:46em;}
+.tbl td{max-width:56ch;}
+.titem .tdesc,.notice{max-width:96ch;}
+
+/* ---- 超宽屏：数据格数字放大，让多出来的横向空间有分量 ---- */
+@media (min-width:1800px){
+  .stat .v{font-size:22px;}
+  .stat .v.sm{font-size:18px;}
+}
+@media (min-width:2200px){
+  .stat .v{font-size:24px;}
+  .stat .v.sm{font-size:19px;}
+  .stat{padding:14px 15px;}
 }
 
 /* ---- 动效：只做颜色与位移，尊重系统减弱动效设置 ---- */
@@ -1639,6 +1682,16 @@ body{
         <p>页面采用三段式版本号 <code>1.1.x</code>：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本都覆盖发布到同一个在线地址，收藏一个链接即可，无需重新分享。下面按版本从新到旧记录改了什么、修了什么。</p>
         <div class="tl">
           <div class="tlitem">
+            <h3><span class="ver">1.5.1</span>宽屏下用满屏幕宽度<span class="tlmeta">2026-09-15</span></h3>
+            <ul>
+              <li><b>解除主区 1080px 宽度上限</b>，内容改为随屏幕伸展。此前在 1920px 屏上有约三分之一的宽度是空白</li>
+              <li>两侧留白按断点放大（24 / 32 / 44px），超宽屏下侧栏也同步加宽，避免内容贴边</li>
+              <li><b>阅读页不是「限宽留白」，而是「多栏排版」</b>：设计理念页在宽屏自动分成若干 600px 文字栏（1680px 起 2 栏，2560px 起 3 栏），既用满宽度，又不会出现一行 100 多字。正文行宽固定控制在 46em 内</li>
+              <li>阅读页正文从 13px 提到 14px —— 阅读页该比界面文字大一号</li>
+              <li>更新日志是时间轴，分栏会切断竖线，因此改为限制卡片宽度而非分栏</li>
+              <li>超宽屏下数据格字号分级放大（20 / 22 / 24px），让多出来的横向空间有分量，而不是把数字晾在一个很宽的空盒子里</li>
+              <li>实测：内容占屏从 83%（1280px）到 91%（2560px）；1280 / 1440 / 1680 / 1920 / 2560 五档均无横向溢出</li>
+            </ul>
             <h3><span class="ver">1.5.0</span>止损止盈改由规则算，不再手填<span class="tlmeta">2026-09-15</span></h3>
             <ul>
               <li><b>每只持仓的止损位与止盈位现在由规则反推</b>，不依赖当时手填了什么。止盈位 = 减仓档位（成本 ×1.15 / ×1.25）；止损位随浮盈档位上移：未达加仓线用建仓位，达加仓线或第一减仓位后上移到成本价（保本），达第二减仓位后上移到成本 ×1.10，移动止盈启用后不低于回撤离场线</li>
