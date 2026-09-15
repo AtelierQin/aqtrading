@@ -7,38 +7,117 @@
 <title>A股交易纪律工作台</title>
 <style>
 :root{
+  /* ---- 基础面 ---- */
   --bg:#f5f6f8;
   --card:#ffffff;
   --line:#e6e8ee;
   --line-soft:#f0f1f5;
+  --gray-soft:#f2f3f6;
+  --neutral-bg:#fafbfd;
+
+  /* ---- 文字 ---- */
   --text:#1b1f2a;
   --text-2:#5b6472;
   --text-3:#8d96a6;
+
+  /* ---- 主色（蓝：动作 / 信息）---- */
   --primary:#1f4bd8;
+  --primary-dark:#1b3fae;
   --primary-soft:#eef2fe;
+  --primary-tint:#fbfcff;
+  --primary-line:#d6e0fb;
+  --primary-line-strong:#cddaf9;
+
+  /* ---- 涨（红：风险 / 上涨 / 危险）---- */
   --up:#d93838;
+  --up-dark:#8f2626;
   --up-soft:#fdeeee;
+  --up-tint:#fffafa;
+  --up-bar:#fef3f3;
+  --up-line:#f0c9c9;
+  --up-line-soft:#f4d2d2;
+
+  /* ---- 跌（绿：安全 / 下跌 / 达标）---- */
   --down:#12996b;
+  --down-strong:#0f8a5f;
+  --down-dark:#0d6d4c;
   --down-soft:#eaf7f1;
+  --down-tint:#f4f7f5;
+  --down-line:#cdeadd;
+  --down-line-soft:#e3eae6;
+
+  /* ---- 警告（橙：提醒 / 待处理）---- */
   --warn:#c8791a;
+  --warn-dark:#7d5210;
   --warn-soft:#fdf4e7;
-  --gray-soft:#f2f3f6;
-  --radius:14px;
+  --warn-tint:#fffdf8;
+  --warn-bar:#fdf8eb;
+  --warn-line:#f0dfc2;
+  --warn-line-soft:#f2e0c5;
+
+  /* ---- 中性灰阶 ---- */
+  --muted-bg:#eceef3;
+  --muted-bg-2:#e6e9f0;
+  --muted-fg:#5a6478;
+  --muted-line:#c9cedb;
+  --ink-2:#22262f;
+
+  /* ---- 字阶（7 级）---- */
+  --fs-2xs:11px;
+  --fs-xs:12px;
+  --fs-base:13px;
+  --fs-md:14px;
+  --fs-lg:16px;
+  --fs-xl:20px;
+  --fs-hero:26px;
+  /* ---- 圆角（4 级 + 胶囊）---- */
+  --radius-xs:6px;
+  --radius-sm:8px;
+  --radius-md:10px;
+  --radius:12px;
+  --radius-pill:999px;
+
+  /* ---- 阴影 ---- */
   --shadow:0 1px 2px rgba(20,26,40,.05), 0 6px 18px rgba(20,26,40,.05);
 }
+/* ---- 工具类（间距按 4px 栅格：4 / 8 / 12 / 16）---- */
+.mt-1{margin-top:4px;}
+.mt-2{margin-top:8px;}
+.mt-3{margin-top:12px;}
+.mt-4{margin-top:16px;}
+.row{display:flex;gap:9px;flex-wrap:wrap;}
+.row-mid{display:flex;align-items:center;gap:8px;}
+.fs-115{font-size:var(--fs-xs);}
+.fs-12{font-size:var(--fs-xs);}
+.fs-125{font-size:var(--fs-base);}
+.fs-135{font-size:var(--fs-md);}
+.w-80{width:80px;}
+.warn-text{color:var(--warn);}
+.ring-muted{stroke:var(--muted-line);}
+.ring-good{stroke:var(--down);}
+.ring-warn{stroke:var(--warn);}
+.ring-bad{stroke:var(--up);}
+
+.notice.tight{margin:0;}
+.notice.mt-3{margin-top:12px;margin-bottom:0;}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 html,body{margin:0;padding:0;}
 body{
   background:var(--bg);
   color:var(--text);
   font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
-  font-size:14px;
+  font-size:var(--fs-md);
   line-height:1.6;
   -webkit-font-smoothing:antialiased;
 }
 button{font-family:inherit;}
 input,select,textarea{font-family:inherit;}
 svg{display:block;}
+/* 图标着色：以 color 驱动，SVG 用 stroke="currentColor" 继承 */
+.ico-primary{color:var(--primary);}
+.ico-up{color:var(--up);}
+.ico-down{color:var(--down);}
+.ico-warn{color:var(--warn);}
 .ico{width:16px;height:16px;flex:0 0 auto;}
 .ico-lg{width:22px;height:22px;flex:0 0 auto;}
 
@@ -50,26 +129,26 @@ svg{display:block;}
   display:flex;flex-direction:column;padding:18px 12px 12px;
 }
 .brand{display:flex;align-items:center;gap:9px;padding:0 8px 16px;border-bottom:1px solid var(--line-soft);margin-bottom:12px;}
-.brand-mark{width:30px;height:30px;border-radius:9px;background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto;}
-.brand-txt b{display:block;font-size:14px;letter-spacing:.2px;}
-.brand-txt span{display:block;font-size:11px;color:var(--text-3);}
+.brand-mark{width:30px;height:30px;border-radius:var(--radius-md);background:var(--primary);display:flex;align-items:center;justify-content:center;color:#fff;flex:0 0 auto;}
+.brand-txt b{display:block;font-size:var(--fs-md);letter-spacing:.2px;}
+.brand-txt span{display:block;font-size:var(--fs-2xs);color:var(--text-3);}
 .navitem{
   display:flex;align-items:center;gap:10px;width:100%;text-align:left;
   padding:10px 12px;min-height:44px;border:0;background:transparent;color:var(--text-2);
-  border-radius:10px;font-size:13.5px;cursor:pointer;margin-bottom:3px;
+  border-radius:var(--radius-md);font-size:var(--fs-md);cursor:pointer;margin-bottom:3px;
 }
 .navitem:hover{background:var(--gray-soft);}
 .navitem.on{background:var(--primary-soft);color:var(--primary);font-weight:600;}
 .side-foot{margin-top:auto;padding:10px 8px 0;border-top:1px solid var(--line-soft);}
-.side-foot p{margin:0;font-size:11px;color:var(--text-3);line-height:1.5;}
+.side-foot p{margin:0;font-size:var(--fs-2xs);color:var(--text-3);line-height:1.5;}
 
 .main{flex:1 1 auto;min-width:0;padding:16px 20px 40px;max-width:1080px;}
 .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:14px;}
-.topbar h1{font-size:18px;margin:0;font-weight:700;letter-spacing:.2px;}
-.topbar .sub{font-size:12px;color:var(--text-3);}
+.topbar h1{font-size:var(--fs-xl);margin:0;font-weight:700;letter-spacing:.2px;}
+.topbar .sub{font-size:var(--fs-xs);color:var(--text-3);}
 .spacer{flex:1 1 auto;}
 
-.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:999px;font-size:12px;border:1px solid var(--line);background:var(--card);color:var(--text-2);}
+.badge{display:inline-flex;align-items:center;gap:6px;padding:4px 10px;border-radius:var(--radius-pill);font-size:var(--fs-xs);border:1px solid var(--line);background:var(--card);color:var(--text-2);}
 .badge .dot{width:7px;height:7px;border-radius:50%;background:var(--text-3);}
 .badge.ok .dot{background:var(--down);}
 .badge.sync .dot{background:var(--warn);}
@@ -77,66 +156,66 @@ svg{display:block;}
 
 .btn{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;
-  min-height:44px;padding:0 14px;border-radius:10px;border:1px solid var(--line);
-  background:var(--card);color:var(--text);font-size:13.5px;cursor:pointer;
+  min-height:44px;padding:0 14px;border-radius:var(--radius-md);border:1px solid var(--line);
+  background:var(--card);color:var(--text);font-size:var(--fs-md);cursor:pointer;
 }
 .btn:hover{background:var(--gray-soft);}
 .btn.primary{background:var(--primary);border-color:var(--primary);color:#fff;}
 .btn.primary:hover{filter:brightness(1.06);}
-.btn.danger{color:var(--up);border-color:#f2cccc;}
-.btn.sm{min-height:36px;padding:0 11px;font-size:12.5px;border-radius:9px;}
-.btn.xs{min-height:30px;padding:0 9px;font-size:12px;border-radius:8px;}
+.btn.danger{color:var(--up);border-color:var(--up-line-soft);}
+.btn.sm{min-height:36px;padding:0 11px;font-size:var(--fs-base);border-radius:var(--radius-md);}
+.btn.xs{min-height:30px;padding:0 9px;font-size:var(--fs-xs);border-radius:var(--radius-sm);}
 .btn:disabled{opacity:.55;cursor:not-allowed;}
 
 /* 卡片内的「减仓计划」行：触发价 + 股数，已触发的高亮成绿色 */
-.rplan{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-top:10px;padding:8px 10px;border-radius:8px;background:var(--gray-soft);font-size:12.5px;line-height:1.7;}
+.rplan{display:flex;align-items:center;gap:8px 12px;flex-wrap:wrap;margin-top:10px;padding:8px 10px;border-radius:var(--radius-sm);background:var(--gray-soft);font-size:var(--fs-base);line-height:1.7;}
 .rplan .rpl-t{font-weight:600;color:var(--text-2);}
 .rplan .rpl-i{color:var(--text-2);white-space:nowrap;}
 .rplan .rpl-i b{font-variant-numeric:tabular-nums;color:var(--text);}
-.rplan .rpl-i i{font-style:normal;display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:#e6e9f0;color:#5a6478;font-size:10.5px;margin-right:3px;}
-.rplan .rpl-i.on{color:#0f8a5f;font-weight:600;}
-.rplan .rpl-i.on b{color:#0f8a5f;}
+.rplan .rpl-i i{font-style:normal;display:inline-block;width:16px;height:16px;line-height:16px;text-align:center;border-radius:50%;background:var(--muted-bg-2);color:var(--muted-fg);font-size:var(--fs-2xs);margin-right:3px;}
+.rplan .rpl-i.on{color:var(--down-strong);font-weight:600;}
+.rplan .rpl-i.on b{color:var(--down-strong);}
 .rplan .rpl-i.on i{background:var(--primary-soft);color:var(--primary);}
 .rplan .rpl-ma{color:var(--warn);}
 /* 移动止盈：启用后显示回撤离场线；已触发转为红色告警 */
 .rplan .rpl-trail{color:var(--primary);}
 .rplan .rpl-trail b{color:var(--primary);}
-.rplan .rpl-trail.trig{color:#d93838;font-weight:600;}
-.rplan .rpl-trail.trig b{color:#d93838;}
+.rplan .rpl-trail.trig{color:var(--up);font-weight:600;}
+.rplan .rpl-trail.trig b{color:var(--up);}
 
 /* ---------- 持仓卡片：除权除息事件行 ---------- */
-.actbar{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;margin-top:8px;padding:7px 9px;border-radius:8px;background:#fafbfd;font-size:12.5px;line-height:1.6;border:1px solid var(--line-soft);}
+.actbar{display:flex;align-items:center;gap:6px 12px;flex-wrap:wrap;margin-top:8px;padding:7px 9px;border-radius:var(--radius-sm);background:var(--neutral-bg);font-size:var(--fs-base);line-height:1.6;border:1px solid var(--line-soft);}
 .actbar .ac-t{font-weight:600;color:var(--text-2);margin-right:2px;}
 .actbar .ac-i{color:var(--text-2);white-space:nowrap;}
 .actbar .ac-i b{font-variant-numeric:tabular-nums;color:var(--text);}
-.actbar .ac-i em{font-style:normal;color:var(--text-3);margin-right:3px;font-size:11.5px;}
-.actbar.future{background:#fdf8eb;border-color:#f0dfc2;}
+.actbar .ac-i em{font-style:normal;color:var(--text-3);margin-right:3px;font-size:var(--fs-xs);}
+.actbar.future{background:var(--warn-bar);border-color:var(--warn-line);}
 .actbar.future .ac-t{color:var(--warn);}
-.actbar.past{background:#fef3f3;border-color:#f0c9c9;}
+.actbar.past{background:var(--up-bar);border-color:var(--up-line);}
 .actbar.past .ac-t{color:var(--up);}
-.actbar.applied{background:#f4f7f5;border-color:#e3eae6;}
+.actbar.applied{background:var(--down-tint);border-color:var(--down-line-soft);}
 .actbar.applied .ac-t{color:var(--text-3);}
 .actbar .ac-btn{margin-left:auto;}
 
 /* 全仓减仓计划清单 */
 .rptable{display:block;overflow-x:auto;}
-.rptr{display:grid;grid-template-columns:1.25fr .95fr 1.05fr 1.05fr 1fr 1.05fr .85fr;gap:8px;padding:9px 10px;border-bottom:1px solid var(--line);font-size:12.5px;align-items:center;}
+.rptr{display:grid;grid-template-columns:1.25fr .95fr 1.05fr 1.05fr 1fr 1.05fr .85fr;gap:8px;padding:9px 10px;border-bottom:1px solid var(--line);font-size:var(--fs-base);align-items:center;}
 .rptr:last-child{border-bottom:none;}
-.rpthead{font-weight:600;color:var(--text-2);background:var(--gray-soft);border-radius:8px;border-bottom:none;}
+.rpthead{font-weight:600;color:var(--text-2);background:var(--gray-soft);border-radius:var(--radius-sm);border-bottom:none;}
 .rptr b{font-variant-numeric:tabular-nums;}
-.rptr .hit{color:#0f8a5f;font-weight:600;}
-.rptr .trig{color:#d93838;font-weight:600;}
+.rptr .hit{color:var(--down-strong);font-weight:600;}
+.rptr .trig{color:var(--up);font-weight:600;}
 .rptr .off{color:var(--text-3);}
 @media (max-width:768px){
   .rptr{grid-template-columns:1fr 1fr;gap:6px;padding:10px;border-bottom:1px solid var(--line);}
   .rpthead{display:none;}
-  .rptr > span::before{content:attr(data-k) "：";color:var(--text-3);font-size:11.5px;}
+  .rptr > span::before{content:attr(data-k) "：";color:var(--text-3);font-size:var(--fs-xs);}
 }
 
 .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;margin-bottom:14px;}
 .card-h{display:flex;align-items:center;gap:9px;margin-bottom:12px;flex-wrap:wrap;}
-.card-h h2{font-size:15px;margin:0;font-weight:700;}
-.card-h .hint{font-size:12px;color:var(--text-3);}
+.card-h h2{font-size:var(--fs-lg);margin:0;font-weight:700;}
+.card-h .hint{font-size:var(--fs-xs);color:var(--text-3);}
 .card-h .spacer{flex:1 1 auto;}
 
 .section{display:none;}
@@ -147,30 +226,30 @@ svg{display:block;}
 .grid4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;}
 
 .field{display:flex;flex-direction:column;gap:5px;}
-.field label{font-size:12px;color:var(--text-2);}
+.field label{font-size:var(--fs-xs);color:var(--text-2);}
 .field input,.field select,.field textarea{
   width:100%;min-height:44px;padding:9px 11px;border:1px solid var(--line);
-  border-radius:10px;background:#fff;color:var(--text);font-size:16px;outline:none;
+  border-radius:var(--radius-md);background:var(--card);color:var(--text);font-size:var(--fs-lg);outline:none;
 }
-.field textarea{min-height:70px;font-size:15px;line-height:1.5;resize:vertical;}
+.field textarea{min-height:70px;font-size:var(--fs-lg);line-height:1.5;resize:vertical;}
 .field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(31,75,216,.1);}
-.field .tip{font-size:11px;color:var(--text-3);}
+.field .tip{font-size:var(--fs-2xs);color:var(--text-3);}
 
-.stat{background:var(--gray-soft);border-radius:12px;padding:11px 12px;}
-.stat .k{font-size:11.5px;color:var(--text-3);margin-bottom:3px;}
-.stat .v{font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.2px;}
-.stat .v.sm{font-size:15px;}
-.stat .u{font-size:11px;color:var(--text-3);font-weight:400;margin-left:2px;}
+.stat{background:var(--gray-soft);border-radius:var(--radius);padding:11px 12px;}
+.stat .k{font-size:var(--fs-xs);color:var(--text-3);margin-bottom:3px;}
+.stat .v{font-size:var(--fs-lg);font-weight:700;font-variant-numeric:tabular-nums;letter-spacing:.2px;}
+.stat .v.sm{font-size:var(--fs-lg);}
+.stat .u{font-size:var(--fs-2xs);color:var(--text-3);font-weight:400;margin-left:2px;}
 
 .up{color:var(--up);}
 .down{color:var(--down);}
 .muted{color:var(--text-3);}
 
-.tag{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:999px;font-size:11.5px;border:1px solid transparent;white-space:nowrap;}
-.tag.danger{background:var(--up-soft);color:var(--up);border-color:#f4d2d2;}
-.tag.warn{background:var(--warn-soft);color:var(--warn);border-color:#f2e0c5;}
-.tag.ok{background:var(--down-soft);color:var(--down);border-color:#cdeadd;}
-.tag.info{background:var(--primary-soft);color:var(--primary);border-color:#d6e0fb;}
+.tag{display:inline-flex;align-items:center;gap:5px;padding:2px 9px;border-radius:var(--radius-pill);font-size:var(--fs-xs);border:1px solid transparent;white-space:nowrap;}
+.tag.danger{background:var(--up-soft);color:var(--up);border-color:var(--up-line-soft);}
+.tag.warn{background:var(--warn-soft);color:var(--warn);border-color:var(--warn-line-soft);}
+.tag.ok{background:var(--down-soft);color:var(--down);border-color:var(--down-line);}
+.tag.info{background:var(--primary-soft);color:var(--primary);border-color:var(--primary-line);}
 .tag.gray{background:var(--gray-soft);color:var(--text-2);border-color:var(--line);}
 
 /* ---------- today ---------- */
@@ -184,141 +263,146 @@ svg{display:block;}
 .titem.yellow .tdot{background:var(--warn);}
 .titem.green .tdot{background:var(--down);}
 .titem .tbody{flex:1 1 auto;min-width:0;}
-.titem .tname{font-weight:600;font-size:13.5px;}
-.titem .tdesc{font-size:12px;color:var(--text-2);}
+.titem .tname{font-weight:600;font-size:var(--fs-md);}
+.titem .tdesc{font-size:var(--fs-xs);color:var(--text-2);}
 .titem .tacts{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
-.empty{color:var(--text-3);font-size:13px;text-align:center;padding:18px 8px;}
+.empty{color:var(--text-3);font-size:var(--fs-base);text-align:center;padding:18px 8px;}
 
 /* ---------- list ---------- */
+.rule-row{padding:10px 12px;border:1px solid var(--line);border-radius:var(--radius-md);background:var(--card);}
+.rule-row + .rule-row{margin-top:10px;}
+.rule-row .srcswitch{align-items:flex-start;}
+.rule-row .srcswitch b{font-size:var(--fs-md);color:var(--text);}
+.rule-row .srcswitch span{font-size:var(--fs-xs);line-height:1.6;}
 .plist{display:flex;flex-direction:column;gap:10px;}
-.pcard{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;}
-.pcard.risk{border-color:#f0c9c9;background:linear-gradient(180deg,#fffafa,#fff);}
-.pcard.warn{border-color:#f0dfc2;background:linear-gradient(180deg,#fffdf8,#fff);}
+.pcard{border:1px solid var(--line);border-radius:var(--radius);padding:12px;background:var(--card);}
+.pcard.risk{border-color:var(--up-line);background:linear-gradient(180deg,var(--up-tint),var(--card));}
+.pcard.warn{border-color:var(--warn-line);background:linear-gradient(180deg,var(--warn-tint),var(--card));}
 .pcard-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px;}
-.pcard-h .code{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;}
-.pcard-h .name{font-size:13px;color:var(--text-2);}
+.pcard-h .code{font-size:var(--fs-lg);font-weight:700;font-variant-numeric:tabular-nums;}
+.pcard-h .name{font-size:var(--fs-base);color:var(--text-2);}
 .pcard-h .spacer{flex:1 1 auto;}
 .metrics{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;}
-.metric{background:var(--gray-soft);border-radius:9px;padding:7px 9px;}
-.metric .k{font-size:10.5px;color:var(--text-3);}
-.metric .v{font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;}
+.metric{background:var(--gray-soft);border-radius:var(--radius-md);padding:7px 9px;}
+.metric .k{font-size:var(--fs-2xs);color:var(--text-3);}
+.metric .v{font-size:var(--fs-md);font-weight:600;font-variant-numeric:tabular-nums;}
 .pcard-f{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);}
 .inline-edit{display:flex;align-items:center;gap:6px;}
-.inline-edit input{width:88px;min-height:36px;padding:6px 9px;font-size:16px;border:1px solid var(--line);border-radius:8px;text-align:right;}
+.inline-edit input{width:88px;min-height:36px;padding:6px 9px;font-size:var(--fs-lg);border:1px solid var(--line);border-radius:var(--radius-sm);text-align:right;}
 
 .rules{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
-.rule{border:1px solid var(--line);border-radius:12px;padding:13px;background:#fff;}
-.rule.plus{border-color:#cdeadd;}
-.rule.minus{border-color:#f4d2d2;}
-.rule h3{margin:0 0 6px;font-size:13.5px;display:flex;align-items:center;gap:7px;}
-.rule ul{margin:6px 0 0;padding-left:17px;font-size:12.5px;color:var(--text-2);}
+.rule{border:1px solid var(--line);border-radius:var(--radius);padding:13px;background:var(--card);}
+.rule.plus{border-color:var(--down-line);}
+.rule.minus{border-color:var(--up-line-soft);}
+.rule h3{margin:0 0 6px;font-size:var(--fs-md);display:flex;align-items:center;gap:7px;}
+.rule ul{margin:6px 0 0;padding-left:17px;font-size:var(--fs-base);color:var(--text-2);}
 .rule li{margin-bottom:3px;}
 .checklist{list-style:none;margin:8px 0 0;padding:0;}
-.checklist li{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px dashed var(--line-soft);font-size:12.5px;}
+.checklist li{display:flex;gap:8px;align-items:flex-start;padding:6px 0;border-bottom:1px dashed var(--line-soft);font-size:var(--fs-base);}
 .checklist li:last-child{border-bottom:0;}
 .checklist input{width:18px;height:18px;margin-top:2px;flex:0 0 auto;accent-color:var(--primary);}
 
-.trap{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;}
-.trap h3{margin:0 0 4px;font-size:13.5px;display:flex;align-items:center;gap:7px;}
-.trap .bad{color:var(--up);font-size:12.5px;}
-.trap .good{color:var(--down);font-size:12.5px;margin-top:5px;}
-.trap code{background:var(--gray-soft);border-radius:5px;padding:1px 5px;font-size:11.5px;}
+.trap{border:1px solid var(--line);border-radius:var(--radius);padding:12px;background:var(--card);}
+.trap h3{margin:0 0 4px;font-size:var(--fs-md);display:flex;align-items:center;gap:7px;}
+.trap .bad{color:var(--up);font-size:var(--fs-base);}
+.trap .good{color:var(--down);font-size:var(--fs-base);margin-top:5px;}
+.trap code{background:var(--gray-soft);border-radius:var(--radius-xs);padding:1px 5px;font-size:var(--fs-xs);}
 
-.logrow{border:1px solid var(--line);border-radius:11px;padding:10px 12px;display:flex;gap:11px;align-items:flex-start;flex-wrap:wrap;}
+.logrow{border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;display:flex;gap:11px;align-items:flex-start;flex-wrap:wrap;}
 .logrow .lc{flex:1 1 220px;min-width:0;}
-.logrow .lt{font-size:12.5px;font-weight:600;}
-.logrow .ld{font-size:12px;color:var(--text-2);}
-.logrow .lr{font-size:13px;font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
+.logrow .lt{font-size:var(--fs-base);font-weight:600;}
+.logrow .ld{font-size:var(--fs-xs);color:var(--text-2);}
+.logrow .lr{font-size:var(--fs-base);font-weight:700;font-variant-numeric:tabular-nums;white-space:nowrap;}
 
 .bars{display:flex;flex-direction:column;gap:7px;}
-.barrow{display:flex;align-items:center;gap:9px;font-size:12.5px;}
+.barrow{display:flex;align-items:center;gap:9px;font-size:var(--fs-base);}
 .barrow .bl{width:74px;flex:0 0 74px;color:var(--text-2);}
-.barrow .bt{flex:1 1 auto;height:10px;background:var(--gray-soft);border-radius:5px;overflow:hidden;}
-.barrow .bf{height:100%;background:var(--up);border-radius:5px;}
+.barrow .bt{flex:1 1 auto;height:10px;background:var(--gray-soft);border-radius:var(--radius-xs);overflow:hidden;}
+.barrow .bf{height:100%;background:var(--up);border-radius:var(--radius-xs);}
 .barrow .bn{width:22px;text-align:right;font-variant-numeric:tabular-nums;color:var(--text-2);}
 
 .ringwrap{display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.ringtxt b{display:block;font-size:26px;line-height:1.1;font-variant-numeric:tabular-nums;}
-.ringtxt span{font-size:12px;color:var(--text-3);}
+.ringtxt b{display:block;font-size:var(--fs-hero);line-height:1.1;font-variant-numeric:tabular-nums;}
+.ringtxt span{font-size:var(--fs-xs);color:var(--text-3);}
 
-.notice{border-radius:11px;padding:10px 12px;font-size:12.5px;margin-bottom:10px;display:flex;gap:8px;align-items:flex-start;}
-.notice.red{background:var(--up-soft);color:#8f2626;border:1px solid #f4d2d2;}
-.notice.yellow{background:var(--warn-soft);color:#7d5210;border:1px solid #f2e0c5;}
-.notice.green{background:var(--down-soft);color:#0d6d4c;border:1px solid #cdeadd;}
-.notice.blue{background:var(--primary-soft);color:#1b3fae;border:1px solid #d6e0fb;}
+.notice{border-radius:var(--radius);padding:10px 12px;font-size:var(--fs-base);margin-bottom:10px;display:flex;gap:8px;align-items:flex-start;}
+.notice.red{background:var(--up-soft);color:var(--up-dark);border:1px solid var(--up-line-soft);}
+.notice.yellow{background:var(--warn-soft);color:var(--warn-dark);border:1px solid var(--warn-line-soft);}
+.notice.green{background:var(--down-soft);color:var(--down-dark);border:1px solid var(--down-line);}
+.notice.blue{background:var(--primary-soft);color:var(--primary-dark);border:1px solid var(--primary-line);}
 
 .tabs-m{display:none;}
 .toast{
   position:fixed;left:50%;bottom:86px;transform:translateX(-50%);
-  background:#22262f;color:#fff;padding:10px 16px;border-radius:10px;font-size:13px;
+  background:var(--ink-2);color:#fff;padding:10px 16px;border-radius:var(--radius-md);font-size:var(--fs-base);
   opacity:0;pointer-events:none;transition:opacity .2s;z-index:60;max-width:88vw;text-align:center;
 }
 .toast.on{opacity:1;}
 
-.req{color:var(--up);font-size:11px;font-weight:600;}
-.chip{min-height:34px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--text-2);font-size:12.5px;cursor:pointer;}
+.req{color:var(--up);font-size:var(--fs-2xs);font-weight:600;}
+.chip{min-height:34px;padding:0 12px;border-radius:var(--radius-pill);border:1px solid var(--line);background:var(--card);color:var(--text-2);font-size:var(--fs-base);cursor:pointer;}
 .chip:hover{background:var(--gray-soft);}
-.chip.on{background:var(--primary-soft);border-color:#cddaf9;color:var(--primary);font-weight:600;}
+.chip.on{background:var(--primary-soft);border-color:var(--primary-line-strong);color:var(--primary);font-weight:600;}
 .quickrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;padding-top:11px;border-top:1px dashed var(--line);}
-.quickrow .qlabel{font-size:12px;color:var(--text-2);}
-.quickrow .hint{font-size:12px;color:var(--text-3);}
+.quickrow .qlabel{font-size:var(--fs-xs);color:var(--text-2);}
+.quickrow .hint{font-size:var(--fs-xs);color:var(--text-3);}
 .quickrow .hint.q-ok{color:var(--down);}
 .quickrow .hint.q-warn{color:var(--warn);}
 .lockrow{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:12px;}
-.lockrow .tiny{width:52px;height:28px;padding:0 4px;border:1px solid var(--line);border-radius:7px;background:#fff;color:var(--text);font-size:12.5px;font-weight:600;text-align:center;font-family:inherit;}
+.lockrow .tiny{width:52px;height:28px;padding:0 4px;border:1px solid var(--line);border-radius:var(--radius-sm);background:var(--card);color:var(--text);font-size:var(--fs-base);font-weight:600;text-align:center;font-family:inherit;}
 .lockrow .tiny:focus{outline:2px solid var(--primary-soft);border-color:var(--primary);}
 .lockrow .tag{gap:3px;}
 .instrow{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px;min-height:24px;}
 
 /* ===== 文档页（设计理念 / 更新日志）：纯静态说明，不参与计算 ===== */
-.doc p{margin:7px 0;font-size:12.5px;color:var(--text-2);line-height:1.78;}
+.doc p{margin:7px 0;font-size:var(--fs-base);color:var(--text-2);line-height:1.78;}
 .doc p:first-child{margin-top:0;}
-.doc h3{margin:0 0 7px;font-size:13.5px;}
-.doc ul{margin:6px 0 0;padding-left:17px;font-size:12.5px;color:var(--text-2);line-height:1.72;}
+.doc h3{margin:0 0 7px;font-size:var(--fs-md);}
+.doc ul{margin:6px 0 0;padding-left:17px;font-size:var(--fs-base);color:var(--text-2);line-height:1.72;}
 .doc li{margin-bottom:4px;}
 .doc b{color:var(--text);}
-.doc code{background:var(--gray-soft);border-radius:5px;padding:1px 5px;font-size:11.5px;}
+.doc code{background:var(--gray-soft);border-radius:var(--radius-xs);padding:1px 5px;font-size:var(--fs-xs);}
 .docnum{list-style:none;margin:8px 0 0;padding:0;counter-reset:dn;}
-.docnum li{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line-soft);font-size:12.5px;color:var(--text-2);line-height:1.7;}
+.docnum li{display:flex;gap:9px;align-items:flex-start;padding:7px 0;border-bottom:1px dashed var(--line-soft);font-size:var(--fs-base);color:var(--text-2);line-height:1.7;}
 .docnum li:last-child{border-bottom:0;}
-.docnum .n{flex:0 0 20px;height:20px;border-radius:50%;background:var(--primary-soft);color:var(--primary);font-size:11.5px;font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px;}
-.tbl{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:9px;}
+.docnum .n{flex:0 0 20px;height:20px;border-radius:50%;background:var(--primary-soft);color:var(--primary);font-size:var(--fs-xs);font-weight:700;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.tbl{width:100%;border-collapse:collapse;font-size:var(--fs-base);margin-top:9px;}
 .tbl th,.tbl td{padding:7px 9px;border-bottom:1px solid var(--line-soft);text-align:left;vertical-align:top;}
-.tbl th{color:var(--text-3);font-weight:600;font-size:11.5px;white-space:nowrap;}
+.tbl th{color:var(--text-3);font-weight:600;font-size:var(--fs-xs);white-space:nowrap;}
 .tbl td.n{font-variant-numeric:tabular-nums;white-space:nowrap;}
 .tbl tbody tr:last-child td{border-bottom:0;}
 .tl{border-left:2px solid var(--line);margin:6px 0 0 5px;padding-left:17px;}
 .tlitem{position:relative;padding-bottom:17px;}
 .tlitem:last-child{padding-bottom:0;}
 .tlitem::before{content:"";position:absolute;left:-24px;top:5px;width:9px;height:9px;border-radius:50%;background:var(--primary);box-shadow:0 0 0 3px var(--primary-soft);}
-.tlitem h3{margin:0 0 4px;font-size:13px;display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
-.ver{background:var(--primary-soft);color:var(--primary);border-radius:6px;padding:1px 7px;font-size:12px;font-weight:700;font-variant-numeric:tabular-nums;flex:0 0 auto;}
-.tlmeta{font-size:11.5px;color:var(--text-3);font-weight:400;}
-.tlitem ul{margin:5px 0 0;padding-left:16px;font-size:12.5px;color:var(--text-2);}
+.tlitem h3{margin:0 0 4px;font-size:var(--fs-base);display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+.ver{background:var(--primary-soft);color:var(--primary);border-radius:var(--radius-xs);padding:1px 7px;font-size:var(--fs-xs);font-weight:700;font-variant-numeric:tabular-nums;flex:0 0 auto;}
+.tlmeta{font-size:var(--fs-xs);color:var(--text-3);font-weight:400;}
+.tlitem ul{margin:5px 0 0;padding-left:16px;font-size:var(--fs-base);color:var(--text-2);}
 .tlitem li{margin-bottom:3px;}
 .tlitem .fix{color:var(--warn);}
-.instrow .tag{font-size:11.5px;}
-.instrow .hint{font-size:12px;color:var(--text-3);}
+.instrow .tag{font-size:var(--fs-xs);}
+.instrow .hint{font-size:var(--fs-xs);color:var(--text-3);}
 
 /* ---- 数据源页 ---- */
 .srcbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-top:11px;padding-top:11px;border-top:1px dashed var(--line);}
 .srclist{display:flex;flex-direction:column;gap:10px;}
-.srccard{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff;}
-.srccard.inuse{border-color:#cddaf9;background:linear-gradient(180deg,#fbfcff,#fff);}
+.srccard{border:1px solid var(--line);border-radius:var(--radius);padding:12px;background:var(--card);}
+.srccard.inuse{border-color:var(--primary-line-strong);background:linear-gradient(180deg,var(--primary-tint),var(--card));}
 .srccard.off{background:var(--gray-soft);}
 .srccard-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:9px;}
-.srccard-h .srcname{font-size:14px;font-weight:700;}
+.srccard-h .srcname{font-size:var(--fs-md);font-weight:700;}
 .srccard-h .spacer{flex:1 1 auto;}
-.srcmeta{display:grid;grid-template-columns:62px minmax(0,1fr);gap:4px 10px;font-size:12.5px;color:var(--text-2);}
-.srcmeta .k{color:var(--text-3);font-size:11.5px;padding-top:1px;}
+.srcmeta{display:grid;grid-template-columns:62px minmax(0,1fr);gap:4px 10px;font-size:var(--fs-base);color:var(--text-2);}
+.srcmeta .k{color:var(--text-3);font-size:var(--fs-xs);padding-top:1px;}
 .srcmeta .v{word-break:break-all;}
 .srcmeta .v.mono{font-variant-numeric:tabular-nums;letter-spacing:.2px;}
 .srcmeta .v.na{color:var(--text-3);font-style:italic;}
 .srcacts{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px;padding-top:9px;border-top:1px dashed var(--line);}
-.srcswitch{display:inline-flex;align-items:center;gap:6px;font-size:12px;color:var(--text-2);cursor:pointer;white-space:nowrap;}
+.srcswitch{display:inline-flex;align-items:center;gap:6px;font-size:var(--fs-xs);color:var(--text-2);cursor:pointer;white-space:nowrap;}
 .srcswitch input{width:17px;height:17px;accent-color:var(--primary);}
-.srcactive{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:13px;}
-.srcactive .lbl{font-size:12px;color:var(--text-3);}
+.srcactive{display:flex;align-items:center;gap:9px;flex-wrap:wrap;font-size:var(--fs-base);}
+.srcactive .lbl{font-size:var(--fs-xs);color:var(--text-3);}
 #srcFormCard .field{margin-bottom:10px;}
 #srcFormCard .grid2{margin-bottom:10px;}
 #srcFormCard .grid2 .field{margin-bottom:0;}
@@ -341,16 +425,16 @@ svg{display:block;}
   .tabs-m button{
     flex:1 1 0;min-height:50px;border:0;background:transparent;color:var(--text-3);
     display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;
-    font-size:11px;cursor:pointer;border-radius:10px;
+    font-size:var(--fs-2xs);cursor:pointer;border-radius:var(--radius-md);
   }
   .tabs-m button.on{color:var(--primary);background:var(--primary-soft);font-weight:600;}
-  .topbar h1{font-size:16px;}
+  .topbar h1{font-size:var(--fs-lg);}
   .card{padding:13px;}
   /* 文档页表格在窄屏放开 nowrap，否则 4 列表格会撑出横向滚动 */
-  .tbl{font-size:12px;}
+  .tbl{font-size:var(--fs-xs);}
   .tbl th,.tbl td{padding:6px 6px;word-break:break-word;}
   .tbl th,.tbl td.n{white-space:normal;}
-  .tabs-m button{font-size:10.5px;gap:2px;}
+  .tabs-m button{font-size:var(--fs-2xs);gap:2px;}
   .tabs-m .ico-lg{width:20px;height:20px;}
 }
 </style>
@@ -368,29 +452,29 @@ svg{display:block;}
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>
       风控计算
     </button>
-    <button class="navitem" data-tab="pos">
+<button class="navitem" data-tab="pos">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
       持仓巡检
     </button>
-    <button class="navitem" data-tab="rule">
+<button class="navitem" data-tab="rule">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
       加减仓规则
     </button>
-    <button class="navitem" data-tab="disc">
+<button class="navitem" data-tab="log">
+      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
+      更新日志
+    </button>
+<button class="navitem" data-tab="disc">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.6-3.4 8-8 9-4.6-1-8-4.4-8-9V7l8-4z"/><path d="M12 8v4M12 15h.01"/></svg>
       交易纪律
     </button>
-    <button class="navitem" data-tab="source">
+<button class="navitem" data-tab="source">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>
       数据源
     </button>
-    <button class="navitem" data-tab="doc">
+<button class="navitem" data-tab="doc">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.3 5.2-5.2 2.3 2.3-5.2 5.2-2.3z"/></svg>
       设计理念
-    </button>
-    <button class="navitem" data-tab="log">
-      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
-      更新日志
     </button>
     <div class="side-foot">
       <p>数据只存在本机浏览器，不上传云端。换设备请用「导出备份」迁移。</p>
@@ -416,27 +500,10 @@ svg{display:block;}
       <input type="file" id="fileRestore" accept="application/json,.json" style="display:none">
     </div>
 
-    <!-- ============ 大盘指数 ============ -->
-    <section class="card" id="mktCard">
-      <div class="card-h">
-        <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 5-7 4 4"/></svg>
-        <h2>大盘指数</h2>
-        <span class="hint" id="mktHint">需在「数据源」启用 fuyao 才能取数</span>
-        <span class="spacer"></span>
-        <button class="btn sm" id="btnMktRefresh">
-          <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 10-3 6"/><path d="M20 5v6h-6"/></svg>
-          刷新
-        </button>
-      </div>
-      <div class="mktbar" id="mktBar">
-        <div class="mkt empty">需在「数据源」页启用 fuyao 并填入 API Key 后点刷新。</div>
-      </div>
-    </section>
-
     <!-- ============ 今天要处理 ============ -->
     <section class="card today" id="todayCard">
       <div class="card-h">
-        <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5l3 2"/><circle cx="12" cy="12" r="9"/></svg>
+        <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 8v5l3 2"/><circle cx="12" cy="12" r="9"/></svg>
         <h2>今天要处理</h2>
         <span class="hint" id="todayHint">按风险优先级自动排序</span>
         <span class="spacer"></span>
@@ -449,7 +516,7 @@ svg{display:block;}
     <section class="section on" id="sec-risk">
       <div class="card">
         <div class="card-h">
-          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>
           <h2>输入股票代码，自动算出买卖点位</h2>
           <span class="spacer"></span>
           <span class="hint">先取价 → 再定止损 → 才算股数 → 最后看目标</span>
@@ -477,7 +544,7 @@ svg{display:block;}
               <span class="tip">想等回调就改这里</span>
             </div>
           </div>
-          <div class="grid4" style="margin-top:12px">
+          <div class="grid4 mt-3">
             <div class="field">
               <label>止损幅度（%）</label>
               <input type="number" name="riskStopPct" step="0.5" min="0.5" max="20" value="5">
@@ -489,9 +556,9 @@ svg{display:block;}
               <span class="tip">直接改这里会反算止损幅度</span>
             </div>
             <div class="field">
-              <label>目标盈亏比</label>
+              <label>最低盈亏比</label>
               <input type="number" name="riskRR" step="0.5" min="1" max="10" value="2">
-              <span class="tip">目标价 = 进场价 + 盈亏比 × 每股风险</span>
+              <span class="tip">用于校验这笔交易值不值得做（目标价固定 = 成本 ×1.15）</span>
             </div>
             <div class="field">
               <label>总仓位资金（¥）</label>
@@ -526,7 +593,7 @@ svg{display:block;}
             <input type="hidden" name="riskPct" value="2">
           </div>
           <div class="instrow" id="instRow"></div>
-          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px">
+          <div class="row mt-4">
             <button type="submit" class="btn primary" id="btnQuote">
               <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 11a8 8 0 10-3 6"/><path d="M20 5v6h-6"/></svg>
               获取行情并计算
@@ -542,7 +609,7 @@ svg{display:block;}
 
       <div class="card" id="riskResultCard">
         <div class="card-h">
-          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 5-7 4 4"/></svg>
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 5-7 4 4"/></svg>
           <h2>计算结论</h2>
           <span class="spacer"></span>
           <span class="hint" id="riskResultHint">等待输入</span>
@@ -551,17 +618,17 @@ svg{display:block;}
         <div class="grid4">
           <div class="stat"><div class="k">买入点位</div><div class="v" id="rEntry">--</div><div class="u" id="rEntryU">按计划进场，不追高</div></div>
           <div class="stat"><div class="k">止损点位</div><div class="v down" id="rStop">--</div><div class="u" id="rStopU">触碰即无条件执行</div></div>
-          <div class="stat"><div class="k">目标点位</div><div class="v up" id="rTarget">--</div><div class="u" id="rTargetU">到达后按规则减仓</div></div>
+          <div class="stat"><div class="k">目标点位</div><div class="v up" id="rTarget">--</div><div class="u" id="rTargetU">= 第一减仓位（成本 ×1.15）</div></div>
           <div class="stat"><div class="k" id="rSharesK">可买股数</div><div class="v" id="rShares">--</div><div class="u" id="rSharesU">按 100 股整手取整</div></div>
         </div>
-        <div class="grid4" style="margin-top:12px">
+        <div class="grid4 mt-3">
           <div class="stat"><div class="k">单笔最大亏损</div><div class="v down" id="rRiskAmt">--</div><div class="u" id="rRiskAmtU">占总资金 --</div></div>
           <div class="stat"><div class="k">实际占用资金</div><div class="v" id="rCost">--</div><div class="u" id="rCostU">仓位占比 --</div></div>
           <div class="stat"><div class="k">每股风险</div><div class="v" id="rPerShare">--</div><div class="u" id="rPerShareU">止损幅度 --</div></div>
           <div class="stat"><div class="k">目标潜在盈利</div><div class="v up" id="rProfit">--</div><div class="u" id="rProfitU">实际盈亏比 --</div></div>
         </div>
-        <div style="margin-top:14px">
-          <div class="card-h"><h2 style="font-size:13.5px">判定逻辑（按顺序执行）</h2></div>
+        <div class="mt-4">
+          <div class="card-h"><h2 class="fs-135">判定逻辑（按顺序执行）</h2></div>
           <ul class="checklist" id="riskSteps"></ul>
         </div>
       </div>
@@ -571,7 +638,7 @@ svg{display:block;}
     <section class="section" id="sec-pos">
       <div class="card">
         <div class="card-h">
-          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
           <h2>组合巡检</h2>
           <span class="spacer"></span>
           <span class="hint" id="patrolTip">尚未巡检</span>
@@ -590,12 +657,12 @@ svg{display:block;}
           <div class="stat"><div class="k">浮动盈亏</div><div class="v sm" id="pPnl">¥0</div><div class="u" id="pPnlU">0.00%</div></div>
           <div class="stat"><div class="k">组合风险敞口</div><div class="v sm" id="pRisk">0.00%</div><div class="u" id="pRiskU">全部触损时占总资金</div></div>
         </div>
-        <div id="posAlerts" style="margin-top:12px"></div>
+        <div id="posAlerts" class="mt-3"></div>
       </div>
 
       <div class="card" id="manualCard">
         <div class="card-h">
-          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 013 3L7 19l-4 1 1-4 12.5-12.5z"/></svg>
           <h2>手工录入已有持仓</h2>
           <span class="spacer"></span>
           <span class="hint">补录旧仓位：股数、成本价直接填，不受 2% 规则约束</span>
@@ -627,7 +694,7 @@ svg{display:block;}
               <span class="tip">摊薄手续费后的均价更准</span>
             </div>
           </div>
-          <div class="grid4" style="margin-top:12px">
+          <div class="grid4 mt-3">
             <div class="field">
               <label>现价</label>
               <input type="number" name="mLast" step="0.001" min="0" placeholder="自动带出">
@@ -649,7 +716,7 @@ svg{display:block;}
               <span class="tip">目标价 = 现价 + 2 ×（现价 − 止损价）</span>
             </div>
           </div>
-          <div class="grid4" style="margin-top:12px">
+          <div class="grid4 mt-3">
             <div class="field">
               <label>买入日期</label>
               <input type="date" name="mBuyDate">
@@ -663,7 +730,7 @@ svg{display:block;}
             <span class="hint" id="manualTip">等待输入股票代码</span>
           </div>
           <div class="instrow" id="manualInstRow"></div>
-          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px">
+          <div class="row mt-4">
             <button type="submit" class="btn primary" id="btnManualSave">
               <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 4h11l3 3v13H5z"/><path d="M9 4v5h6V4"/></svg>
               保存到持仓台账
@@ -693,17 +760,17 @@ svg{display:block;}
     <section class="section" id="sec-rule">
       <div class="card">
         <div class="card-h">
-          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
           <h2>固定规则（不可临场修改）</h2>
         </div>
         <div class="rules">
           <div class="rule plus">
             <h3>
-              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#12996b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
+              <svg class="ico ico-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               加仓（金字塔式，越涨越少）
             </h3>
             <ul>
-              <li>触发：浮盈 ≥ <b>+8%</b>，且未跌破 20 日均线</li>
+              <li>触发：浮盈 ≥ <b>+8%</b> 且 <b>&lt; +11.5%</b>（加仓窗口），且未跌破 20 日均线</li>
               <li>幅度：加原持仓的 <b>50%</b>，单标的累计加仓 ≤ <b>2 次</b></li>
               <li>加仓后立即把全部持仓止损上移至成本价（保本）</li>
               <li>加仓后单票市值占比 ≤ <b>30%</b>、组合风险敞口 ≤ <b>6%</b></li>
@@ -712,7 +779,7 @@ svg{display:block;}
           </div>
           <div class="rule minus">
             <h3>
-              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#d93838" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
+              <svg class="ico ico-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></svg>
               减仓（倒金字塔式，先锁利再谈趋势）
             </h3>
             <ul>
@@ -763,13 +830,13 @@ svg{display:block;}
             </select>
           </div>
         </div>
-        <div style="margin-top:14px">
+        <div class="mt-4">
           <button class="btn primary" id="btnRuleRun">
             <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
             生成加减仓建议
           </button>
         </div>
-        <div id="ruleOut" style="margin-top:14px"></div>
+        <div id="ruleOut" class="mt-4"></div>
       </div>
     </section>
 
@@ -777,7 +844,7 @@ svg{display:block;}
     <section class="section" id="sec-disc">
       <div class="card">
         <div class="card-h">
-          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M12 8v4M12 15h.01"/></svg>
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M12 8v4M12 15h.01"/></svg>
           <h2>纪律评分</h2>
           <span class="spacer"></span>
           <span class="hint" id="discHint">基于最近 20 条交易日志</span>
@@ -785,10 +852,10 @@ svg{display:block;}
         <div class="grid3">
           <div class="stat">
             <div class="k">纪律分</div>
-            <div class="ringwrap" style="margin-top:4px">
+            <div class="ringwrap mt-1">
               <svg class="ico" width="62" height="62" viewBox="0 0 62 62">
-                <circle cx="31" cy="31" r="26" fill="none" stroke="#eceef3" stroke-width="8"/>
-                <circle id="ringBar" cx="31" cy="31" r="26" fill="none" stroke="#1f4bd8" stroke-width="8"
+                <circle cx="31" cy="31" r="26" fill="none" stroke="var(--muted-bg)" stroke-width="8"/>
+                <circle id="ringBar" class="ring-muted" cx="31" cy="31" r="26" fill="none" stroke="currentColor" stroke-width="8"
                         stroke-linecap="round" stroke-dasharray="163.4" stroke-dashoffset="163.4"
                         transform="rotate(-90 31 31)"/>
               </svg>
@@ -797,7 +864,7 @@ svg{display:block;}
           </div>
           <div class="stat">
             <div class="k">执行分布</div>
-            <div id="discDist" style="margin-top:6px;font-size:12.5px;color:var(--text-2)">暂无记录</div>
+            <div id="discDist" class="mt-2 fs-125" style="color:var(--text-2)">暂无记录</div>
           </div>
           <div class="stat">
             <div class="k">本周交易笔数</div>
@@ -805,9 +872,9 @@ svg{display:block;}
             <div class="u" id="discWeekU">上限 5 笔 / 周</div>
           </div>
         </div>
-        <div id="discAlerts" style="margin-top:12px"></div>
-        <div style="margin-top:14px">
-          <div class="card-h"><h2 style="font-size:13.5px">违规类型分布</h2></div>
+        <div id="discAlerts" class="mt-3"></div>
+        <div class="mt-4">
+          <div class="card-h"><h2 class="fs-135">违规类型分布</h2></div>
           <div class="bars" id="discBars"></div>
         </div>
       </div>
@@ -838,7 +905,7 @@ svg{display:block;}
               <select name="logOp" data-opt-field="操作类型"></select>
             </div>
           </div>
-          <div class="grid3" style="margin-top:12px">
+          <div class="grid3 mt-3">
             <div class="field">
               <label>成交价</label>
               <input type="number" name="logPrice" step="0.01" min="0" placeholder="0.00">
@@ -852,7 +919,7 @@ svg{display:block;}
               <input type="number" name="logPnl" step="0.01" placeholder="如 -1200">
             </div>
           </div>
-          <div class="grid2" style="margin-top:12px">
+          <div class="grid2 mt-3">
             <div class="field">
               <label>纪律执行情况</label>
               <select name="logDisc" data-opt-field="纪律执行"></select>
@@ -862,16 +929,16 @@ svg{display:block;}
               <select name="logViolation" data-opt-field="违规类型"></select>
             </div>
           </div>
-          <div class="field" style="margin-top:12px">
+          <div class="field mt-3">
             <label>复盘备注</label>
             <textarea name="logNote" placeholder="这笔操作是计划内还是临时起意？下次怎么避免？"></textarea>
           </div>
-          <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:14px">
+          <div class="row mt-4">
             <button type="submit" class="btn primary">
               <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>
               写入交易日志
             </button>
-            <button type="button" class="btn" id="btnClearSample" style="color:var(--warn)">
+            <button type="button" class="btn warn-text" id="btnClearSample">
               <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 7h16"/><path d="M9 7V4h6v3"/><path d="M6 7l1 13h10l1-13"/></svg>
               清空示例数据
             </button>
@@ -894,7 +961,7 @@ svg{display:block;}
     <section class="section" id="sec-source">
       <div class="card">
         <div class="card-h">
-          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>
           <h2>数据源管理</h2>
           <span class="spacer"></span>
           <span class="hint" id="srcStat">--</span>
@@ -910,7 +977,7 @@ svg{display:block;}
 
       <div class="card">
         <div class="card-h">
-          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
           <h2>当前使用</h2>
         </div>
         <div id="srcActive">--</div>
@@ -963,7 +1030,59 @@ svg{display:block;}
           <span class="spacer"></span>
           <button class="btn primary" id="btnSrcSave">保存</button>
         </div>
-        <p class="hint" id="srcFormHint" style="margin-top:9px">--</p>
+        <p class="hint mt-2" id="srcFormHint">--</p>
+      </div>
+
+      <!-- ============ 交易规则（行为约束） ============ -->
+      <div class="card" id="rulesCard">
+        <div class="card-h">
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l9 4v6c0 5-3.5 9-9 10-5.5-1-9-5-9-10V6l9-4z"/></svg>
+          <h2>交易规则（行为约束）</h2>
+          <span class="spacer"></span>
+          <span class="hint" id="rulesHint">勾选启用、调阈值。违规会被记录、不拦截 override</span>
+        </div>
+        <div class="grid2">
+          <div class="rule-row">
+            <label class="srcswitch">
+              <input type="checkbox" id="ruleStopUp" checked>
+              <span><b>止损只能上移</b> <span class="muted">— 防止「希望它别被打到」的下移陷阱</span></span>
+            </label>
+          </div>
+          <div class="rule-row">
+            <label class="srcswitch">
+              <input type="checkbox" id="ruleFomo" checked>
+              <span><b>拦截 FOMO 追涨</b> <span class="muted">— 当日涨幅超阈值禁止开仓</span></span>
+            </label>
+            <div class="row-mid mt-2">
+              <span class="muted fs-12">阈值</span>
+              <input type="number" id="ruleFomoPct" min="1" max="20" step="0.5" value="5" class="w-80">
+              <span class="muted">%</span>
+            </div>
+          </div>
+          <div class="rule-row">
+            <label class="srcswitch">
+              <input type="checkbox" id="ruleRevenge" checked>
+              <span><b>亏损后冷却</b> <span class="muted">— 上笔亏损后 N 小时禁止开仓</span></span>
+            </label>
+            <div class="row-mid mt-2">
+              <span class="muted fs-12">冷却时长</span>
+              <input type="number" id="ruleRevengeH" min="1" max="168" step="1" value="24" class="w-80">
+              <span class="muted">小时</span>
+            </div>
+          </div>
+          <div class="rule-row">
+            <label class="srcswitch">
+              <input type="checkbox" id="ruleRevengeLoss" checked>
+              <span><b>冷却门槛</b> <span class="muted">— 单笔亏损 &gt; 此值才触发冷却</span></span>
+            </label>
+            <div class="row-mid mt-2">
+              <span class="muted fs-12">亏损门槛</span>
+              <input type="number" id="ruleRevengeLossV" min="0" step="100" value="500" class="w-80">
+              <span class="muted">元</span>
+            </div>
+          </div>
+        </div>
+        <div id="rulesStats" class="mt-3"></div>
       </div>
     </section>
 
@@ -971,13 +1090,13 @@ svg{display:block;}
     <section class="section" id="sec-doc">
       <div class="card doc">
         <div class="card-h">
-          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.3 5.2-5.2 2.3 2.3-5.2 5.2-2.3z"/></svg>
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.3 5.2-5.2 2.3 2.3-5.2 5.2-2.3z"/></svg>
           <h2>这个工作台是什么，不是什么</h2>
         </div>
         <div class="rules">
           <div class="rule plus">
             <h3>
-              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#12996b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+              <svg class="ico ico-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
               它是「执行流程」
             </h3>
             <ul>
@@ -988,7 +1107,7 @@ svg{display:block;}
           </div>
           <div class="rule minus">
             <h3>
-              <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#d93838" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></svg>
+              <svg class="ico ico-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M8.5 8.5l7 7M15.5 8.5l-7 7"/></svg>
               它不是「选股工具」
             </h3>
             <ul>
@@ -1044,7 +1163,7 @@ svg{display:block;}
           <li><span class="n">1</span><span><b>取价</b>　输入 6 位代码拿到当前价。它只是计算基准，<b>不是买点</b>。</span></li>
           <li><span class="n">2</span><span><b>定止损</b>　先想清楚跌到哪里证明自己判断错了。没有止损位，这笔交易不该存在。</span></li>
           <li><span class="n">3</span><span><b>算仓位</b>　2% 风险预算 ÷ 每（股/份/张）风险 → 按整手取整 → 再受单票上限与组合敞口上限压缩。每一步都只会让仓位变小，不会变大。</span></li>
-          <li><span class="n">4</span><span><b>看目标</b>　目标价 = 进场价 + 盈亏比 × 每单位风险。盈亏比 ≥ 2 才值得开仓。</span></li>
+          <li><span class="n">4</span><span><b>看目标</b>　目标价 = <b>第一减仓位</b>（成本 ×1.15，由减仓规则唯一确定）。再用<b>盈亏比</b>校验这笔交易值不值得做：盈亏比 = 目标收益 ÷ 止损风险 ≥ 2 才算过关。</span></li>
           <li><span class="n">5</span><span><b>建仓并登记</b>　写入持仓台账；已有持仓用「手工录入已有持仓」补录，巡检周期从登记日算起。</span></li>
           <li><span class="n">6</span><span><b>巡检</b>　≤ 3 天一次。触及止损无条件执行，不等反弹、不看消息。</span></li>
           <li><span class="n">7</span><span><b>加减仓</b>　按固定阈值执行，不临场改数。</span></li>
@@ -1070,7 +1189,7 @@ svg{display:block;}
             <tr><td class="n">30 次</td><td class="n">54.55%</td><td class="n">4.24%</td><td class="n">+2259%</td></tr>
           </tbody>
         </table>
-        <p style="margin-top:10px">结论很直白：<b>2% 让「连错 10 次」只是难堪，10% 让「连错 10 次」变成结束</b>。交易系统的第一任务不是赚钱，是不被淘汰。</p>
+        <p class="mt-3">结论很直白：<b>2% 让「连错 10 次」只是难堪，10% 让「连错 10 次」变成结束</b>。交易系统的第一任务不是赚钱，是不被淘汰。</p>
       </div>
 
       <div class="card doc">
@@ -1080,13 +1199,13 @@ svg{display:block;}
           <span class="hint">解决固定档位解决不了的那半个问题</span>
         </div>
         <p><b>固定档位解决「减多少」，移动止盈解决「什么时候全走」。</b>+15% / +25% 两档减仓能把大部分利润落袋，但如果趋势继续走，剩下的仓位既不该太早清掉（会错过大行情），也不能不设离场线（会在回撤里把已到手的利润吐回去）。移动止盈就是给这部分仓位装一根「跟着峰值往上抬、跌破就离场」的线。</p>
-        <p style="margin-top:10px"><b>口径（三条，没有临场发挥）</b>：</p>
+        <p class="mt-3"><b>口径（三条，没有临场发挥）</b>：</p>
         <ol class="docnum">
           <li><span class="n">1</span><span><b>启用条件</b>　阶段最高价带来的浮盈 ≥ 启用线（默认 +40%）。不到线就还按固定档位执行，不会因为一点浮盈就被「移动」出去。</span></li>
           <li><span class="n">2</span><span><b>离场线</b>　阶段最高价 ×（1 − 回撤比例），默认回撤 8%。峰值越高，线越高。</span></li>
           <li><span class="n">3</span><span><b>兜底</b>　离场线不得低于<b>成本价 ×1.25</b>。已经锁住的保利位，不允许被一根回撤线吃掉。</span></li>
         </ol>
-        <p style="margin-top:10px">同一个成本价 10.00 元，峰值不同，守住的利润完全不同：</p>
+        <p class="mt-3">同一个成本价 10.00 元，峰值不同，守住的利润完全不同：</p>
         <table class="tbl">
           <thead>
             <tr><th>成本价</th><th>阶段最高价</th><th>峰值浮盈</th><th>回撤 8% 的线</th><th>兜底 成本×1.25</th><th>实际离场线</th><th>被锁定利润</th></tr>
@@ -1098,8 +1217,8 @@ svg{display:block;}
             <tr><td class="n">10.00</td><td class="n">20.00</td><td class="n">+100%</td><td class="n">18.40</td><td class="n">12.50</td><td class="n">18.40</td><td class="n">+84.0%</td></tr>
           </tbody>
         </table>
-        <p style="margin-top:10px"><b>「阶段最高价」从哪来</b>：每次「取现价」或「保存现价」时，它都会自动抬升到历史最高（只涨不跌）；老仓位可以在「手工录入已有持仓」里直接填。也就是说，<b>你只需要照常更新现价，回撤线会自己往上走</b>。反过来，长期不更新行情的账户会低估峰值 —— 线会偏低，所以巡检周期（≤3 天）仍然是前提。</p>
-        <p style="margin-top:10px"><b>为什么用「回撤比例」而不是固定止盈价</b>：趋势越强，正常震荡幅度也越大。固定止盈价要么在趋势中途被摸到（行情还没走完就下车），要么定得过高（几乎不可能触发）。按峰值回撤则跟着行情走 —— 涨得越多，线抬得越高，同时始终给趋势留出正常的呼吸空间。</p>
+        <p class="mt-3"><b>「阶段最高价」从哪来</b>：每次「取现价」或「保存现价」时，它都会自动抬升到历史最高（只涨不跌）；老仓位可以在「手工录入已有持仓」里直接填。也就是说，<b>你只需要照常更新现价，回撤线会自己往上走</b>。反过来，长期不更新行情的账户会低估峰值 —— 线会偏低，所以巡检周期（≤3 天）仍然是前提。</p>
+        <p class="mt-3"><b>为什么用「回撤比例」而不是固定止盈价</b>：趋势越强，正常震荡幅度也越大。固定止盈价要么在趋势中途被摸到（行情还没走完就下车），要么定得过高（几乎不可能触发）。按峰值回撤则跟着行情走 —— 涨得越多，线抬得越高，同时始终给趋势留出正常的呼吸空间。</p>
       </div>
 
       <div class="card doc">
@@ -1134,10 +1253,41 @@ svg{display:block;}
 
       <div class="card doc">
         <div class="card-h">
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 3v9l6 3"/></svg>
+          <h2>设计系统（改样式前先看这里）</h2>
+          <span class="spacer"></span>
+          <span class="hint">颜色 / 字阶 / 圆角 / 间距全走令牌，不要写死</span>
+        </div>
+        <p class="muted fs-base">新增界面时只用下表令牌与工具类；写死色值或另起一套尺寸会让风格发散。</p>
+        <div class="grid4 mt-3">
+          <div class="stat"><div class="k">色彩令牌</div><div class="v sm">54 个</div><div class="u">基础面 / 文字 / 主色 / 涨跌 / 警告 / 灰阶</div></div>
+          <div class="stat"><div class="k">字阶</div><div class="v sm">7 级</div><div class="u">11 / 12 / 13 / 14 / 16 / 20 / 26</div></div>
+          <div class="stat"><div class="k">圆角</div><div class="v sm">6 级</div><div class="u">6 / 8 / 10 / 12 / 16 / 胶囊</div></div>
+          <div class="stat"><div class="k">间距</div><div class="v sm">4px 栅格</div><div class="u">4 / 8 / 12 / 16</div></div>
+        </div>
+        <table class="tbl mt-3">
+          <thead><tr><th>用途</th><th>令牌</th><th>说明</th></tr></thead>
+          <tbody>
+            <tr><td>页面底色 / 卡片</td><td><code>--bg</code> <code>--card</code></td><td>卡片内不再自造白色</td></tr>
+            <tr><td>边框 / 分隔</td><td><code>--line</code> <code>--line-soft</code></td><td>浅分层级用 soft</td></tr>
+            <tr><td>正文 / 次要 / 弱化</td><td><code>--text</code> <code>--text-2</code> <code>--text-3</code></td><td>不要再写十六进制灰值</td></tr>
+            <tr><td>主色（动作 / 信息）</td><td><code>--primary</code> <code>--primary-soft</code> <code>--primary-line</code></td><td>soft 是底色，line 是边框</td></tr>
+            <tr><td>涨 / 风险 / 危险</td><td><code>--up</code> <code>--up-soft</code> <code>--up-line</code></td><td>统一红色系，不混橙</td></tr>
+            <tr><td>跌 / 达标 / 安全</td><td><code>--down</code> <code>--down-soft</code> <code>--down-line</code></td><td>达标也用这套绿</td></tr>
+            <tr><td>警告 / 待处理</td><td><code>--warn</code> <code>--warn-soft</code> <code>--warn-line</code></td><td>「注意但不是错误」用它</td></tr>
+            <tr><td>间距</td><td><code>.mt-1</code> ~ <code>.mt-4</code></td><td>4 / 8 / 12 / 16，不写 margin-top:10px</td></tr>
+            <tr><td>字号</td><td><code>--fs-2xs</code> ~ <code>--fs-hero</code></td><td>不写 font-size:12.5px</td></tr>
+            <tr><td>图标着色</td><td><code>.ico-primary/up/down/warn</code></td><td>SVG 用 <code>stroke="currentColor"</code>，颜色靠类</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card doc">
+        <div class="card-h">
           <h2>边界与免责</h2>
         </div>
         <ul>
-          <li><b>行情来自第三方公开接口</b>（内置腾讯主节点、腾讯备用节点、东方财富三条，可在「数据源」页增删改与启停），可能有延迟、缺失或错误；取不到价时页面会降级为手动填价，不阻塞你继续使用。</li>
+          <li><b>行情来自第三方公开接口</b>（内置腾讯主节点、腾讯备用节点、东方财富、同花顺 fuyao 四条，可在「数据源」页增删改与启停），可能有延迟、缺失或错误；取不到价时页面会降级为手动填价，不阻塞你继续使用。</li>
           <li><b>「同花顺 fuyao」源已接通</b>：到 <code>fuyao.aicubes.cn/admin</code> 申请 API Key，在「数据源」页填入并启用即参与取价（原生 REST + CORS + 批量查询）。同花顺官方 A 股行情 / 财报 / 特色数据能力的主入口。</li>
           <li><b>数据源配置只存在本机浏览器</b>：接口地址与 API 密钥都写在 <code>localStorage</code>（<code>wb_astock_sources_v1</code>），换设备或清站点数据会一起清掉，需要重新配置；密钥以明文存在本机，请勿在公用电脑上填写。</li>
           <li><b>T+1 标的的隔夜风险</b>：当日买入当日不能卖，若当天就跌破止损也只能等次日 —— 跳空可能让实际亏损超过 2% 预算。页面会给提示，但无法替你规避。</li>
@@ -1153,7 +1303,7 @@ svg{display:block;}
     <section class="section" id="sec-log">
       <div class="card doc">
         <div class="card-h">
-          <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="#1f4bd8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
+          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
           <h2>更新日志</h2>
           <span class="spacer"></span>
           <span class="hint">当前版本 1.1.12 · 覆盖发布，链接不变</span>
@@ -1161,13 +1311,34 @@ svg{display:block;}
         <p>页面采用三段式版本号 <code>1.1.x</code>：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本都覆盖发布到同一个在线地址，收藏一个链接即可，无需重新分享。下面按版本从新到旧记录改了什么、修了什么。</p>
         <div class="tl">
           <div class="tlitem">
+            <h3><span class="ver">1.2.1</span>修复三处自相矛盾的决策逻辑<span class="tlmeta">2026-09-15</span></h3>
+            <ul>
+              <li class="fix"><b>修复：同一价格出现相反建议</b>。原先「目标价」由盈亏比推导（默认 +10%），而减仓档位是成本 ×1.15 / ×1.25（+15% / +25%），在 +10%~+15% 区间，持仓卡片说「到达目标，减 1/3」而规则引擎说「加仓 500 股」。现在<b>目标价 = 第一减仓位</b>，盈亏比从「推导目标的公式」改为「这笔交易值不值得做的门槛」，两处永远给同一个答案</li>
+              <li><b>加仓窗口收窄到 +8% ~ +11.5%</b>：已接近第一减仓位时不再建议加仓（此前 +14.9% 还在说加仓，距减仓位只有 0.1%）</li>
+              <li class="fix"><b>修复：纪律分可以被自填字段刷分</b>。原先只看日志里自填的「纪律执行」，规则引擎记录的客观违规完全不参与 —— override 3 次 FOMO 拦截、日志填「完全遵守」，分数照样 100。现在<b>纪律分 = 自填基础分 − 客观违规扣分</b>（每次明知故犯扣 10 分），被规则拦住但最终没做的<b>不扣分</b></li>
+              <li><b>修复：违规类型两套命名</b>。日志用中文、规则引擎用英文代号，无法合并统计。现统一映射到同一套规范 key，「追涨杀跌」与 FOMO 合并计数</li>
+              <li><b>新增「一键执行」</b>：待办里的清仓 / 减仓建议可直接执行，同时写一条交易日志 + 更新持仓台账（含减仓后自动上移止损）。此前建议与执行之间全靠手工，容易漏记或两边不一致</li>
+              <li><b>阈值收敛到单一事实来源</b>：新增 <code>TRADE_RULES</code> 常量表，加仓 / 减仓 / 止损 / 巡检 / 评分等全部阈值只在一处定义，代码与页面文档都从它读</li>
+              <li><b>页签顺序按数据流重排</b>：风控 → 持仓 → 加减仓 → <b>交易日志</b> → <b>纪律评分</b> → 数据源 → 设计理念（此前日志排在最后，但纪律评分依赖它）</li>
+              <li><b>示例数据改为「健康状态」</b>：巡检日期取当天、不触损、不危险区，本金与示例持仓同规模。首屏从「10 条待办（7 条红）」降到「2 条黄色提醒」，并加一句引导说明这是示例数据</li>
+              <li class="fix">清理：合并重复的 <code>findPositionById</code> / <code>findPosById</code>；删除 2 个死函数</li>
+            </ul>
+            <h3><span class="ver">1.2.0</span>交易规则引擎 + 全量审计 + 设计令牌<span class="tlmeta">2026-09-15</span></h3>
+            <ul>
+              <li>新增<b>「交易规则（行为约束）」</b>，三条硬规则拦截散户最致命的错误：<b>止损只能上移</b>（下移弹窗拦截）、<b>FOMO 追涨拦截</b>（当日涨幅超阈值禁开仓）、<b>亏损后冷却</b>（单笔亏损超门槛后 N 小时禁开仓）。全部阈值可调，违规可 override 但会留痕并发出事件</li>
+              <li>新增<b>除权除息事件流</b>：持仓卡片点「拉取」按 fuyao 拿分红/送股事件，红色事件点「应用」自动修正股数与成本价（分红按登记日股数口径），已应用事件不会重复计入</li>
+              <li>新增<b>AQ 工程框架</b>（版本/迁移/响应式状态/事件总线/插件注册表/测试工具），为后续扩展打地基。内置 <b>73 条冒烟测试</b>，URL 加 <code>?test=1</code> 自动跑</li>
+              <li><b>移除「大盘指数」模块</b>：与同花顺重复，不是本工作台的差异价值；核心定位是「行为约束」而非「行情展示」</li>
+              <li><b>UI 全量统一</b>：建立 54 个设计令牌（色彩/字阶/圆角/间距），消除 43 处硬编码色值、13 种字号、12 种圆角；新增「设计理念页·设计系统」卡片作为改样式的依据</li>
+              <li class="fix">修正：<code>toFixed2</code> 传字符串时返回 <code>'0.00'</code>（现代 JS <code>isFinite()</code> 不再 coerce 字符串）；清理 2 个死函数</li>
+            </ul>
             <h3><span class="ver">1.1.12</span>数据源管理页：把「到哪儿取价」交给你<span class="tlmeta">2026-09-12</span></h3>
             <ul>
               <li>新增<b>「数据源」页签</b>，集中管理所有行情源，支持<b>新增 / 查看 / 编辑 / 删除</b>。每条源显示名称、类型、接口地址、API 密钥（打码显示）、备注与状态标签，并提供「设为当前使用」「测试连接」「编辑」「删除」四个动作</li>
               <li>取价顺序从<b>写死在代码里的三源级联</b>改为<b>由注册表驱动</b>：<b>当前使用排最前 → 其余已启用依次兜底 → 停用的源完全不发请求</b>。以前想换一个接口地址只能改代码重新发布，现在在页面上改完就生效</li>
               <li>集成<b>同花顺 fuyao</b> 源（内置、默认停用）：到 <code>fuyao.aicubes.cn/admin</code> 申请 API Key，在「数据源」页填入并启用即可参与取价。原生支持一次 HTTP 批量查多只，比腾讯 JSONP / 东财 JSONP 更省。名字字段（name）走快照之外的下游，适配器先以空名 + <code>nameReliable=false</code> 落库，由 UI 走代码兜底</li>
               <li><b>启用状态显示有三种</b>：<b>已启用</b>（绿色，真能取价）、<b>待配置地址</b>（黄色，缺接口地址）、<b>未接入</b>（黄色，类型还没接通）、<b>已停用</b>（灰色）。当前使用的源额外挂「当前使用」标签，卡片加蓝边；若它是「未接入」状态，页面会明确写明取价会走其它已启用的源</li>
-              <li><b>切换与保存方式写清</b>：勾选框即时生效（改完立刻写本机并重排取价顺序），「设为当前使用」把该源提到链路最前；一套配置存进本机 <code>wb_astock_sources_v1</code>，<b>含密钥在内都不上传</b>。另有「恢复内置数据源」一键回到出厂三条</li>
+              <li><b>切换与保存方式写清</b>：勾选框即时生效（改完立刻写本机并重排取价顺序），「设为当前使用」把该源提到链路最前；一套配置存进本机 <code>wb_astock_sources_v1</code>，<b>含密钥在内都不上传</b>。另有「恢复内置数据源」一键回到出厂四条</li>
               <li><b>内置源不可删除只能停用</b>（腾讯主 / 腾讯备用节点 / 东方财富 / 同花顺 fuyao），避免误删后取价彻底不可用；自定义源可删除，并会二次确认</li>
               <li>「测试连接」会用该源实际取一次 <code>600519</code> 并回报现价，用来判断一个地址到底通不通，不用先去持仓页试</li>
               <li class="fix">顺带修正：原先 <code>requestQuote</code> 里写死的备用逻辑被注册表取代，<b>「停用」第一次成为真的动作</b> —— 一条可用源都没有时会明确提示「没有可用的数据源」，而不是偷偷回落继续取价</li>
@@ -1320,33 +1491,33 @@ svg{display:block;}
 </div>
 
 <nav class="tabs-m">
-  <button class="on" data-tab="risk">
+              <button class="on" data-tab="risk">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 7h8M8 11h8M8 15h4"/></svg>
     风控
   </button>
-  <button data-tab="pos">
+<button data-tab="pos">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.4-3 7.6-7 9-4-1.4-7-4.6-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>
     巡检
   </button>
-  <button data-tab="rule">
+<button data-tab="rule">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
     加减仓
   </button>
-  <button data-tab="disc">
+<button data-tab="log">
+    <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
+    日志
+  </button>
+<button data-tab="disc">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.6-3.4 8-8 9-4.6-1-8-4.4-8-9V7l8-4z"/><path d="M12 8v4M12 15h.01"/></svg>
     纪律
   </button>
-  <button data-tab="source">
+<button data-tab="source">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><ellipse cx="12" cy="6" rx="7" ry="3"/><path d="M5 6v12c0 1.7 3.1 3 7 3s7-1.3 7-3V6"/><path d="M5 12c0 1.7 3.1 3 7 3s7-1.3 7-3"/></svg>
     数据源
   </button>
-  <button data-tab="doc">
+<button data-tab="doc">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M15.6 8.4l-2.3 5.2-5.2 2.3 2.3-5.2 5.2-2.3z"/></svg>
     理念
-  </button>
-  <button data-tab="log">
-    <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
-    日志
   </button>
 </nav>
 
@@ -1381,15 +1552,20 @@ svg{display:block;}
     </div>
     <div class="pcard-f">
       <div class="inline-edit">
-        <span class="muted" style="font-size:12px">现价</span>
+        <span class="muted fs-12">现价</span>
         <input type="number" step="0.01" min="0" data-input="price" placeholder="更新现价">
       </div>
+      <div class="inline-edit">
+        <span class="muted fs-12">止损</span>
+        <input type="number" step="0.01" min="0" data-input="stop" placeholder="上移仅提醒" title="止损只能上移。下移会被规则拦截。">
+      </div>
       <button class="btn sm" data-act="quote">取现价</button>
-      <button class="btn sm" data-act="save-price">更新</button>
+      <button class="btn sm" data-act="save-price">更新现价</button>
+      <button class="btn sm" data-act="save-stop">更新止损</button>
       <button class="btn sm" data-act="patrol">标记已巡检</button>
       <button class="btn sm" data-act="rule">去加减仓</button>
       <span class="spacer"></span>
-      <span class="muted" style="font-size:11.5px" data-lastpatrol>--</span>
+      <span class="muted fs-115" data-lastpatrol>--</span>
       <button class="btn sm danger" data-act="del-pos" title="从台账中删除该条记录">删除</button>
     </div>
     <div class="notice" data-msg style="display:none;margin:9px 0 0"></div>
@@ -1461,7 +1637,10 @@ svg{display:block;}
     draft_risk:  'wb_astock_draft_risk',
     legacy_pos:  'wb_astock_local_pos',
     legacy_log:  'wb_astock_local_log',
-    meta:        'aq_meta_v1'
+    meta:        'aq_meta_v1',
+    rulesConfig: 'aq_rules_config_v1',
+    violations:  'aq_rule_violations_v1',
+    lastLossAt:  'aq_last_loss_at_v1'
   };
 
   /* 阈值常量（散落在各处的硬编码数字集中登记） */
@@ -1494,7 +1673,7 @@ svg{display:block;}
     RENDERER:    'renderer',     /* 区块渲染器（替换 / 拓展某个 UI 区） */
     PANEL:       'panel',        /* 完整面板（含 mount + render + dispose） */
     COMMAND:     'command',      /* 命令（可在工具栏 / 快捷键调用） */
-    TRANSFORMER: 'transformer'   /* 数据变换（如「指数快照→格局判定」） */
+    TRANSFORMER: 'transformer'   /* 数据变换（如「报价快照→板块强弱判定」） */
   };
 
   /* ---- 2. SCHEMA ---- */
@@ -1712,15 +1891,204 @@ svg{display:block;}
     lastPatrol: '',
     online: true,
     dbReady: false,
-    srcEditId: ''
+    srcEditId: '',
+    lastLossAt: 0
   });
 
   /* 一次性迁移 + meta 记录 */
   AQ.Storage.migrate();
 
+  /* ============================================================
+   * 6.5 RULES 引擎（散户行为约束）
+   * ------------------------------------------------------------
+   * 三大硬规则：
+   *   · checkStopUpdate  止损只能上移（防止希望它「别被打到」的下移陷阱）
+   *   · checkFomoEntry    当日涨幅超阈 → 拦截追涨
+   *   · checkRevengeCooldown 亏损后 24 小时禁开仓（防报复交易）
+   *
+   * 违规可被 override，但 override 会被记录并发出 rule:violated 事件
+   * （纪律评分、归因统计都可订阅该事件）。
+   * ============================================================ */
+  AQ.Rules = (function () {
+    var _violations = [];
+    var _config = {
+      stopCanOnlyMoveUp: true,
+      fomoEnabled: true,
+      fomoThresholdPct: 5,             /* 当日涨跌 % 超此值拦截 */
+      revengeEnabled: true,
+      revengeCooldownMs: 24 * 3600 * 1000,
+      revengeLossThreshold: 500        /* 单笔亏损 > ¥此值才触发冷却 */
+    };
+    var STATS_WINDOW_MS = 30 * 86400000;
+
+    function load() {
+      _violations = AQ.Storage.read(AQ.LS.violations, []) || [];
+      var saved = AQ.Storage.read(AQ.LS.rulesConfig, null);
+      if (saved && typeof saved === 'object') {
+        for (var k in saved) { if (saved.hasOwnProperty(k)) _config[k] = saved[k]; }
+      }
+    }
+    function saveConfig() { AQ.Storage.write(AQ.LS.rulesConfig, _config); }
+    function saveViolations() { AQ.Storage.write(AQ.LS.violations, _violations); }
+
+    function fmtMs(ms) {
+      if (ms <= 0) return '0 分钟';
+      var h = Math.floor(ms / 3600000), m = Math.floor((ms % 3600000) / 60000);
+      if (h > 0) return h + ' 小时 ' + m + ' 分钟';
+      return m + ' 分钟';
+    }
+
+    function recordViolation(type, ctx) {
+      var v = {
+        id: 'v_' + Date.now().toString(36) + '_' + Math.floor(Math.random() * 1679616).toString(36),
+        ts: Date.now(),
+        type: type,
+        ctx: ctx || {},
+        overridden: false,
+        ackTs: 0
+      };
+      _violations.unshift(v);
+      if (_violations.length > 300) { _violations = _violations.slice(0, 300); }
+      saveViolations();
+      AQ.bus.emit('rule:violated', v);
+      return v;
+    }
+
+    function ackViolation(id) {
+      for (var i = 0; i < _violations.length; i++) {
+        if (_violations[i].id === id) {
+          _violations[i].overridden = true;
+          _violations[i].ackTs = Date.now();
+          saveViolations();
+          return _violations[i];
+        }
+      }
+      return null;
+    }
+
+    /* ---- 单规则检查 ---- */
+    function checkStopUpdate(oldStop, newStop, code) {
+      if (!_config.stopCanOnlyMoveUp) return { allowed: true, violations: [] };
+      var o = num(oldStop), n = num(newStop);
+      if (o <= 0 || n <= 0) return { allowed: true, violations: [] };
+      if (n >= o) return { allowed: true, violations: [] };
+      return {
+        allowed: false,
+        violations: [{
+          rule: 'stop-moved-down',
+          severity: 'high',
+          message: '止损下移 ¥' + toFixed2(o) + ' → ¥' + toFixed2(n) + '。',
+          detail: '止损只能上移（向盈利方向）。下移 = 「希望它别被打到」，这是被套牢的标准开头。',
+          overrideable: true,
+          ctx: { oldStop: o, newStop: n, code: code }
+        }]
+      };
+    }
+
+    function checkFomoEntry(changePct, code, name) {
+      if (!_config.fomoEnabled) return { allowed: true, violations: [] };
+      var c = num(changePct);
+      if (!(c > 0)) return { allowed: true, violations: [] };   /* 跌下来不算 FOMO */
+      if (c < _config.fomoThresholdPct) return { allowed: true, violations: [] };
+      return {
+        allowed: false,
+        violations: [{
+          rule: 'fomo-entry',
+          severity: 'high',
+          message: (name || code) + ' 当日已涨 ' + toFixed2(c) + '%，超 FOMO 阈值 ' + toFixed2(_config.fomoThresholdPct) + '%。',
+          detail: 'FOMO 追涨是散户亏损的高频原因。等回调 / 换标的 / 不做。',
+          overrideable: true,
+          ctx: { code: code, changePct: c, threshold: _config.fomoThresholdPct }
+        }]
+      };
+    }
+
+    function checkRevengeCooldown() {
+      if (!_config.revengeEnabled) return { allowed: true, violations: [] };
+      var lastLossAt = AQ.store.get('lastLossAt') || 0;
+      if (!lastLossAt) return { allowed: true, violations: [] };
+      var elapsed = Date.now() - lastLossAt;
+      if (elapsed >= _config.revengeCooldownMs) return { allowed: true, violations: [] };
+      var remaining = _config.revengeCooldownMs - elapsed;
+      return {
+        allowed: false,
+        violations: [{
+          rule: 'revenge-trade',
+          severity: 'high',
+          message: '距上次亏损 ' + fmtMs(elapsed) + '，规则要求冷却 ' + fmtMs(_config.revengeCooldownMs) + '。',
+          detail: '亏损后想「马上赚回来」是报复交易 —— 通常仓位更重、规则更松、亏损更大。还剩 ' + fmtMs(remaining) + '。',
+          overrideable: true,
+          ctx: { lastLossAt: lastLossAt, remainingMs: remaining }
+        }]
+      };
+    }
+
+    /* ---- 入口：组合所有进场前检查 ---- */
+    function checkEntry(ctx) {
+      var violations = [];
+      var fomo = checkFomoEntry(ctx.changePct, ctx.code, ctx.name);
+      violations = violations.concat(fomo.violations);
+      var revenge = checkRevengeCooldown();
+      violations = violations.concat(revenge.violations);
+      return {
+        allowed: violations.length === 0,
+        violations: violations,
+        summary: violations.length === 0 ? '通过' : (violations.length + ' 条规则拦截')
+      };
+    }
+
+    /* ---- 弹窗工具：把违规列表拼成可读确认信息 ---- */
+    function confirmDialog(checkResult, actionLabel) {
+      if (checkResult.allowed) return true;
+      var lines = [];
+      lines.push('【规则拦截：' + checkResult.summary + '】');
+      for (var i = 0; i < checkResult.violations.length; i++) {
+        var v = checkResult.violations[i];
+        lines.push('\n· ' + v.message);
+        lines.push('  ' + v.detail);
+        lines.push('  → 将被记为违规、扣纪律分。');
+      }
+      lines.push('\n你仍要「' + (actionLabel || '继续') + '」吗？');
+      return window.confirm(lines.join('\n'));
+    }
+
+    return {
+      config: _config,
+      load: load,
+      saveConfig: saveConfig,
+      checkEntry: checkEntry,
+      checkStopUpdate: checkStopUpdate,
+      checkFomoEntry: checkFomoEntry,
+      checkRevengeCooldown: checkRevengeCooldown,
+      recordViolation: recordViolation,
+      ackViolation: ackViolation,
+      confirmDialog: confirmDialog,
+      getViolations: function (filterType) {
+        if (!filterType) return _violations.slice();
+        return _violations.filter(function (v) { return v.type === filterType; });
+      },
+      stats: function () {
+        var now = Date.now();
+        var inWindow = _violations.filter(function (v) { return now - v.ts < STATS_WINDOW_MS; });
+        var byType = {}, overriddenInWindow = 0;
+        for (var i = 0; i < inWindow.length; i++) {
+          byType[inWindow[i].type] = (byType[inWindow[i].type] || 0) + 1;
+          if (inWindow[i].overridden) { overriddenInWindow++; }
+        }
+        return {
+          total30d: inWindow.length,
+          overridden30d: overriddenInWindow,
+          byType: byType,
+          total: _violations.length
+        };
+      }
+    };
+  })();
+
   /* 与历史的兼容：全局 state === AQ.store.state。
      现有 100+ 处 state.xxx 全部继续工作，无需改一个字。 */
   var state = AQ.store.state;
+  window.AQ = AQ;  /* 调试：console 可访问 */
 
   /* ============================================================
    * 0. 常量与工具
@@ -1735,11 +2103,86 @@ svg{display:block;}
   var LS_LOCAL_POS = 'wb_astock_local_pos';
   var LS_LOCAL_LOG = 'wb_astock_local_log';
 
-  var DEFAULT_PARAMS = { capital: 100000, riskPct: 2, rr: 2, maxSinglePct: 30, maxPortfolioRiskPct: 6, trailOnPct: 40, trailBackPct: 8 };
+  /* ============================================================
+   * 交易规则常量（单一事实来源 · Single Source of Truth）
+   * ------------------------------------------------------------
+   * 所有阈值只在这里定义。computeRisk / adviceFor / reducePlan /
+   * assessPosition / 页面文档全部从这里读 —— 改规则只改这一处。
+   *
+   * 设计约定（避免「同一价格、两套建议」）：
+   *   · 目标价 = 第一减仓位 = 成本 × (1 + REDUCE1_PCT%)
+   *   · 盈亏比不再是「推导目标价的公式」，而是「这笔交易值不值得做」的门槛
+   *   · 加仓只发生在「未达第一减仓位」时（已达目标就不该再加）
+   * ============================================================ */
+  var TRADE_RULES = {
+    /* 加仓（金字塔式：越涨越少）
+       窗口 = [加仓线, 加仓线~第一减仓线的中点]。
+       原因：已接近第一减仓位时还加仓 = 在计划目标附近加码，风险收益比已经变差。 */
+    ADD_AT_PCT: 8,            /* 浮盈 ≥ +8% 评估加仓 */
+    ADD_ZONE_TOP_PCT: 11.5,   /* 浮盈 ≥ +11.5% 就进入「等减仓」区，不再加仓（= 8 与 15 的中点）*/
+    ADD_FRAC: 0.5,            /* 加原持仓的 50% */
+    ADD_MAX: 2,               /* 单标的累计加仓 ≤ 2 次 */
+
+    /* 减仓（倒金字塔式：先锁利再谈趋势） */
+    REDUCE1_PCT: 15,          /* 浮盈 ≥ +15% 减 1/3（第一目标位）*/
+    REDUCE2_PCT: 25,          /* 浮盈 ≥ +25% 再减 1/3 */
+    REDUCE_FRAC: 1 / 3,
+    BREAK_MA_FRAC: 0.5,       /* 破 20 日线且仍有浮盈 → 减 1/2 */
+    STOP_AFTER_REDUCE1_MULT: 1.00,  /* 第一档减后，剩余止损上移到成本价（保本）*/
+    STOP_AFTER_REDUCE2_MULT: 1.10,  /* 第二档减后，剩余止损上移到成本价 ×1.10 */
+
+    /* 移动止盈 */
+    TRAIL_ON_PCT: 40,         /* 峰值浮盈 ≥ +40% 启用 */
+    TRAIL_BACK_PCT: 8,        /* 从峰值回撤 8% 离场 */
+
+    /* 止损 */
+    STOP_WARN_DIST_PCT: 3,    /* 距止损 ≤ 3% 进入危险区 */
+    STOP_WIDE_PCT: 8,         /* 止损幅度 > 8% 提示资金效率 */
+    STOP_SINGLE_DAY_PCT: 7,   /* 单日跌幅 ≥ 7% 且未到止损 → 人工判断减半 */
+
+    /* 巡检与风险 */
+    PATROL_MAX_DAYS: 3,
+    RISK_PCT: 2,              /* 单笔最大亏损（铁律，锁定） */
+    MAX_SINGLE_PCT: 30,
+    MAX_PORTFOLIO_PCT: 6,
+    RR_MIN: 2,                /* 最低可接受盈亏比 */
+    WEEK_LOG_LIMIT: 5,
+    LOSS_STREAK_LIMIT: 2,
+
+    /* 纪律评分 */
+    VIOLATION_PENALTY: 10,    /* 每次「明知故犯」（override）扣的分 */
+    VIOLATION_WINDOW_DAYS: 30 /* 客观违规只统计最近 N 天 */
+  };
+
+  /* ---------- 违规类型统一定名（B2 修复） ----------
+     之前日志用中文、规则引擎用英文代号，两套无法合并统计。
+     这里把两者映射到同一个规范 key，图表与扣分都走它。 */
+  var VIOLATION_CANON = {
+    /* 日志自填 → 规范 key */
+    '追涨杀跌': 'chase',
+    '扛单不止损': 'no-stop',
+    '频繁交易': 'overtrade',
+    '亏损加仓': 'add-loser',
+    '情绪化交易': 'emotional',
+    /* 规则引擎客观 → 规范 key */
+    'fomo-entry': 'chase',
+    'stop-moved-down': 'no-stop',
+    'revenge-trade': 'emotional'
+  };
+  var VIOLATION_LABELS = {
+    'chase': '追涨杀跌 / FOMO',
+    'no-stop': '扛单不止损 / 下移止损',
+    'overtrade': '频繁交易',
+    'add-loser': '亏损加仓',
+    'emotional': '情绪化 / 报复交易'
+  };
+  var VIOLATION_ORDER = ['chase', 'no-stop', 'overtrade', 'add-loser', 'emotional'];
+
+  var DEFAULT_PARAMS = { capital: 100000, riskPct: TRADE_RULES.RISK_PCT, rr: TRADE_RULES.RR_MIN, maxSinglePct: TRADE_RULES.MAX_SINGLE_PCT, maxPortfolioRiskPct: TRADE_RULES.MAX_PORTFOLIO_PCT, trailOnPct: TRADE_RULES.TRAIL_ON_PCT, trailBackPct: TRADE_RULES.TRAIL_BACK_PCT };
   /* 移动止盈两个可调参数的允许区间：启用线 20–100%，回撤 3–20% */
   var TRAIL_ON_MIN = 20, TRAIL_ON_MAX = 100, TRAIL_BACK_MIN = 3, TRAIL_BACK_MAX = 20;
-  /* 移动止盈线的最低兜底：不低于成本价 ×1.25（与固定阶梯「+25% 后止损上移」口径一致） */
-  var TRAIL_FLOOR_MULT = 1.25;
+  /* 移动止盈线的最低兜底：不低于成本价 ×(1 + REDUCE2_PCT%)，与固定阶梯「+25% 后止损上移」同口径 */
+  var TRAIL_FLOOR_MULT = 1 + TRADE_RULES.REDUCE2_PCT / 100;
 
   function num(v) { var n = parseFloat(v); return isFinite(n) ? n : 0; }
   function pad2(n) { return (n < 10 ? '0' : '') + n; }
@@ -1770,9 +2213,16 @@ svg{display:block;}
     return (neg ? '-¥' : '¥') + s[0] + '.' + s[1];
   }
   function fmtPrice(n) { return toPrice(n); }
-  function fmtSigned(n) { var v = num(n); return (v > 0 ? '+' : '') + toFixed2(v); }
   function fmtPct(n) { var v = num(n); return (v > 0 ? '+' : '') + toFixed2(v) + '%'; }
   function fmtShares(n) { return String(Math.round(num(n))); }
+  /* 把 1/3、1/2 这类分数说成人话（用于「减 1/3」这类文案，统一从 TRADE_RULES 派生） */
+  function pctLabel(frac) {
+    var f = num(frac);
+    if (Math.abs(f - 1 / 3) < 1e-9) { return '1/3'; }
+    if (Math.abs(f - 1 / 2) < 1e-9) { return '1/2'; }
+    if (Math.abs(f - 1) < 1e-9) { return '全部'; }
+    return toFixed2(f * 100) + '%';
+  }
   function pnlClass(n) { var v = num(n); return v > 0 ? 'up' : (v < 0 ? 'down' : 'muted'); }
   /* 名称未知时（为空，或保存时拿不到行情、把代码当名称写了进去）
      就返回空字符串 —— 避免同一个 6 位代码在同一行里出现两次。 */
@@ -1783,6 +2233,12 @@ svg{display:block;}
   }
 
   function todayStr() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate()); }
+  /* 相对今天偏移 N 天的日期串（负 = 过去）。用于示例数据与到期计算，避免写死日期 */
+  function dayOffsetStr(offsetDays) {
+    var d = new Date();
+    d.setDate(d.getDate() + Math.round(num(offsetDays)));
+    return d.getFullYear() + '-' + pad2(d.getMonth() + 1) + '-' + pad2(d.getDate());
+  }
   function parseDay(s) {
     if (!s) { return null; }
     var p = String(s).slice(0, 10).split('-');
@@ -1809,7 +2265,6 @@ svg{display:block;}
   function $(sel) { return document.querySelector(sel); }
   function $$(sel) { return Array.prototype.slice.call(document.querySelectorAll(sel)); }
   function setText(id, txt) { var el = document.getElementById(id); if (el) { el.textContent = txt; } }
-  function setClass(id, cls, on) { var el = document.getElementById(id); if (el) { if (on) { el.classList.add(cls); } else { el.classList.remove(cls); } } }
 
   var toastTimer = null;
   function toast(msg) {
@@ -1914,16 +2369,27 @@ svg{display:block;}
     res.actualRisk = shares * res.perShareRisk;
     res.cost = shares * inp.entry;
     res.positionPct = posPct;
-    res.target = roundToTick(inp.entry + inp.rr * res.perShareRisk, tick);
+    /* 目标价 = 第一减仓位（与减仓计划、持仓卡片同口径，不再用 rr 推导） */
+    res.target = roundToTick(inp.entry * (1 + TRADE_RULES.REDUCE1_PCT / 100), tick);
     res.profit = shares * (res.target - inp.entry);
     res.realRR = res.actualRisk > 0 ? res.profit / res.actualRisk : 0;
+    res.rrMin = num(inp.rr) > 0 ? num(inp.rr) : TRADE_RULES.RR_MIN;
+    res.rrOk = res.realRR >= res.rrMin - 1e-9;
     res.ok = true;
 
-    res.steps.push({ n: 6, t: '实际最大亏损 = ' + shares + ' ' + unit + ' × ' + p(res.perShareRisk) + ' 元 = ' + fmtMoney(res.actualRisk) + '（占总资金 ' + toFixed2(res.actualRisk / inp.capital * 100) + '%，未突破 2% 铁律）' });
+    res.steps.push({ n: 6, t: '实际最大亏损 = ' + shares + ' ' + unit + ' × ' + p(res.perShareRisk) + ' 元 = ' + fmtMoney(res.actualRisk) + '（占总资金 ' + toFixed2(res.actualRisk / inp.capital * 100) + '%，未突破 ' + toFixed2(TRADE_RULES.RISK_PCT) + '% 铁律）' });
     res.steps.push({ n: 7, t: '占用资金 = ' + shares + ' ' + unit + ' × ' + p(inp.entry) + ' 元 = ' + fmtMoney(res.cost) + '（仓位占比 ' + toFixed2(res.positionPct) + '%）' });
-    res.steps.push({ n: 8, t: '目标价 = 进场价 + ' + toFixed2(inp.rr) + ' × 每' + unit + '风险 = ' + p(res.target) + ' 元，潜在盈利 ' + fmtMoney(res.profit) });
+    res.steps.push({ n: 8, t: '目标价 = 第一减仓位 = 进场价 ' + p(inp.entry) + ' × (1 + ' + toFixed2(TRADE_RULES.REDUCE1_PCT) + '%) = ' + p(res.target) + ' 元，潜在盈利 ' + fmtMoney(res.profit) });
+    res.steps.push({ n: 9, t: '盈亏比 = 潜在盈利 ' + fmtMoney(res.profit) + ' ÷ 最大亏损 ' + fmtMoney(res.actualRisk) + ' = ' + toFixed2(res.realRR) + ' : 1（门槛 ' + toFixed2(res.rrMin) + ' : 1）' });
 
-    if (res.stopPct > 8) { res.alerts.push({ lv: 'yellow', t: '止损幅度 ' + toFixed2(res.stopPct) + '% 偏宽（建议 ≤ 8%）。止损越宽，同样风险预算下能买的' + unit + '数越少，资金效率越低。' }); }
+    /* 盈亏比校验：目标价由规则固定后，盈亏比变成「这笔交易值不值得做」的门槛 */
+    if (!res.rrOk) {
+      res.alerts.push({ lv: 'red', t: '盈亏比 ' + toFixed2(res.realRR) + ' : 1 低于门槛 ' + toFixed2(res.rrMin) + ' : 1。在目标价固定为 +' + toFixed2(TRADE_RULES.REDUCE1_PCT) + '% 的前提下，这说明**止损相对目标过宽**（当前 ' + toFixed2(res.stopPct) + '%）。要么收紧止损到 ' + toFixed2(TRADE_RULES.REDUCE1_PCT / res.rrMin) + '% 以内，要么放弃这笔交易。' });
+    } else {
+      res.alerts.push({ lv: 'green', t: '盈亏比 ' + toFixed2(res.realRR) + ' : 1，达到门槛 ' + toFixed2(res.rrMin) + ' : 1。止损 ' + toFixed2(res.stopPct) + '% 对应目标 +' + toFixed2(TRADE_RULES.REDUCE1_PCT) + '%，这笔交易成立。' });
+    }
+
+    if (res.stopPct > TRADE_RULES.STOP_WIDE_PCT) { res.alerts.push({ lv: 'yellow', t: '止损幅度 ' + toFixed2(res.stopPct) + '% 偏宽（建议 ≤ ' + toFixed2(TRADE_RULES.STOP_WIDE_PCT) + '%）。止损越宽，同样风险预算下能买的' + unit + '数越少，资金效率越低。' }); }
     /* 止损幅度按标的自适应：接近单日涨跌幅限制的四成以内，容易被日内正常波动扫损 */
     var noiseLine = lim * 0.4;
     if (res.stopPct <= noiseLine) {
@@ -1941,7 +2407,6 @@ svg{display:block;}
     } else {
       res.alerts.push({ lv: 'green', t: '该标的支持 T+0：当日买入当日可卖，触及止损能当天执行，2% 风险预算可以当天闭环。' });
     }
-    if (res.realRR >= inp.rr) { res.alerts.push({ lv: 'green', t: '实际盈亏比 ' + toFixed2(res.realRR) + ' : 1，达标。只有盈亏比 ≥ 1 的机会才值得开仓。' }); }
     return res;
   }
 
@@ -1972,9 +2437,16 @@ svg{display:block;}
     out.distToTarget = price > 0 ? (target - price) / price * 100 : 0;
     out.stopPct = price > 0 ? (price - stop) / price * 100 : 0;
 
+    /* 目标位 = 第一减仓位（成本 × (1+REDUCE1_PCT%)），与 reducePlan / adviceFor 同源。
+       这样「持仓卡片」与「规则引擎」对同一个价格永远给同一个答案。
+       plan 无效（无成本/股数）时回退到录入时存的目标价。 */
+    out.target = (out.plan && out.plan.valid && out.plan.p1 > 0) ? out.plan.p1 : target;
+    out.target2 = (out.plan && out.plan.valid && out.plan.p2 > 0) ? out.plan.p2 : 0;
+    out.targetFromRule = !!(out.plan && out.plan.valid && out.plan.p1 > 0);
+
     if (out.lastPatrol) {
       out.staleDays = daysAgo(out.lastPatrol);
-      out.stale = (out.staleDays === null ? false : out.staleDays > 3);
+      out.stale = (out.staleDays === null ? false : out.staleDays > TRADE_RULES.PATROL_MAX_DAYS);
     } else { out.stale = true; out.staleDays = null; }
 
     if (price > 0 && stop <= 0) {
@@ -1989,30 +2461,37 @@ svg{display:block;}
       out.level = 'danger'; out.label = '移动止盈离场';
       out.action = '清仓剩余 ' + fmtShares(shares) + ' ' + out.unit + '，落袋为安';
       out.reasons.push('移动止盈已触发：阶段最高价 ' + fmtPrice(out.trail.peak) + '（峰值浮盈 ' + toFixed2(out.trail.peakRate) + '%），现价回撤 ' + toFixed2(out.trail.giveBack) + '% 已跌破离场线 ' + fmtPrice(out.trail.line) + '。');
-    } else if (price > 0 && out.distToStop <= 3) {
+    } else if (price > 0 && out.distToStop <= TRADE_RULES.STOP_WARN_DIST_PCT) {
       out.level = 'warn'; out.label = '危险区';
-      out.action = '提前挂好止损单，把执行权交给规则而不是情绪';
-      out.reasons.push('距止损仅 ' + toFixed2(out.distToStop) + '%，日内波动就可能触发。');
-    } else if (price > 0 && target > 0 && price >= target) {
-      out.level = 'target'; out.label = '到达目标';
-      out.action = '按规则减仓 1/3 锁利，剩余仓位止损上移至成本价';
-      out.reasons.push('现价 ' + fmtPrice(price) + ' 已达到目标价 ' + fmtPrice(target) + '，浮盈 ' + fmtPct(out.pnlRate) + '。');
+      out.action = '提前挂好止损单，且禁止加仓摊平（把执行权交给规则）';
+      out.reasons.push('距止损仅 ' + toFixed2(out.distToStop) + '%（≤' + toFixed2(TRADE_RULES.STOP_WARN_DIST_PCT) + '% 即危险区），日内波动就可能触发。');
+    } else if (price > 0 && out.target2 > 0 && price >= out.target2) {
+      /* 第二档：+25% —— 与 adviceFor 的 REDUCE2 分支同源 */
+      out.level = 'target'; out.label = '到第二减仓位';
+      out.action = '按规则再减 ' + pctLabel(TRADE_RULES.REDUCE_FRAC) + ' 锁利，剩余止损上移至成本价 ×' + toFixed2(TRADE_RULES.STOP_AFTER_REDUCE2_MULT);
+      out.reasons.push('现价 ' + fmtPrice(price) + ' 已达第二减仓位 ' + fmtPrice(out.target2) + '（成本价 ×' + toFixed2(1 + TRADE_RULES.REDUCE2_PCT / 100) + '），浮盈 ' + fmtPct(out.pnlRate) + '。');
+    } else if (price > 0 && out.target > 0 && price >= out.target) {
+      /* 第一档：+15% —— 与 adviceFor 的 REDUCE1 分支同源 */
+      out.level = 'target'; out.label = '到第一减仓位';
+      out.action = '按规则减 ' + pctLabel(TRADE_RULES.REDUCE_FRAC) + ' 锁利，剩余仓位止损上移至成本价';
+      out.reasons.push('现价 ' + fmtPrice(price) + ' 已达第一减仓位 ' + fmtPrice(out.target) + '（成本价 ×' + toFixed2(1 + TRADE_RULES.REDUCE1_PCT / 100) + '），浮盈 ' + fmtPct(out.pnlRate) + '。');
     } else if (out.pnlRate < 0) {
       out.level = 'watch'; out.label = '亏损持有';
       out.action = '盯住止损位 ' + fmtPrice(stop) + '，不做补仓摊平';
       out.reasons.push('当前浮亏 ' + fmtPct(out.pnlRate) + '，距止损 ' + toFixed2(out.distToStop) + '%。');
     } else {
       out.level = 'ok'; out.label = '正常持有';
-      if (pctGte(out.pnlRate, 15)) { out.action = '浮盈已达 ' + toFixed2(out.pnlRate) + '%，按规则减 1/3 锁利'; out.reasons.push('达到第一减仓阈值（+15%）。'); }
-      else if (pctGte(out.pnlRate, 8)) { out.action = '浮盈 ' + toFixed2(out.pnlRate) + '% 且趋势未破，可按规则加仓原仓位 50%'; out.reasons.push('达到加仓阈值（+8%），需确认未跌破 20 日均线。'); }
+      if (pctGte(out.pnlRate, TRADE_RULES.REDUCE1_PCT)) { out.action = '浮盈已达 ' + toFixed2(out.pnlRate) + '%，按规则减 ' + pctLabel(TRADE_RULES.REDUCE_FRAC) + ' 锁利'; out.reasons.push('达到第一减仓阈值（+' + toFixed2(TRADE_RULES.REDUCE1_PCT) + '%）。'); }
+      else if (pctGte(out.pnlRate, TRADE_RULES.ADD_AT_PCT) && out.pnlRate < TRADE_RULES.ADD_ZONE_TOP_PCT) { out.action = '浮盈 ' + toFixed2(out.pnlRate) + '% 且趋势未破，可按规则加仓原仓位 ' + toFixed2(TRADE_RULES.ADD_FRAC * 100) + '%'; out.reasons.push('达到加仓阈值（+' + toFixed2(TRADE_RULES.ADD_AT_PCT) + '%）且在加仓窗口内（<' + toFixed2(TRADE_RULES.ADD_ZONE_TOP_PCT) + '%），需确认未跌破 20 日均线。'); }
+      else if (pctGte(out.pnlRate, TRADE_RULES.ADD_ZONE_TOP_PCT)) { out.action = '持有不动（已进等减仓区，距第一减仓位 ' + toFixed2(TRADE_RULES.REDUCE1_PCT - out.pnlRate) + '%）'; out.reasons.push('浮盈 ' + toFixed2(out.pnlRate) + '% 已过加仓窗口上界 +' + toFixed2(TRADE_RULES.ADD_ZONE_TOP_PCT) + '%，不再加仓，等第一减仓位。'); }
       else { out.action = '继续持有，止损维持 ' + fmtPrice(stop); }
     }
-    if (out.stopPct > 8 && price > stop) { out.reasons.push('止损幅度较宽（' + toFixed2(out.stopPct) + '%），注意资金效率。'); }
+    if (out.stopPct > TRADE_RULES.STOP_WIDE_PCT && price > stop) { out.reasons.push('止损幅度较宽（' + toFixed2(out.stopPct) + '%），注意资金效率。'); }
     /* 移动止盈已启用但尚未触发：把离场线摆出来，让用户知道利润被守在哪里 */
     if (out.trail.active && !out.trail.triggered && price > 0) {
       out.reasons.push('移动止盈已启用：阶段最高价 ' + fmtPrice(out.trail.peak) + '，回撤离场线 ' + fmtPrice(out.trail.line) + '。');
     }
-    if (out.stale) { out.reasons.push(out.staleDays === null ? '从未登记巡检日期。' : '距上次巡检已 ' + out.staleDays + ' 天，超过 3 天巡检周期。'); }
+    if (out.stale) { out.reasons.push(out.staleDays === null ? '从未登记巡检日期。' : '距上次巡检已 ' + out.staleDays + ' 天，超过 ' + TRADE_RULES.PATROL_MAX_DAYS + ' 天巡检周期。'); }
     return out;
   }
 
@@ -2059,11 +2538,13 @@ svg{display:block;}
       var a = assessed[i];
       var an = a.dispName ? ' ' + a.dispName : '';   /* 名称未知时不重复显示代码 */
       if (a.level === 'danger') {
-        items.push({ tone: 'red', pri: 0, title: a.code + an + ' ' + (a.label || '触及止损'), desc: a.reasons[0], posId: a.id, act: '标记已处理', tab: 'pos' });
+        /* danger = 必须离场（触及止损 / 移动止盈触发）→ 提供「一键执行」 */
+        items.push({ tone: 'red', pri: 0, title: a.code + an + ' ' + (a.label || '触及止损'), desc: a.reasons[0], posId: a.id, act: '一键清仓', exec: 'close', tab: 'pos' });
       } else if (a.level === 'warn') {
-        items.push({ tone: 'red', pri: 1, title: a.code + an + ' 进入危险区', desc: a.reasons[0], posId: a.id, act: '标记已处理', tab: 'pos' });
+        items.push({ tone: 'red', pri: 1, title: a.code + an + ' 进入危险区', desc: a.reasons[0], posId: a.id, act: '标记已巡检', tab: 'pos' });
       } else if (a.level === 'target') {
-        items.push({ tone: 'yellow', pri: 2, title: a.code + an + ' 到达目标位', desc: a.action, posId: a.id, act: '去减仓', tab: 'rule' });
+        /* target = 到了减仓位（可能是第一档也可能是第二档）→ 可一键执行对应档位 */
+        items.push({ tone: 'yellow', pri: 2, title: a.code + an + ' ' + a.label, desc: a.action, posId: a.id, act: '一键减仓', exec: 'reduce', tab: 'pos' });
       }
       if (a.stale) {
         items.push({
@@ -2082,7 +2563,7 @@ svg{display:block;}
     }
     var wc = weekLogCount();
     if (wc > 5) {
-      items.push({ tone: 'yellow', pri: 6, title: '本周已交易 ' + wc + ' 笔，超过 5 笔上限', desc: '频繁交易是高确定性的亏损来源，剩余交易日只做计划内的机会。', posId: '', act: '', tab: 'disc' });
+      items.push({ tone: 'yellow', pri: 6, title: '本周已交易 ' + wc + ' 笔，超过 ' + TRADE_RULES.WEEK_LOG_LIMIT + ' 笔上限', desc: '频繁交易是高确定性的亏损来源，剩余交易日只做计划内的机会。', posId: '', act: '', tab: 'disc' });
     }
     items.sort(function (a, b) { return a.pri - b.pri; });
     return items;
@@ -2178,12 +2659,12 @@ svg{display:block;}
     };
     if (!(cost > 0) || !(shares > 0)) { out.note = '需先填写成本价与持仓股数'; return out; }
     out.valid = true;
-    out.p1 = roundToTick(cost * 1.15, it.tick);
-    out.p2 = roundToTick(cost * 1.25, it.tick);
-    out.n1 = minOneLot(floorToLot(shares / 3, lot), shares, lot);
+    out.p1 = roundToTick(cost * (1 + TRADE_RULES.REDUCE1_PCT / 100), it.tick);
+    out.p2 = roundToTick(cost * (1 + TRADE_RULES.REDUCE2_PCT / 100), it.tick);
+    out.n1 = minOneLot(floorToLot(shares * TRADE_RULES.REDUCE_FRAC, lot), shares, lot);
     var remain = shares - out.n1;
-    out.n2 = minOneLot(floorToLot(remain / 3, lot), remain, lot);
-    out.nMA = minOneLot(floorToLot(shares / 2, lot), shares, lot);
+    out.n2 = minOneLot(floorToLot(remain * TRADE_RULES.REDUCE_FRAC, lot), remain, lot);
+    out.nMA = minOneLot(floorToLot(shares * TRADE_RULES.BREAK_MA_FRAC, lot), shares, lot);
     out.hit1 = price > 0 && price >= out.p1;
     out.hit2 = price > 0 && price >= out.p2;
     if (out.n1 <= 0) { out.note = '持仓不足 2 手，无法按比例部分减仓'; }
@@ -2250,34 +2731,34 @@ svg{display:block;}
         '离场后 3 个交易日内不追高买回同一标的；要重新参与，按一笔全新的交易重新定止损与仓位。'
       ];
     } else if (broke && pnlRate > 0) {
-      sell(shares / 2, '已跌破 20 日均线且仍有浮盈，趋势走坏优先保住利润：减 1/2。', [
+      sell(shares * TRADE_RULES.BREAK_MA_FRAC, '已跌破 20 日均线且仍有浮盈，趋势走坏优先保住利润：减 ' + pctLabel(TRADE_RULES.BREAK_MA_FRAC) + '。', [
         '确认 20 日均线为收盘价口径跌破，而非盘中假破。',
         '次日开盘按建议数量减掉一半仓位。',
         '剩余仓位止损上移至成本价 ' + fmtPrice(cost) + '，确保这笔交易不亏钱。',
         '若随后重新站上 20 日均线，可重新按加仓规则评估，但不追高买回。'
       ]);
-    } else if (pctGte(pnlRate, 25)) {
-      sell(shares / 3, '浮盈 ' + toFixed2(pnlRate) + '% 已达第二目标（+25%），再减 1/3 锁利。', [
+    } else if (pctGte(pnlRate, TRADE_RULES.REDUCE2_PCT)) {
+      sell(shares * TRADE_RULES.REDUCE_FRAC, '浮盈 ' + toFixed2(pnlRate) + '% 已达第二目标（+' + toFixed2(TRADE_RULES.REDUCE2_PCT) + '%），再减 ' + pctLabel(TRADE_RULES.REDUCE_FRAC) + ' 锁利。', [
         '在现价附近按建议数量挂单减仓。',
-        '剩余仓位止损上移至「成本价 × 1.10」附近，锁定已有利润。',
+        '剩余仓位止损上移至「成本价 × ' + toFixed2(TRADE_RULES.STOP_AFTER_REDUCE2_MULT) + '」附近，锁定已有利润。',
         '在交易日志记录本次减仓的触发阈值。'
       ]);
-    } else if (pctGte(pnlRate, 15)) {
-      sell(shares / 3, '浮盈 ' + toFixed2(pnlRate) + '% 已达第一目标（+15%），减 1/3 锁利。', [
+    } else if (pctGte(pnlRate, TRADE_RULES.REDUCE1_PCT)) {
+      sell(shares * TRADE_RULES.REDUCE_FRAC, '浮盈 ' + toFixed2(pnlRate) + '% 已达第一目标（+' + toFixed2(TRADE_RULES.REDUCE1_PCT) + '%），减 ' + pctLabel(TRADE_RULES.REDUCE_FRAC) + ' 锁利。', [
         '在现价附近按建议数量挂单减仓。',
         '剩余仓位止损上移至成本价 ' + fmtPrice(cost) + '（保本止损）。',
         '在交易日志记录本次减仓。'
       ]);
-    } else if (pctGte(pnlRate, 8) && !broke && addCount < 2) {
-      var addN = floorLot(shares * 0.5);
+    } else if (pctGte(pnlRate, TRADE_RULES.ADD_AT_PCT) && pnlRate < TRADE_RULES.ADD_ZONE_TOP_PCT && !broke && addCount < TRADE_RULES.ADD_MAX) {
+      var addN = floorLot(shares * TRADE_RULES.ADD_FRAC);
       if (addN < 100) {
         out.action = '持有不动（持仓不足 1 手可加）'; out.tone = 'ok';
-        out.reasons.push('浮盈虽达 +8%，但持仓股数不足以构成一手加仓，维持原仓位。');
+        out.reasons.push('浮盈虽达 +' + toFixed2(TRADE_RULES.ADD_AT_PCT) + '%，但持仓股数不足以构成一手加仓，维持原仓位。');
       } else {
         out.action = '加仓 ' + fmtShares(addN) + ' 股'; out.tone = 'plus';
         out.buyShares = addN; out.afterShares = shares + addN;
         out.newStop = cost;
-        out.reasons.push('浮盈 ' + toFixed2(pnlRate) + '% 且未跌破 20 日均线，第 ' + (addCount + 1) + ' 次加仓，幅度为原仓位的 50%。');
+        out.reasons.push('浮盈 ' + toFixed2(pnlRate) + '% 且未跌破 20 日均线，第 ' + (addCount + 1) + ' 次加仓，幅度为原仓位的 ' + toFixed2(TRADE_RULES.ADD_FRAC * 100) + '%。');
         out.steps = [
           '核对加仓后单票市值占比 ≤ ' + toFixed2(state.params.maxSinglePct) + '%，若超限则不加或先减后加。',
           '核对加仓后组合风险敞口 ≤ ' + toFixed2(state.params.maxPortfolioRiskPct) + '%。',
@@ -2294,10 +2775,18 @@ svg{display:block;}
         '把止损价复核一次，确认它仍是有效的技术位（不许为了不被打掉而后移）。',
         '若价格触及止损，按清仓流程执行。'
       ];
+    } else if (pctGte(pnlRate, TRADE_RULES.ADD_ZONE_TOP_PCT) && !broke) {
+      /* 已在「加仓线~减仓线」的后半段：不加仓，等第一减仓位 */
+      out.action = '持有不动（已进等减仓区）'; out.tone = 'ok';
+      out.reasons.push('当前浮盈 ' + toFixed2(pnlRate) + '% 已高于加仓窗口上界 +' + toFixed2(TRADE_RULES.ADD_ZONE_TOP_PCT) + '% —— 距第一减仓位（+' + toFixed2(TRADE_RULES.REDUCE1_PCT) + '%）已近，此时加仓会降低这笔交易的风险收益比。');
+      out.steps = [
+        '维持止损价 ' + fmtPrice(stop) + ' 不变，不追加仓位。',
+        '等价格到 ' + fmtPrice(cost * (1 + TRADE_RULES.REDUCE1_PCT / 100)) + '（成本 ×' + toFixed2(1 + TRADE_RULES.REDUCE1_PCT / 100) + '）按规则减 ' + pctLabel(TRADE_RULES.REDUCE_FRAC) + ' 锁利。'
+      ];
     } else {
       out.action = '持有不动'; out.tone = 'ok';
-      out.reasons.push('当前浮盈 ' + toFixed2(pnlRate) + '% 未达 +8% 加仓阈值，也无减仓信号，按原计划持有。');
-      out.steps = ['维持止损价 ' + fmtPrice(stop) + ' 不变。', '下一个决策点在浮盈 +8%（评估加仓）或 −到止损（离场）。'];
+      out.reasons.push('当前浮盈 ' + toFixed2(pnlRate) + '% 未达 +' + toFixed2(TRADE_RULES.ADD_AT_PCT) + '% 加仓阈值，也无减仓信号，按原计划持有。');
+      out.steps = ['维持止损价 ' + fmtPrice(stop) + ' 不变。', '下一个决策点在浮盈 +' + toFixed2(TRADE_RULES.ADD_AT_PCT) + '%（评估加仓）或 −到止损（离场）。'];
     }
     /* 移动止盈已启用但尚未触发时，把离场线写出来，避免用户临时心算 */
     if (trig.active && !trig.triggered && price > 0) {
@@ -2308,18 +2797,53 @@ svg{display:block;}
 
   function disciplineStats() {
     var logs = state.logs.slice(0, 20);
-    var out = { total: logs.length, good: 0, part: 0, bad: 0, score: null, grade: '暂无记录',
-      violations: {}, week: weekLogCount(), lossStreak: 0 };
+    var out = { total: logs.length, good: 0, part: 0, bad: 0,
+      baseScore: null, objectivePenalty: 0, score: null, grade: '暂无记录',
+      violations: {}, week: weekLogCount(), lossStreak: 0,
+      obj: { total30d: 0, overridden30d: 0, blocked30d: 0, byType: {} } };
+
+    /* ---- 1. 主观分：从交易日志自填的「纪律执行」得来 ---- */
     for (var i = 0; i < logs.length; i++) {
       var d = String(logs[i]['纪律执行'] || '');
       if (d === '完全遵守') { out.good++; } else if (d === '部分违反') { out.part++; } else if (d === '严重违反') { out.bad++; }
       var v = String(logs[i]['违规类型'] || '无');
-      if (v && v !== '无') { out.violations[v] = (out.violations[v] || 0) + 1; }
+      if (v && v !== '无') {
+        var ck = VIOLATION_CANON[v] || v;
+        out.violations[ck] = (out.violations[ck] || 0) + 1;
+      }
     }
     if (out.total > 0) {
-      out.score = Math.round((out.good * 100 + out.part * 60 + out.bad * 0) / out.total);
+      out.baseScore = Math.round((out.good * 100 + out.part * 60 + out.bad * 0) / out.total);
+    }
+
+    /* ---- 2. 客观分：从规则引擎的拦截/override 记录得来 ----
+       只有「明知故犯」（overridden=true）才算违纪；被规则拦住后最终没做 = 遵守。 */
+    var ov = AQ.Rules.stats();
+    out.obj.total30d = ov.total30d;
+    out.obj.overridden30d = ov.overridden30d;
+    out.obj.blocked30d = Math.max(0, ov.total30d - ov.overridden30d);
+    out.obj.byType = ov.byType || {};
+    var allV = AQ.Rules.getViolations();
+    var nowMs = Date.now(), winMs = TRADE_RULES.VIOLATION_WINDOW_DAYS * 86400000;
+    for (var k = 0; k < allV.length; k++) {
+      var vv = allV[k];
+      if (nowMs - vv.ts >= winMs) { continue; }
+      if (!vv.overridden) { continue; }
+      var canon = VIOLATION_CANON[vv.type] || vv.type;
+      out.violations[canon] = (out.violations[canon] || 0) + 1;
+    }
+    out.objectivePenalty = out.obj.overridden30d * TRADE_RULES.VIOLATION_PENALTY;
+
+    /* ---- 3. 合成：纪律分 = 自填分 − 客观扣分 ----
+       只有客观记录、无日志时，以 100 为基准扣；两者都无则不评分。 */
+    var base = out.baseScore;
+    if (base === null && out.obj.total30d > 0) { base = 100; }
+    if (base !== null) {
+      out.score = Math.max(0, base - out.objectivePenalty);
       out.grade = out.score >= 90 ? '优秀 · 纪律稳定' : (out.score >= 75 ? '良好 · 仍需盯紧' : (out.score >= 60 ? '及格 · 存在明显漏洞' : '预警 · 必须先修纪律'));
     }
+
+    /* ---- 4. 连续亏损（最近 20 笔） ---- */
     var sorted = state.logs.slice().sort(function (a, b) { return (dayOnly(b['交易日期']) > dayOnly(a['交易日期'])) ? 1 : -1; });
     for (var j = 0; j < sorted.length && j < 20; j++) {
       var pv = sorted[j]['盈亏金额'];
@@ -2330,13 +2854,13 @@ svg{display:block;}
   }
 
   function violationBars(stats) {
-    var order = ['追涨杀跌', '扛单不止损', '频繁交易', '亏损加仓', '情绪化交易'];
     var max = 1, i;
-    for (i = 0; i < order.length; i++) { max = Math.max(max, stats.violations[order[i]] || 0); }
+    for (i = 0; i < VIOLATION_ORDER.length; i++) { max = Math.max(max, stats.violations[VIOLATION_ORDER[i]] || 0); }
     var html = '';
-    for (i = 0; i < order.length; i++) {
-      var n = stats.violations[order[i]] || 0;
-      html += '<div class="barrow"><span class="bl">' + esc(order[i]) + '</span>' +
+    for (i = 0; i < VIOLATION_ORDER.length; i++) {
+      var key = VIOLATION_ORDER[i];
+      var n = stats.violations[key] || 0;
+      html += '<div class="barrow"><span class="bl">' + esc(VIOLATION_LABELS[key]) + '</span>' +
         '<span class="bt"><span class="bf" style="width:' + (n / max * 100) + '%"></span></span>' +
         '<span class="bn">' + n + '</span></div>';
     }
@@ -2795,19 +3319,6 @@ svg{display:block;}
     });
   }
 
-  /* ---------- 大盘指数快照（fuyao /api/a-share-index/prices/snapshot） ----------
-     与取价不同的两点：(1) 无需按 thscodes 构造交易所后缀，原文传即可；(2) 必须传 thscodes，不支持分页枚举 */
-  var MAJOR_INDICES = [
-    { code: '000001.SH', name: '上证综指' },
-    { code: '399001.SZ', name: '深证成指' },
-    { code: '399006.SZ', name: '创业板指' },
-    { code: '000688.SH', name: '科创 50' },
-    { code: '000300.SH', name: '沪深 300' },
-    { code: '899050.BJ', name: '北证 50' }
-  ];
-  var MAJOR_INDICES_MAP = {};
-  for (var _mi = 0; _mi < MAJOR_INDICES.length; _mi++) { MAJOR_INDICES_MAP[MAJOR_INDICES[_mi].code] = MAJOR_INDICES[_mi]; }
-  var stateIndexSnapshot = { at: 0, stamp: 0, items: [] };
   var stateCorpCache = {};   /* thscode → { at, events }，只存内存，不入 LS（避免会话间状态过期） */
 
   function findActiveFuyao() {
@@ -2817,94 +3328,6 @@ svg{display:block;}
       if (s && s.kind === 'fuyao' && s.enabled && s.url && s.key) { return s; }
     }
     return null;
-  }
-
-  function fetchIndicesFuyao(src, cb) {
-    if (!src || !src.key) { cb(new Error('同花顺 fuyao：请先填写 API Key')); return; }
-    var base = String(src.url || '').replace(/\/+$/, '');
-    if (!base) { cb(new Error('同花顺 fuyao：请先填写接口地址')); return; }
-    var codes = [];
-    for (var i = 0; i < MAJOR_INDICES.length; i++) { codes.push(MAJOR_INDICES[i].code); }
-    var url = base + '/api/a-share-index/prices/snapshot?thscodes=' + encodeURIComponent(codes.join(','));
-    var done = false, timer = null;
-    timer = setTimeout(function () {
-      if (done) { return; }
-      done = true;
-      cb(new Error('指数请求超时'));
-    }, QUOTE_TIMEOUT);
-    fetch(url, { method: 'GET', headers: { 'X-api-key': src.key, 'Accept': 'application/json' } })
-      .then(function (r) { return r.json(); })
-      .then(function (json) {
-        if (done) { return; }
-        done = true;
-        if (timer) { clearTimeout(timer); }
-        if (!json || json.code !== 0) {
-          cb(new Error('指数：' + ((json && json.message) || ('code=' + (json && json.code)))));
-          return;
-        }
-        var data = json.data || {};
-        var item = data.item || [];
-        var out = [];
-        for (var k = 0; k < item.length; k++) {
-          var def = MAJOR_INDICES_MAP[item[k].thscode] || { name: item[k].ticker || item[k].thscode };
-          out.push({
-            thscode: item[k].thscode,
-            name: def.name,
-            last_price: num(item[k].last_price),
-            prev_price: num(item[k].prev_price),
-            change: num(item[k].price_change),
-            change_pct: num(item[k].price_change_ratio_pct)
-          });
-        }
-        cb(null, { stamp: data.timestamp || 0, items: out });
-      })
-      ['catch'](function (err) {
-        if (done) { return; }
-        done = true;
-        if (timer) { clearTimeout(timer); }
-        var msg = (err && err.message) || String(err);
-        cb(new Error('指数：网络失败（' + msg + '）。请检查 fuyao 接口地址 / 密钥 / 网络'));
-      });
-  }
-
-  function renderMktBar(items, stamp) {
-    var bar = $('#mktBar'), hint = $('#mktHint');
-    if (!bar) { return; }
-    if (!items || !items.length) {
-      bar.innerHTML = '<div class="mkt empty">未取到指数。请检查 fuyao 接口权限或指数 thscode。</div>';
-      if (hint) { hint.textContent = '未取到数据'; }
-      return;
-    }
-    var html = '';
-    for (var i = 0; i < items.length; i++) {
-      var it = items[i];
-      var cls = it.change_pct > 0.001 ? 'up' : (it.change_pct < -0.001 ? 'down' : 'flat');
-      var pct = (it.change_pct > 0 ? '+' : '') + toFixed2(it.change_pct) + '%';
-      var chg = (it.change > 0 ? '+' : '') + toFixed2(it.change);
-      html += '<div class="mkt ' + cls + '">' +
-        '<div class="nm"><span>' + esc(it.name) + '</span><span class="cd">' + esc(it.thscode) + '</span></div>' +
-        '<div class="vl"><span class="v">' + toFixed2(it.last_price) + '</span><span class="p">' + pct + '</span></div>' +
-        '<div class="vl" style="font-size:11.5px;color:var(--text-3)"><span>' + chg + '</span></div>' +
-        '</div>';
-    }
-    bar.innerHTML = html;
-    if (hint) {
-      var st = stamp ? fuyaoStampFromMs(stamp) : '';
-      hint.textContent = st ? ('上次更新 ' + st.slice(0, 4) + '-' + st.slice(4, 6) + '-' + st.slice(6, 8) + ' ' + st.slice(8, 10) + ':' + st.slice(10, 12)) : '已取数';
-    }
-  }
-
-  function onMktRefresh(btn) {
-    var src = findActiveFuyao();
-    if (!src) { toast('请先在「数据源」启用 fuyao 并填入 API Key'); return; }
-    if (btn) { btn.disabled = true; }
-    var hint = $('#mktHint'); if (hint) { hint.textContent = '拉取中…'; }
-    fetchIndicesFuyao(src, function (err, data) {
-      if (btn) { btn.disabled = false; }
-      if (err) { toast('指数拉取失败：' + err.message); if (hint) { hint.textContent = '拉取失败'; } return; }
-      stateIndexSnapshot = { at: Date.now(), stamp: data.stamp, items: data.items };
-      renderMktBar(data.items, data.stamp);
-    });
   }
 
   /* ---------- 除权除息（fuyao /api/a-share/corporate-actions/adjustment-factors） ----------
@@ -3061,7 +3484,7 @@ svg{display:block;}
   }
 
   function onFetchCorpForPos(id, btn) {
-    var pos = findPositionById(id);
+    var pos = findPosById(id);
     if (!pos) { return; }
     var src = findActiveFuyao();
     if (!src) { toast('请先在「数据源」启用 fuyao 并填入 API Key'); return; }
@@ -3084,7 +3507,7 @@ svg{display:block;}
   }
 
   function onApplyCorpForPos(id, btn) {
-    var pos = findPositionById(id);
+    var pos = findPosById(id);
     if (!pos) { return; }
     var src = findActiveFuyao();
     if (!src) { toast('请先在「数据源」启用 fuyao 并填入 API Key'); return; }
@@ -3119,12 +3542,6 @@ svg{display:block;}
   }
 
   /* 按 id 找持仓：state.positions 是 Notion shape，逐项扫 */
-  function findPositionById(id) {
-    var list = state.positions || [];
-    for (var i = 0; i < list.length; i++) { if (list[i] && list[i]._id === id) { return list[i]; } }
-    return null;
-  }
-
   /* 用「某一个具体数据源」取价：腾讯与 fuyao 都支持一次多只，原生走批量；其余类型逐只来 */
   function fetchQuotesViaSource(src, reqs, cb) {
     if (!src) { cb(new Error('数据源不存在')); return; }
@@ -3490,6 +3907,30 @@ svg{display:block;}
     if (code.length !== 6) { toast('请输入 6 位股票代码'); codeEl.focus(); return; }
     if (!marketPrefix(code)) { toast('无法识别 ' + code + ' 属于哪个市场'); return; }
 
+    /* === 规则检查：仅当买入日距今 ≤ 7 天才走进场检查（记录老仓位不适用） === */
+    var buyDateStr = (manualEl('mBuyDate') && manualEl('mBuyDate').value) || todayStr();
+    var buyMs = parseBuyDateMs(buyDateStr);
+    var daysSinceBuy = buyMs > 0 ? Math.floor((Date.now() - buyMs) / 86400000) : 0;
+    if (daysSinceBuy <= 7) {
+      var lastEl = manualEl('mLast');
+      var curPrice = num(lastEl ? lastEl.value : 0);
+      /* 手工录入路径上没有当日涨跌幅，用「价格 / 成本价 - 1」作为下单日涨幅近似 */
+      var costEl = manualEl('mCost');
+      var curCost = num(costEl ? costEl.value : 0);
+      var estChange = (curPrice > 0 && curCost > 0) ? (curPrice - curCost) / curCost * 100 : 0;
+      var ruleCheck = AQ.Rules.checkEntry({ code: code, name: (manualEl('mName') && manualEl('mName').value) || '', changePct: estChange });
+      if (!ruleCheck.allowed) {
+        if (!AQ.Rules.confirmDialog(ruleCheck, '录入持仓')) {
+          for (var ri = 0; ri < ruleCheck.violations.length; ri++) { AQ.Rules.recordViolation(ruleCheck.violations[ri].rule, ruleCheck.violations[ri].ctx); }
+          return;
+        }
+        for (var ri2 = 0; ri2 < ruleCheck.violations.length; ri2++) {
+          var v = AQ.Rules.recordViolation(ruleCheck.violations[ri2].rule, ruleCheck.violations[ri2].ctx);
+          AQ.Rules.ackViolation(v.id);
+        }
+      }
+    }
+
     var sharesEl = manualEl('mShares');
     var shares = Math.round(num(sharesEl ? sharesEl.value : 0));
     if (!(shares > 0)) { toast('请填写持仓股数'); if (sharesEl) { sharesEl.focus(); } return; }
@@ -3695,19 +4136,48 @@ svg{display:block;}
   };
 
   /* 首次使用预置的示例数据（备注里带「示例」，可一键清空，不影响你自己的记录） */
-  var SAMPLE_POSITIONS = [
-    { '股票代码': '600519', '股票名称': '贵州茅台', '持仓状态': '持有中', '持仓股数': 100, '成本价': 1520, '现价': 1488, '止损价': 1444, '目标价': 1672, '买入日期': '2026-08-20', '巡检日期': '2026-09-09', '备注': '示例数据，可删除' },
-    { '股票代码': '002415', '股票名称': '海康威视', '持仓状态': '持有中', '持仓股数': 600, '成本价': 31.8, '现价': 35.2, '止损价': 30.5, '目标价': 38, '买入日期': '2026-07-15', '巡检日期': '2026-09-01', '备注': '示例数据，可删除' },
-    { '股票代码': '300750', '股票名称': '宁德时代', '持仓状态': '持有中', '持仓股数': 200, '成本价': 186, '现价': 214.5, '止损价': 176.7, '目标价': 210, '买入日期': '2026-06-10', '巡检日期': '2026-09-10', '备注': '示例数据，可删除' },
-    { '股票代码': '601318', '股票名称': '中国平安', '持仓状态': '持有中', '持仓股数': 800, '成本价': 48.6, '现价': 44.2, '止损价': 46.2, '目标价': 53.5, '买入日期': '2026-08-05', '巡检日期': '2026-09-08', '备注': '示例数据，可删除' },
-    { '股票代码': '688111', '股票名称': '金山办公', '持仓状态': '持有中', '持仓股数': 100, '成本价': 268, '现价': 271, '止损价': 254.6, '目标价': 294.8, '买入日期': '2026-09-02', '巡检日期': '2026-09-10', '备注': '示例数据，可删除' }
-  ];
-  var SAMPLE_LOGS = [
-    { '股票代码': '601318', '操作类型': '买入', '成交价': 48.6, '成交股数': 800, '盈亏金额': 0, '纪律执行': '完全遵守', '违规类型': '无', '交易日期': '2026-09-08', '复盘备注': '【示例】按计划的入场点位分批建仓，止损设在 -4.9%' },
-    { '股票代码': '300750', '操作类型': '减仓', '成交价': 206, '成交股数': 100, '盈亏金额': 2000, '纪律执行': '完全遵守', '违规类型': '无', '交易日期': '2026-09-05', '复盘备注': '【示例】达到第一目标位，按规则减 1/3 锁利' },
-    { '股票代码': '002594', '操作类型': '买入', '成交价': 312, '成交股数': 300, '盈亏金额': -2400, '纪律执行': '严重违反', '违规类型': '追涨杀跌', '交易日期': '2026-09-03', '复盘备注': '【示例】盘中冲高直接追进，当日回落；违反「不追涨」规则' },
-    { '股票代码': '601318', '操作类型': '加仓', '成交价': 47.1, '成交股数': 300, '盈亏金额': -900, '纪律执行': '部分违反', '违规类型': '亏损加仓', '交易日期': '2026-09-01', '复盘备注': '【示例】浮亏时补仓摊低成本，违反「禁止亏损加仓」规则' }
-  ];
+  /* 示例持仓：刻意造成「健康」状态 —— 不触损、不危险区、巡检日期=今天，
+     首屏只留 1~2 条黄色提醒（减仓信号 / 集中度），避免新用户一进来就被一片红吓到。
+     价格与止损按 TRADE_RULES 的规则口径构造：目标价 = 成本 ×1.15，
+     止损约 -5%，现价分布在「持有 / 加仓窗口 / 第一减仓位」三档。 */
+  function samplePositions() {
+    var t = todayStr();
+    var d = function (daysAgo) { return dayOffsetStr(-daysAgo); };
+    var mk = function (code, name, shares, cost, price, stop, buyDays) {
+      return {
+        '股票代码': code, '股票名称': name, '持仓状态': '持有中',
+        '持仓股数': shares, '成本价': cost, '现价': price,
+        '阶段最高价': Math.max(price, cost),
+        '止损价': stop,
+        '目标价': Math.round(cost * (1 + TRADE_RULES.REDUCE1_PCT / 100) * 100) / 100,
+        '买入日期': d(buyDays), '巡检日期': t,
+        '成本价原始': cost, '持仓股数原始': shares, '除权除息已应用': '',
+        '备注': '示例数据，可删除'
+      };
+    };
+    return [
+      /* 浮盈 +6.0% —— 持有区 */
+      mk('600519', '贵州茅台', 100, 1500, 1590, 1430, 40),
+      /* 浮盈 +5.3% —— 持有区 */
+      mk('002415', '海康威视', 600, 31.8, 33.5, 30.5, 60),
+      /* 浮盈 +15.3% —— 正好到第一减仓位（演示减仓信号） */
+      mk('300750', '宁德时代', 200, 186, 214.5, 176.7, 90),
+      /* 浮盈 +3.3% —— 持有区 */
+      mk('601318', '中国平安', 800, 48.6, 50.2, 46.5, 30),
+      /* 浮盈 +2.6% —— 持有区 */
+      mk('688111', '金山办公', 100, 268, 275, 258, 14)
+    ];
+  }
+  /* 示例日志：日期同样改成相对今天（近 20 天内），避免"本周已交易 N 笔"误报 */
+  function sampleLogs() {
+    var d = function (n) { return dayOffsetStr(-n); };
+    return [
+    { '股票代码': '601318', '操作类型': '买入', '成交价': 48.6, '成交股数': 800, '盈亏金额': 0, '纪律执行': '完全遵守', '违规类型': '无', '交易日期': d(6), '复盘备注': '【示例】按计划的入场点位分批建仓，止损设在 -4.9%' },
+    { '股票代码': '300750', '操作类型': '减仓', '成交价': 206, '成交股数': 100, '盈亏金额': 2000, '纪律执行': '完全遵守', '违规类型': '无', '交易日期': d(9), '复盘备注': '【示例】达到第一目标位，按规则减 1/3 锁利' },
+    { '股票代码': '002594', '操作类型': '买入', '成交价': 312, '成交股数': 300, '盈亏金额': -2400, '纪律执行': '严重违反', '违规类型': '追涨杀跌', '交易日期': d(11), '复盘备注': '【示例】盘中冲高直接追进，当日回落；违反「不追涨」规则' },
+      { '股票代码': '601318', '操作类型': '加仓', '成交价': 47.1, '成交股数': 300, '盈亏金额': -900, '纪律执行': '部分违反', '违规类型': '亏损加仓', '交易日期': d(13), '复盘备注': '【示例】浮亏时补仓摊低成本，违反「禁止亏损加仓」规则' }
+    ];
+  }
 
   function optList(name) {
     var names = LOCAL_OPTIONS[name] || [], out = [], i;
@@ -3752,24 +4222,34 @@ svg{display:block;}
     migrateLegacyBuffer();
     if (readRows(POS_DB_ID).length || readRows(LOG_DB_ID).length) { return; }
     var pos = [], logs = [], i, k, row;
-    for (i = 0; i < SAMPLE_POSITIONS.length; i++) {
+    var _SAMPLE_POS = samplePositions();
+    for (i = 0; i < _SAMPLE_POS.length; i++) {
       row = {};
-      for (k in SAMPLE_POSITIONS[i]) {
-        if (Object.prototype.hasOwnProperty.call(SAMPLE_POSITIONS[i], k)) { row[k] = SAMPLE_POSITIONS[i][k]; }
+      for (k in _SAMPLE_POS[i]) {
+        if (Object.prototype.hasOwnProperty.call(_SAMPLE_POS[i], k)) { row[k] = _SAMPLE_POS[i][k]; }
       }
       row._id = mkRowId();
       pos.push(row);
     }
-    for (i = 0; i < SAMPLE_LOGS.length; i++) {
+    var _SAMPLE_LOG = sampleLogs();
+    for (i = 0; i < _SAMPLE_LOG.length; i++) {
       row = {};
-      for (k in SAMPLE_LOGS[i]) {
-        if (Object.prototype.hasOwnProperty.call(SAMPLE_LOGS[i], k)) { row[k] = SAMPLE_LOGS[i][k]; }
+      for (k in _SAMPLE_LOG[i]) {
+        if (Object.prototype.hasOwnProperty.call(_SAMPLE_LOG[i], k)) { row[k] = _SAMPLE_LOG[i][k]; }
       }
       row._id = mkRowId();
       logs.push(row);
     }
     writeRows(POS_DB_ID, pos);
     writeRows(LOG_DB_ID, logs);
+    /* 示例本金与示例持仓同规模：否则组合敞口会算出离谱的百分比，
+       让新用户第一眼以为系统坏了。用户改成自己的真实资金即可。 */
+    if (!(num(readJSON(LS_PARAMS) || {}).capital > 0)) {
+      var p0 = readJSON(LS_PARAMS) || {};
+      p0.capital = 550000;
+      writeJSON(LS_PARAMS, p0);
+      if (state.params) { state.params.capital = 550000; }   /* 同步内存，避免仍按 10 万算敞口 */
+    }
   }
 
   function loadPositions() { return Promise.resolve(readRows(POS_DB_ID)); }
@@ -3868,6 +4348,15 @@ svg{display:block;}
   /* ============================================================
    * 5. 渲染层（只读 state，互不调用）
    * ============================================================ */
+  /* 台账里还有示例数据吗（备注含「示例」）—— 用于首屏引导 */
+  function hasSampleData() {
+    var ps = state.positions || [];
+    for (var i = 0; i < ps.length; i++) {
+      if (String(ps[i]['备注'] || '').indexOf('示例') !== -1) { return true; }
+    }
+    return false;
+  }
+
   function renderToday() {
     var assessed = assessAll();
     var summary = portfolioSummary(assessed);
@@ -3875,11 +4364,23 @@ svg{display:block;}
     var box = $('#todayList'), card = $('#todayCard');
     if (!box) { return; }
     if (items.length === 0) {
-      box.innerHTML = '<div class="empty">今日没有待处理事项。持仓风险均在规则范围内，保持不动就是最好的操作。</div>';
+      var noPos = (activePositions().length === 0);
+      box.innerHTML = '<div class="empty">' + (noPos
+        ? '还没有持仓。在「持仓巡检」页用「手工录入已有持仓」补录旧仓位，或在「风控计算」里算好一笔新开仓。'
+        : '今日没有待处理事项。持仓风险均在规则范围内，保持不动就是最好的操作。') + '</div>';
       if (card) { card.classList.remove('hasrisk'); }
       setText('todayCount', '0 项');
     } else {
       var html = '';
+      /* 首屏引导：只在台账还是示例数据时出现，点「清空示例」后自动消失 */
+      if (hasSampleData()) {
+        html += '<div class="notice blue" style="margin:0 0 10px">' +
+          '<b>这些是示例数据</b>，用来演示工作台长什么样。要开始记录你自己的交易，' +
+          '在「交易日志」页点「清空示例数据」即可（不影响你以后录入的任何数据）。<br>' +
+          '<span class="muted">上手路径：① 在「数据源」填入行情源 → ② 在「风控计算」算好一笔新开仓 → ' +
+          '③ 每天看这里和「持仓巡检」。</span>' +
+          '</div>';
+      }
       for (var i = 0; i < items.length; i++) {
         var it = items[i];
         html += '<div class="titem ' + it.tone + '">' +
@@ -3888,7 +4389,7 @@ svg{display:block;}
           '<div class="tname">' + esc(it.title) + '</div>' +
           '<div class="tdesc">' + esc(it.desc) + '</div>' +
           '<div class="tacts">' +
-          (it.act ? '<button class="btn sm" data-today-act="' + esc(it.act) + '" data-today-pos="' + esc(it.posId || '') + '" data-today-tab="' + esc(it.tab || '') + '">' + esc(it.act) + '</button>' : '') +
+          (it.act ? '<button class="btn sm' + (it.exec ? ' primary' : '') + '" data-today-act="' + esc(it.act) + '" data-today-pos="' + esc(it.posId || '') + '" data-today-exec="' + esc(it.exec || '') + '" data-today-tab="' + esc(it.tab || '') + '">' + esc(it.act) + '</button>' : '') +
           '<button class="btn sm" data-today-goto="' + esc(it.tab || '') + '">查看</button>' +
           '</div></div></div>';
       }
@@ -3898,7 +4399,7 @@ svg{display:block;}
       if (card) { if (redCount > 0) { card.classList.add('hasrisk'); } else { card.classList.remove('hasrisk'); } }
       setText('todayCount', items.length + ' 项' + (redCount > 0 ? '（' + redCount + ' 项高风险）' : ''));
     }
-    setText('todayHint', '巡检时间 ' + (state.lastPatrol || '未巡检'));
+    setText('todayHint', state.lastPatrol ? ('最近一次全仓巡检 ' + state.lastPatrol) : '尚未做过全仓巡检');
   }
 
   function renderRisk() {
@@ -3928,7 +4429,7 @@ svg{display:block;}
     setText('rStop', r.stop > 0 ? fmtPrice(r.stop) : '--');
     setText('rStopU', r.stopPct > 0 ? '止损幅度 ' + toFixed2(r.stopPct) + '%' : '触碰即无条件执行');
     setText('rTarget', r.target > 0 ? fmtPrice(r.target) : '--');
-    setText('rTargetU', r.ok ? '较进场价 +' + toFixed2((r.target - r.entry) / r.entry * 100) + '%' : '到达后按规则减仓');
+    setText('rTargetU', r.ok ? ('第一减仓位 · 较进场价 +' + toFixed2((r.target - r.entry) / r.entry * 100) + '%') : '= 第一减仓位（成本 ×1.15）');
     setText('rShares', r.ok ? fmtShares(r.shares) : '--');
     var rUnit = r.unit || '股', rLot = r.lot || 100;
     setText('rSharesK', '可买' + rUnit + '数');
@@ -4040,7 +4541,7 @@ svg{display:block;}
       pnlEl2.className = 'v ' + pnlClass(a.pnl);
       var stopEl = node.querySelector('[data-calc="stop"]');
       stopEl.textContent = toFixed2(a.distToStop) + '%';
-      stopEl.className = 'v ' + (a.distToStop <= 3 ? 'up' : 'muted');
+      stopEl.className = 'v ' + (a.distToStop <= TRADE_RULES.STOP_WARN_DIST_PCT ? 'up' : 'muted');
       node.querySelector('[data-calc="target"]').textContent = a.target > 0 ? toFixed2(a.distToTarget) + '%' : '--';
       var priceInput = node.querySelector('[data-input="price"]');
       priceInput.value = a.price > 0 ? fmtByTick(a.price, a.tick) : '';
@@ -4054,6 +4555,8 @@ svg{display:block;}
       }
       var quoteBtn = node.querySelector('[data-act="quote"]');
       var saveBtn = node.querySelector('[data-act="save-price"]');
+      var saveStopBtn = node.querySelector('[data-act="save-stop"]');
+      var stopInput = node.querySelector('[data-input="stop"]');
       var patrolBtn = node.querySelector('[data-act="patrol"]');
       var ruleBtn = node.querySelector('[data-act="rule"]');
       var delBtn = node.querySelector('[data-act="del-pos"]');
@@ -4061,6 +4564,11 @@ svg{display:block;}
       var applyCorpBtn = node.querySelector('[data-act="apply-corp"]');
       if (quoteBtn) { quoteBtn.setAttribute('data-id', a.id); }
       if (saveBtn) { saveBtn.setAttribute('data-id', a.id); }
+      if (saveStopBtn) { saveStopBtn.setAttribute('data-id', a.id); }
+      if (stopInput) {
+        stopInput.setAttribute('step', a.tick === 0.001 ? '0.001' : '0.01');
+        if (a.stop > 0) { stopInput.value = fmtByTick(a.stop, a.tick); }
+      }
       if (patrolBtn) { patrolBtn.setAttribute('data-id', a.id); }
       if (ruleBtn) { ruleBtn.setAttribute('data-id', a.id); }
       if (delBtn) { delBtn.setAttribute('data-id', a.id); }
@@ -4110,11 +4618,11 @@ svg{display:block;}
       '<div class="stat"><div class="k">调整后持仓</div><div class="v sm">' + fmtShares(a.afterShares) + ' 股</div></div>' +
       '<div class="stat"><div class="k">调整后止损</div><div class="v sm">' + fmtPrice(a.newStop) + '</div></div>' +
       '</div>';
-    h += '<div style="margin-top:12px"><div class="card-h"><h2 style="font-size:13.5px">判定依据</h2></div><ul class="checklist">';
+    h += '<div class="mt-3"><div class="card-h"><h2 class="fs-135">判定依据</h2></div><ul class="checklist">';
     for (var m = 0; m < a.reasons.length; m++) { h += '<li><span class="muted">·</span><span>' + esc(a.reasons[m]) + '</span></li>'; }
     h += '</ul></div>';
     if (a.steps && a.steps.length) {
-      h += '<div style="margin-top:10px"><div class="card-h"><h2 style="font-size:13.5px">执行步骤</h2></div><ul class="checklist">';
+      h += '<div class="mt-3"><div class="card-h"><h2 class="fs-135">执行步骤</h2></div><ul class="checklist">';
       for (var n = 0; n < a.steps.length; n++) {
         h += '<li><input type="checkbox" data-step><span>' + esc(a.steps[n]) + '</span></li>';
       }
@@ -4127,39 +4635,59 @@ svg{display:block;}
     var st = disciplineStats();
     setText('discScore', st.score === null ? '--' : String(st.score));
     setText('discGrade', st.grade);
-    setText('discHint', '基于最近 ' + st.total + ' 条交易日志');
+    setText('discHint', st.total > 0 ? ('最近 ' + st.total + ' 条日志 · ' + st.obj.total30d + ' 次规则触发') : ('规则引擎记录 ' + st.obj.total30d + ' 次'));
 
     var ring = $('#ringBar');
     if (ring) {
       var len = 163.4;
       var pctv = st.score === null ? 0 : st.score;
       ring.setAttribute('stroke-dashoffset', String(len - len * pctv / 100));
-      ring.setAttribute('stroke', st.score === null ? '#c9cedb' : (st.score >= 75 ? '#12996b' : (st.score >= 60 ? '#c8791a' : '#d93838')));
+      /* 圆环颜色走 CSS 类，避免在 JS 里硬编码色值（setAttribute 对 var() 支持不一致） */
+      ring.setAttribute('class', 'ring-' + (st.score === null ? 'muted' : (st.score >= 75 ? 'good' : (st.score >= 60 ? 'warn' : 'bad'))));
     }
     var dist = $('#discDist');
     if (dist) {
-      dist.innerHTML = st.total === 0 ? '暂无记录' :
-        '<div>完全遵守 <b class="down">' + st.good + '</b> 笔</div>' +
-        '<div>部分违反 <b style="color:var(--warn)">' + st.part + '</b> 笔</div>' +
-        '<div>严重违反 <b class="up">' + st.bad + '</b> 笔</div>';
+      if (st.total === 0 && st.obj.total30d === 0) {
+        dist.innerHTML = '暂无记录';
+      } else {
+        var dh = '';
+        if (st.total > 0) {
+          dh += '<div>完全遵守 <b class="down">' + st.good + '</b> 笔</div>' +
+                '<div>部分违反 <b class="warn-text">' + st.part + '</b> 笔</div>' +
+                '<div>严重违反 <b class="up">' + st.bad + '</b> 笔</div>';
+        }
+        if (st.obj.total30d > 0) {
+          dh += '<div class="mt-1">规则拦截 <b class="down">' + st.obj.blocked30d + '</b> 次（已拦住）</div>' +
+                '<div>明知故犯 <b class="up">' + st.obj.overridden30d + '</b> 次（override）</div>';
+        }
+        dist.innerHTML = dh;
+      }
     }
     var weekEl = $('#discWeek');
     if (weekEl) {
       weekEl.textContent = st.week + ' 笔';
-      weekEl.className = 'v sm ' + (st.week > 5 ? 'up' : '');
+      weekEl.className = 'v sm ' + (st.week > TRADE_RULES.WEEK_LOG_LIMIT ? 'up' : '');
     }
-    setText('discWeekU', st.week > 5 ? '已超 5 笔 / 周上限' : '上限 5 笔 / 周');
+    setText('discWeekU', st.week > TRADE_RULES.WEEK_LOG_LIMIT ? ('已超 ' + TRADE_RULES.WEEK_LOG_LIMIT + ' 笔 / 周上限') : ('上限 ' + TRADE_RULES.WEEK_LOG_LIMIT + ' 笔 / 周'));
 
     var alerts = $('#discAlerts');
     if (alerts) {
       var h = '';
-      if (st.total === 0) { h += '<div class="notice blue">还没有交易日志。每笔操作后记录一次，纪律分才有意义。</div>'; }
+      /* 评分构成拆解：让用户看到分是怎么被扣的 */
+      if (st.score !== null && st.objectivePenalty > 0) {
+        h += '<div class="notice yellow">纪律分构成：自填基础分 <b>' + (st.baseScore === null ? 100 : st.baseScore) + '</b> − 客观违规扣分 <b>' + st.objectivePenalty + '</b>（' + st.obj.overridden30d + ' 次明知故犯 × ' + TRADE_RULES.VIOLATION_PENALTY + '）= <b>' + st.score + '</b> 分。</div>';
+      }
+      if (st.obj.blocked30d > 0) {
+        h += '<div class="notice green">规则引擎拦住你 <b>' + st.obj.blocked30d + '</b> 次（FOMO / 止损下移 / 报复交易）。这些是真实避开的亏损，不计扣分。</div>';
+      }
+      if (st.total === 0 && st.obj.total30d === 0) { h += '<div class="notice blue">还没有交易日志，规则引擎也没拦截过。每笔操作后记录一次，纪律分才有意义。</div>'; }
+      if (st.total === 0 && st.obj.total30d > 0) { h += '<div class="notice blue">还没有交易日志，当前分数只看规则引擎的客观记录。建议补上日志。</div>'; }
       if (st.score !== null && st.score < 60) { h += '<div class="notice red">纪律分 ' + st.score + ' 分，处于预警区。当前的主要矛盾不是选股，而是执行。</div>'; }
-      if (st.lossStreak >= 2) { h += '<div class="notice red">最近已连续 ' + st.lossStreak + ' 笔亏损。按规则强制休息 1 个交易日，不做任何新开仓。</div>'; }
-      if (st.week > 5) { h += '<div class="notice yellow">本周已交易 ' + st.week + ' 笔，超过 5 笔上限。频繁交易会摊薄盈亏比并放大情绪波动。</div>'; }
-      var topV = '', topN = 0;
-      for (var v in st.violations) { if (Object.prototype.hasOwnProperty.call(st.violations, v) && st.violations[v] > topN) { topN = st.violations[v]; topV = v; } }
-      if (topV) { h += '<div class="notice yellow">最高频违规类型是「' + esc(topV) + '」（' + topN + ' 次）。下个交易周只盯这一个问题。</div>'; }
+      if (st.lossStreak >= TRADE_RULES.LOSS_STREAK_LIMIT) { h += '<div class="notice red">最近已连续 ' + st.lossStreak + ' 笔亏损。按规则强制休息 1 个交易日，不做任何新开仓。</div>'; }
+      if (st.week > TRADE_RULES.WEEK_LOG_LIMIT) { h += '<div class="notice yellow">本周已交易 ' + st.week + ' 笔，超过 ' + TRADE_RULES.WEEK_LOG_LIMIT + ' 笔上限。频繁交易会摊薄盈亏比并放大情绪波动。</div>'; }
+      var topK = '', topN = 0;
+      for (var vk in st.violations) { if (Object.prototype.hasOwnProperty.call(st.violations, vk) && st.violations[vk] > topN) { topN = st.violations[vk]; topK = vk; } }
+      if (topK) { h += '<div class="notice yellow">最高频违规类型是「' + esc(VIOLATION_LABELS[topK] || topK) + '」（' + topN + ' 次）。下个交易周只盯这一个问题。</div>'; }
       if (h === '') { h = '<div class="notice green">纪律执行稳定（' + st.score + ' 分）。继续保持「按计划交易、按规则离场」。</div>'; }
       alerts.innerHTML = h;
     }
@@ -4232,6 +4760,41 @@ svg{display:block;}
     });
   }
 
+  /* 规则面板：UI 同步 + 违规统计渲染 */
+  function syncRulesUI() {
+    var c = AQ.Rules.config;
+    var el;
+    el = $('#ruleStopUp'); if (el) el.checked = c.stopCanOnlyMoveUp !== false;
+    el = $('#ruleFomo'); if (el) el.checked = c.fomoEnabled !== false;
+    el = $('#ruleFomoPct'); if (el) el.value = c.fomoThresholdPct || 5;
+    el = $('#ruleRevenge'); if (el) el.checked = c.revengeEnabled !== false;
+    el = $('#ruleRevengeH'); if (el) el.value = Math.round((c.revengeCooldownMs || 86400000) / 3600000);
+    el = $('#ruleRevengeLoss'); if (el) el.checked = c.revengeLossThreshold > 0;
+    el = $('#ruleRevengeLossV'); if (el) el.value = c.revengeLossThreshold || 500;
+  }
+  function renderRulesStats() {
+    var box = $('#rulesStats');
+    if (!box) { return; }
+    var s = AQ.Rules.stats();
+    if (s.total === 0) {
+      box.innerHTML = '<div class="notice blue">过去 30 天没有违规记录。你遵守规则本身就是一种优势。</div>';
+      return;
+    }
+    var rows = [];
+    var totalAll = s.total;
+    var labels = {
+      'stop-moved-down': '止损下移',
+      'fomo-entry': 'FOMO 追涨',
+      'revenge-trade': '报复交易'
+    };
+    rows.push('<div class="notice yellow"><b>过去 30 天</b>：' + s.total30d + ' 次违规，其中 ' + s.overridden30d + ' 次被 override。累计记录 ' + totalAll + ' 次。</div>');
+    var breakdown = Object.keys(s.byType).map(function (k) {
+      return '<span class="tag gray">' + (labels[k] || k) + ' <b>' + s.byType[k] + '</b></span>';
+    }).join(' ');
+    rows.push('<div class="row mt-2">' + breakdown + '</div>');
+    box.innerHTML = rows.join('');
+  }
+
   function renderSchemaOptions() {
     $$('select[data-opt-field]').forEach(function (sel) {
       var f = sel.getAttribute('data-opt-field');
@@ -4299,6 +4862,8 @@ svg{display:block;}
   function renderSources() {
     var listBox = $('#srcList');
     if (!listBox) { return; }
+    syncRulesUI();
+    renderRulesStats();
     if (!state.sources) { loadSources(); }
     var list = state.sources.items || [];
     var act = activeSource();
@@ -4311,14 +4876,14 @@ svg{display:block;}
     var actBox = $('#srcActive');
     if (actBox) {
       if (!act) {
-        actBox.innerHTML = '<div class="notice yellow" style="margin:0">没有启用的数据源，点「取现价」会直接失败。请在下面启用并配置一个。</div>';
+        actBox.innerHTML = '<div class="notice yellow tight">没有启用的数据源，点「取现价」会直接失败。请在下面启用并配置一个。</div>';
       } else {
         var stA = sourceStatus(act);
         var hA = '<div class="srcactive"><span class="lbl">取价时优先走</span><b>' + esc(act.name) + '</b>' +
           '<span class="tag ' + stA.tone + '">' + esc(stA.text) + '</span>' +
           '<span class="lbl">' + esc(act.url || '（接口地址待配置）') + '</span></div>';
         if (!sourceUsable(act)) {
-          hA += '<div class="notice yellow" style="margin:10px 0 0">当前使用的「' + esc(act.name) +
+          hA += '<div class="notice yellow mt-3 tight">当前使用的「' + esc(act.name) +
             '」还没接入，取价会自动走其它已启用的源。接口到位后到这里补上地址与密钥即可。</div>';
         }
         actBox.innerHTML = hA;
@@ -4545,13 +5110,19 @@ svg{display:block;}
     renderLogs();
     renderSchemaOptions();
     renderSources();
-    /* 指数缓存有数据时刷新一遍（手动点刷新拿到的），无数据则保持默认提示 */
-    if (stateIndexSnapshot && stateIndexSnapshot.items && stateIndexSnapshot.items.length) {
-      renderMktBar(stateIndexSnapshot.items, stateIndexSnapshot.stamp);
-    }
     /* 通知所有插件 / 订阅者：UI 已重渲染完。插件可在此重画自己 */
     AQ.bus.emit(AQ.EVT.APP_REFRESH);
   }
+
+  /* ---- 对外公开的应用接口（插件与调试用）----
+     AQ.app.refresh()   → 请求全量重渲染
+     也可以在任意地方 AQ.bus.emit('app:refresh:request') 触发同一动作 */
+  AQ.app = {
+    refresh: function () { refreshAll(); },
+    state: function () { return AQ.store.state; },
+    stats: function () { return disciplineStats(); }
+  };
+  AQ.bus.on('app:refresh:request', function () { refreshAll(); });
 
   /* ============================================================
    * 6. 草稿缓存（表单本地缓存，断线/重登不丢）
@@ -4637,6 +5208,40 @@ svg{display:block;}
     }).then(function () { if (btn) { btn.disabled = false; } });
   }
 
+  /* 单只持仓：更新止损。规则：止损只能上移；下移需明示 override */
+  function onSaveStop(id, btn) {
+    var card = closestClass(btn, 'pcard');
+    if (!card) { toast('未找到该持仓卡片'); return; }
+    var input = card.querySelector('[data-input="stop"]');
+    var v = num(input ? input.value : 0);
+    if (v <= 0) { toast('请先输入有效止损价'); return; }
+    var curPos = findPosById(id);
+    if (!curPos) { toast('该持仓已不存在'); return; }
+    var oldStop = num(curPos['止损价']);
+    /* === 硬规则：止损只能上移 === */
+    var ruleCheck = AQ.Rules.checkStopUpdate(oldStop, v, curPos['股票代码']);
+    if (!ruleCheck.allowed) {
+      if (!AQ.Rules.confirmDialog(ruleCheck, '下移止损')) {
+        AQ.Rules.recordViolation('stop-moved-down', { code: curPos['股票代码'], oldStop: oldStop, newStop: v });
+        return;
+      }
+      var viol = AQ.Rules.recordViolation('stop-moved-down', { code: curPos['股票代码'], oldStop: oldStop, newStop: v });
+      AQ.Rules.ackViolation(viol.id);
+    }
+    var it = instrumentOf(curPos['股票代码'], curPos['股票名称']);
+    var vTick = roundToTick(v, it.tick);
+    var properties = {};
+    properties['止损价'] = { number: vTick };
+    properties['巡检日期'] = { date: todayStr() };
+    if (btn) { btn.disabled = true; }
+    updatePosition(id, properties).then(reloadData).then(function () {
+      state.lastPatrol = todayStr(); savePatrol();
+      refreshAll(); toast('止损价已更新为 ¥' + toFixed2(vTick));
+    })['catch'](function (err) {
+      console.error(err); toast('更新失败，请重试');
+    }).then(function () { if (btn) { btn.disabled = false; } });
+  }
+
   /* 单只持仓：取一次现价并写回台账 */
   function onQuoteOne(id, btn) {
     var target = null;
@@ -4684,6 +5289,101 @@ svg{display:block;}
         toast('现价写回失败，请重试');
       }).then(function () { if (btn) { btn.disabled = false; } });
     }, true); /* 用户主动取价，强制刷新，不走 60 秒缓存 */
+  }
+
+  /* ============================================================
+   * 一键执行：把规则建议同时落成【交易日志】+【持仓变更】
+   * ------------------------------------------------------------
+   * 以前这里有个断层：规则引擎只说“该清仓/该减仓”，
+   * 用户要手动去改持仓股数、再去写交易日志 —— 两处都容易漏。
+   *
+   *   kind='close'  → 清仓：日志记一笔清仓 + 持仓标为已清仓、股数归零
+   *   kind='reduce' → 减仓：日志记一笔减仓 + 持仓按当前档位扣减股数
+   * ============================================================ */
+  function onExecuteAdvice(id, kind, btn) {
+    var pos = findPosById(id);
+    if (!pos) { toast('该持仓已不存在'); return; }
+    var price = num(pos['现价']);
+    if (!(price > 0)) { toast('先取一次现价再执行（当前无有效报价）'); return; }
+    var code = normCode(pos['股票代码']);
+    var name = pos['股票名称'] || '';
+    var shares = Math.round(num(pos['持仓股数']));
+    var it = instrumentOf(code, name);
+    var lot = num(it.lot) > 0 ? num(it.lot) : 100;
+
+    /* ---- 算要卖掉的数量 ---- */
+    var sellN = 0, opType = '', reason = '';
+    if (kind === 'close') {
+      sellN = shares;
+      opType = '清仓';
+      var lvl = assessPosition(pos).level;
+      reason = (lvl === 'danger' && num(pos['止损价']) > 0 && price <= num(pos['止损价']))
+        ? '一键清仓：触及止损，按规则无条件离场'
+        : '一键清仓：移动止盈触发，落袋为安';
+    } else {
+      /* 减仓：当前价到哪一档就按哪一档的量减（与减仓计划同一套规则） */
+      var plan = reducePlan(pos);
+      if (!plan.valid || plan.n1 <= 0) { toast('当前持仓不足以按规则部分减仓（不足 2 手）'); return; }
+      var hit2 = plan.hit2;
+      sellN = hit2 ? plan.n2 : plan.n1;
+      if (!(sellN > 0)) { toast('当前档位可减数量为 0，请核对持仓股数'); return; }
+      if (sellN > shares) { sellN = shares; }
+      opType = sellN >= shares ? '清仓' : '减仓';
+      reason = '一键减仓：浮盈 ' + toFixed2(assessPosition(pos).pnlRate) + '%，按规则' +
+        (hit2 ? ('第二档（+' + toFixed2(TRADE_RULES.REDUCE2_PCT) + '%）') : ('第一档（+' + toFixed2(TRADE_RULES.REDUCE1_PCT) + '%）')) +
+        '减 ' + pctLabel(TRADE_RULES.REDUCE_FRAC) + ' 锁利';
+    }
+
+    if (!(sellN > 0)) { toast('可执行数量为 0'); return; }
+    var label = (name || code) + ' ' + sellN + ' ' + it.unit + ' @ ¥' + fmtByTick(price, it.tick);
+    if (!window.confirm('【' + opType + '】' + label + '\n\n' + reason + '\n\n将同时：\n  1. 写一条交易日志\n  2. 更新持仓台账\n\n确认执行？')) { return; }
+
+    if (btn) { btn.disabled = true; }
+    var today = todayStr();
+    /* ---- 1. 写日志 ---- */
+    var logProps = {};
+    logProps['交易日期'] = { date: today };
+    logProps['股票代码'] = { text: code };
+    logProps['操作类型'] = { select: opType };
+    logProps['成交价'] = { number: roundToTick(price, it.tick) };
+    logProps['成交股数'] = { number: sellN };
+    logProps['纪律执行'] = { select: '完全遵守' };
+    logProps['违规类型'] = { select: '无' };
+    logProps['复盘备注'] = { text: reason };
+
+    /* ---- 2. 改持仓 ---- */
+    var remain = shares - sellN;
+    var posProps = {};
+    if (remain <= 0) {
+      posProps['持仓状态'] = { select: '已清仓' };
+      posProps['持仓股数'] = { number: 0 };
+    } else {
+      posProps['持仓股数'] = { number: remain };
+    }
+    /* 减仓后同步上移止损（与规则同口径）：第一档→成本价；第二档→成本×1.10 */
+    var cost = num(pos['成本价']);
+    if (kind === 'reduce' && cost > 0) {
+      var planNow = reducePlan(pos);
+      var newStop = planNow.hit2 ? cost * TRADE_RULES.STOP_AFTER_REDUCE2_MULT : cost * TRADE_RULES.STOP_AFTER_REDUCE1_MULT;
+      var stopTick = roundToTick(newStop, it.tick);
+      if (stopTick > num(pos['止损价'])) { posProps['止损价'] = { number: stopTick }; }
+    }
+    posProps['巡检日期'] = { date: today };
+
+    addLog(logProps).then(function () {
+      return updatePosition(id, posProps);
+    }).then(function () {
+      return reloadData();
+    }).then(function () {
+      state.lastPatrol = today; savePatrol();
+      if (btn) { btn.disabled = false; }
+      refreshAll();
+      toast(opType + '已记录：' + label + (remain > 0 ? '，剩余 ' + remain + ' ' + it.unit : ''));
+    })['catch'](function (err) {
+      console.error(err);
+      if (btn) { btn.disabled = false; }
+      toast('执行失败：' + ((err && err.message) || '请重试'));
+    });
   }
 
   function onPatrolOne(id, btn) {
@@ -5003,6 +5703,21 @@ svg{display:block;}
           var r = state.riskResult;
           if (!r || !r.ok) { toast('请先完成一次有效计算'); return; }
           if (!inp.code) { toast('请填写股票代码，否则无法建立持仓记录'); return; }
+          /* === 规则检查：FOMO + 报复交易 === */
+          var quote = state.quote;
+          var changePct = quote ? num(quote.changePct) : 0;
+          var ruleCheck = AQ.Rules.checkEntry({ code: inp.code, name: inp.name, changePct: changePct });
+          if (!ruleCheck.allowed) {
+            if (!AQ.Rules.confirmDialog(ruleCheck, '建仓')) {
+              /* 记录为被拦截（未 override） */
+              for (var ri = 0; ri < ruleCheck.violations.length; ri++) { AQ.Rules.recordViolation(ruleCheck.violations[ri].rule, ruleCheck.violations[ri].ctx); }
+              return;
+            }
+            for (var ri2 = 0; ri2 < ruleCheck.violations.length; ri2++) {
+              var v = AQ.Rules.recordViolation(ruleCheck.violations[ri2].rule, ruleCheck.violations[ri2].ctx);
+              AQ.Rules.ackViolation(v.id);
+            }
+          }
           var properties = {};
           properties['股票代码'] = { text: inp.code };
           /* 名称未知时留空：不要把代码重复写进名称列 */
@@ -5097,6 +5812,7 @@ svg{display:block;}
         var id = el.getAttribute('data-id');
         if (act === 'quote') { onQuoteOne(id, el); }
         else if (act === 'save-price') { onSavePrice(id, el); }
+        else if (act === 'save-stop') { onSaveStop(id, el); }
         else if (act === 'patrol') { onPatrolOne(id, el); }
         else if (act === 'del-pos') { onDeletePosition(id, el); }
         else if (act === 'fetch-corp') { onFetchCorpForPos(id, el); }
@@ -5111,8 +5827,26 @@ svg{display:block;}
     var patrolAll = $('#btnPatrolAll');
     if (patrolAll) { patrolAll.addEventListener('click', function () { onPatrolAll(patrolAll); }); }
 
-    var mktBtn = $('#btnMktRefresh');
-    if (mktBtn) { mktBtn.addEventListener('click', function () { onMktRefresh(mktBtn); }); }
+    /* === 交易规则设置面板绑定 === */
+    function bindRuleToggle(id, key, asNumber, unit) {
+      var el = $('#' + id);
+      if (!el) return;
+      el.addEventListener('change', function () {
+        var v;
+        if (asNumber) { v = num(el.value); if (unit === 'h') v = v * 3600 * 1000; }
+        else { v = el.checked; }
+        AQ.Rules.config[key] = v;
+        AQ.Rules.saveConfig();
+        renderRulesStats();
+      });
+    }
+    bindRuleToggle('ruleStopUp', 'stopCanOnlyMoveUp');
+    bindRuleToggle('ruleFomo', 'fomoEnabled');
+    bindRuleToggle('ruleFomoPct', 'fomoThresholdPct', true);
+    bindRuleToggle('ruleRevenge', 'revengeEnabled');
+    bindRuleToggle('ruleRevengeH', 'revengeCooldownMs', true, 'h');
+    bindRuleToggle('ruleRevengeLoss', 'revengeLossThreshold', true);
+    bindRuleToggle('ruleRevengeLossV', 'revengeLossThreshold', true);
 
     var pf = $('#posFilter');
     if (pf) { pf.addEventListener('change', function () { state.posFilter = pf.value; refreshAll(); }); }
@@ -5127,13 +5861,14 @@ svg{display:block;}
         var act = el ? el.getAttribute('data-today-act') : '';
         var goto = (el ? el.getAttribute('data-today-goto') : gotoOnly.getAttribute('data-today-goto')) || '';
         var posId = el ? (el.getAttribute('data-today-pos') || '') : '';
-        if (act === '标记已处理' || act === '标记已巡检') {
-          if (posId) { onPatrolOne(posId, el); }
+        var exec = el ? (el.getAttribute('data-today-exec') || '') : '';
+        /* 一键执行：把规则建议同时落成「交易日志 + 持仓变更」两件事 */
+        if (exec === 'close' || exec === 'reduce') {
+          if (posId) { onExecuteAdvice(posId, exec, el); }
           return;
         }
-        if (act === '去减仓') {
-          state.rulePosId = posId; state.advice = null;
-          switchTab('rule'); refreshAll();
+        if (act === '标记已巡检') {
+          if (posId) { onPatrolOne(posId, el); }
           return;
         }
         if (goto) { switchTab(goto); }
@@ -5191,6 +5926,15 @@ svg{display:block;}
         var pnlRaw = lf.querySelector('[name="logPnl"]').value;
         if (pnlRaw !== '') { properties['盈亏金额'] = { number: num(pnlRaw) }; }
         properties['复盘备注'] = { text: lf.querySelector('[name="logNote"]').value.trim() };
+        /* === 亏损记录 → 报复交易冷却起点 === */
+        if (pnlRaw !== '') {
+          var pnl = num(pnlRaw);
+          if (pnl < -AQ.Rules.config.revengeLossThreshold) {
+            var now = Date.now();
+            AQ.store.set({ lastLossAt: now });
+            AQ.Storage.write('aq_last_loss_at_v1', now);
+          }
+        }
         var submitBtn = lf.querySelector('[type="submit"]');
         if (submitBtn) { submitBtn.disabled = true; }
         addLog(properties).then(function (res) {
@@ -5283,15 +6027,15 @@ svg{display:block;}
 
   function trapIcon(name) {
     if (name === 'up') {
-      return '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#d93838" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l6-6 4 3 6-8"/><path d="M15 7h5v5"/></svg>';
+      return '<svg class="ico ico-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l6-6 4 3 6-8"/><path d="M15 7h5v5"/></svg>';
     }
     if (name === 'down') {
-      return '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#12996b" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l6 6 4-3 6 8"/><path d="M15 17h5v-5"/></svg>';
+      return '<svg class="ico ico-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l6 6 4-3 6 8"/><path d="M15 17h5v-5"/></svg>';
     }
     if (name === 'repeat') {
-      return '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#c8791a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a5 5 0 015-5h11"/><path d="M17 1l3 3-3 3"/><path d="M20 15a5 5 0 01-5 5H4"/><path d="M7 23l-3-3 3-3"/></svg>';
+      return '<svg class="ico ico-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a5 5 0 015-5h11"/><path d="M17 1l3 3-3 3"/><path d="M20 15a5 5 0 01-5 5H4"/><path d="M7 23l-3-3 3-3"/></svg>';
     }
-    return '<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="#d93838" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
+    return '<svg class="ico ico-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
   }
 
   function renderTraps() {
@@ -5319,6 +6063,8 @@ svg{display:block;}
     /* 启动事件 —— 插件可在此注册自己 */
     AQ.bus.emit(AQ.EVT.APP_INIT);
 
+    AQ.Rules.load();
+    AQ.store.set({ lastLossAt: AQ.Storage.read(AQ.LS.lastLossAt, 0) || 0 }, { silent: true });
     loadParams();
     loadPatrol();
     loadSources();
@@ -5480,6 +6226,84 @@ svg{display:block;}
     T.assert(AQ.registry.list(AQ.PT.SOURCE).indexOf(id) >= 0, 'registry.list 包含 id');
     AQ.registry.unregister(AQ.PT.SOURCE, id);
     T.assert(!AQ.registry.has(AQ.PT.SOURCE, id), 'registry.unregister 后 has 为 false');
+  });
+
+  AQ.Test.group('rules/stop', function (T) {
+    /* 止损只能上移 —— 上移允许，下移拦截 */
+    AQ.Rules.config.stopCanOnlyMoveUp = true;
+    var r1 = AQ.Rules.checkStopUpdate(10, 12, '600519.SH');
+    T.assert(r1.allowed === true, '止损上移（10→12）允许');
+    var r2 = AQ.Rules.checkStopUpdate(10, 8, '600519.SH');
+    T.assert(r2.allowed === false, '止损下移（10→8）拦截');
+    T.eq(r2.violations[0].rule, 'stop-moved-down', 'violation.rule 正确');
+    /* 关闭开关后不拦截 */
+    AQ.Rules.config.stopCanOnlyMoveUp = false;
+    var r3 = AQ.Rules.checkStopUpdate(10, 8, '600519.SH');
+    T.assert(r3.allowed === true, '止损下移（开关关闭）允许');
+    AQ.Rules.config.stopCanOnlyMoveUp = true;
+  });
+
+  AQ.Test.group('rules/fomo', function (T) {
+    AQ.Rules.config.fomoEnabled = true;
+    AQ.Rules.config.fomoThresholdPct = 5;
+    var r1 = AQ.Rules.checkFomoEntry(3, '600519', '茅台');
+    T.assert(r1.allowed === true, 'FOMO 3% < 5% 允许');
+    var r2 = AQ.Rules.checkFomoEntry(7.2, '600519', '茅台');
+    T.assert(r2.allowed === false, 'FOMO 7.2% > 5% 拦截');
+    var r3 = AQ.Rules.checkFomoEntry(-3, '600519', '茅台');
+    T.assert(r3.allowed === true, '下跌 3% 不算 FOMO 拦截');
+    /* 关闭开关 */
+    AQ.Rules.config.fomoEnabled = false;
+    var r4 = AQ.Rules.checkFomoEntry(50, '600519', '茅台');
+    T.assert(r4.allowed === true, 'FOMO 开关关闭 不拦截');
+    AQ.Rules.config.fomoEnabled = true;
+  });
+
+  AQ.Test.group('rules/revenge', function (T) {
+    AQ.Rules.config.revengeEnabled = true;
+    AQ.Rules.config.revengeCooldownMs = 24 * 3600 * 1000;
+    /* 未设 lastLossAt：直接允许 */
+    AQ.store.set({ lastLossAt: 0 }, { silent: true });
+    var r1 = AQ.Rules.checkRevengeCooldown();
+    T.assert(r1.allowed === true, '无亏损记录 允许');
+    /* 1 小时前亏损：还在冷却中 */
+    AQ.store.set({ lastLossAt: Date.now() - 3600000 }, { silent: true });
+    var r2 = AQ.Rules.checkRevengeCooldown();
+    T.assert(r2.allowed === false, '1 小时前亏损 仍在冷却（24h）');
+    T.assert(r2.violations[0].ctx.remainingMs > 0, '剩余时间 > 0');
+    /* 25 小时前亏损：冷却完成 */
+    AQ.store.set({ lastLossAt: Date.now() - 25 * 3600000 }, { silent: true });
+    var r3 = AQ.Rules.checkRevengeCooldown();
+    T.assert(r3.allowed === true, '25 小时前亏损 冷却已过');
+    AQ.Rules.config.revengeEnabled = false;
+    AQ.store.set({ lastLossAt: Date.now() - 3600000 }, { silent: true });
+    var r4 = AQ.Rules.checkRevengeCooldown();
+    T.assert(r4.allowed === true, '报复冷却 开关关闭 不拦截');
+    AQ.Rules.config.revengeEnabled = true;
+  });
+
+  AQ.Test.group('rules/checkEntry', function (T) {
+    AQ.Rules.config.fomoEnabled = true;
+    AQ.Rules.config.fomoThresholdPct = 5;
+    AQ.Rules.config.revengeEnabled = true;
+    AQ.Rules.config.revengeCooldownMs = 24 * 3600 * 1000;
+    AQ.store.set({ lastLossAt: 0 }, { silent: true });
+    var r1 = AQ.Rules.checkEntry({ code: '600519', changePct: 2 });
+    T.assert(r1.allowed === true, 'checkEntry: 无违规 允许');
+    AQ.store.set({ lastLossAt: Date.now() - 3600000 }, { silent: true });
+    var r2 = AQ.Rules.checkEntry({ code: '600519', changePct: 7 });
+    T.eq(r2.violations.length, 2, 'checkEntry: FOMO + 报复 同时拦截');
+    T.assert(r2.allowed === false, 'checkEntry: 多违规 → 不允许');
+  });
+
+  AQ.Test.group('rules/record', function (T) {
+    var beforeCount = AQ.Rules.getViolations().length;
+    var v = AQ.Rules.recordViolation('fomo-entry', { code: 'TEST', changePct: 8 });
+    T.assert(!!v.id, 'recordViolation 返回 id');
+    T.assert(AQ.Rules.getViolations().length === beforeCount + 1, '违规计数 +1');
+    AQ.Rules.ackViolation(v.id);
+    var stored = AQ.Rules.getViolations().filter(function (x) { return x.id === v.id; })[0];
+    T.assert(stored.overridden === true, 'ackViolation 后 overridden=true');
   });
 
   /* URL 上加 ?test=1 时自动跑一遍 */
