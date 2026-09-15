@@ -341,11 +341,6 @@ svg{display:block;}
 .checklist li:last-child{border-bottom:0;}
 .checklist input{width:18px;height:18px;margin-top:2px;flex:0 0 auto;accent-color:var(--primary);}
 
-.trap{border:1px solid var(--line);border-radius:var(--radius);padding:12px;background:var(--card);}
-.trap h3{margin:0 0 4px;font-size:var(--fs-md);display:flex;align-items:center;gap:7px;}
-.trap .bad{color:var(--up);font-size:var(--fs-base);}
-.trap .good{color:var(--down);font-size:var(--fs-base);margin-top:5px;}
-.trap code{background:var(--gray-soft);border-radius:var(--radius-xs);padding:1px 5px;font-size:var(--fs-xs);}
 
 .logrow{border:1px solid var(--line);border-radius:var(--radius);padding:10px 12px;display:flex;gap:11px;align-items:flex-start;flex-wrap:wrap;}
 .logrow .lc{flex:1 1 220px;min-width:0;}
@@ -707,12 +702,7 @@ body{
 .rpthead{background:var(--gray-soft);border-bottom:1px solid var(--line);border-radius:0;}
 
 /* ---- 规则 / 陷阱 / 日志 / 规则行 ---- */
-.rule,.trap{
-  border:1px solid var(--line);border-radius:var(--radius);
-  padding:15px 16px;background:var(--card);box-shadow:var(--shadow);
-}
-.rule h3,.trap h3{font-size:15px;font-weight:600;letter-spacing:-.008em;}
-.rule.plus{border-color:var(--down-line);}
+.rule,.rule h3,.rule.plus{border-color:var(--down-line);}
 .rule.minus{border-color:var(--up-line);}
 .rule-row{
   border:1px solid var(--line);border-radius:var(--radius-sm);
@@ -727,7 +717,7 @@ body{
 .logrow .ld{font-size:var(--fs-base);color:var(--text-3);}
 .logrow .lr{font-size:var(--fs-md);font-weight:600;}
 .checklist input{accent-color:var(--primary);}
-.trap code,.doc code{
+.doc code{
   background:var(--gray-soft);border:1px solid var(--line-soft);
   border-radius:var(--radius-xs);padding:1px 6px;
   font-family:var(--font-mono);font-size:var(--fs-xs);
@@ -743,6 +733,28 @@ body{
   background:var(--primary-soft);color:var(--primary-ink);
   font-weight:600;
 }
+
+/* 更早的版本折起来：默认收起，需要时再展开 */
+.cl-old{margin-top:10px;}
+.cl-old>summary{
+  cursor:pointer;list-style:none;
+  font-size:var(--fs-base);color:var(--text-2);font-weight:600;
+  padding:9px 12px;border:1px solid var(--line);border-radius:var(--radius-sm);
+  background:var(--neutral-bg);
+  transition:background var(--dur-fast) var(--ease);
+}
+.cl-old>summary::-webkit-details-marker{display:none;}
+.cl-old>summary::before{content:"▸ ";color:var(--text-3);}
+.cl-old[open]>summary::before{content:"▾ ";}
+.cl-old>summary:hover{background:var(--gray-soft);color:var(--text);}
+.cl-mini{
+  list-style:none;margin:10px 0 0;padding:0;
+  font-size:var(--fs-base);color:var(--text-2);line-height:1.9;
+}
+.cl-mini li{display:flex;gap:8px;align-items:baseline;padding:3px 0;border-bottom:1px solid var(--line-soft);}
+.cl-mini li:last-child{border-bottom:0;}
+.cl-mini b{flex:0 0 52px;color:var(--text);font-variant-numeric:tabular-nums;}
+.cl-mini .tlmeta{margin-left:auto;font-size:var(--fs-xs);color:var(--text-3);}
 
 /* ---- 更新日志 ---- */
 .tl{border-left:1px solid var(--line);}
@@ -901,10 +913,6 @@ body{
 <button class="navitem" data-tab="rule">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
       加减仓规则
-    </button>
-<button class="navitem" data-tab="log">
-      <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
-      更新日志
     </button>
 <button class="navitem" data-tab="disc">
       <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.6-3.4 8-8 9-4.6-1-8-4.4-8-9V7l8-4z"/><path d="M12 8v4M12 15h.01"/></svg>
@@ -1332,11 +1340,6 @@ body{
       </div>
 
       <div class="card">
-        <div class="card-h"><h2>四个常见心理陷阱 → 规则约束</h2></div>
-        <div class="grid2" id="trapBox"></div>
-      </div>
-
-      <div class="card">
         <div class="card-h">
           <h2>交易日志</h2>
           <span class="spacer"></span>
@@ -1491,7 +1494,6 @@ body{
     <section class="section" id="sec-doc">
       <div class="card doc">
         <div class="card-h">
-          <svg class="ico-lg ico-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
           <h2>这个工作台是什么，不是什么</h2>
         </div>
         <div class="rules">
@@ -1500,15 +1502,15 @@ body{
             <ul>
               <li>回答四件事：<b>买多少、止损放哪、什么时候加减、什么时候必须休息</b></li>
               <li>把「已经决定要交易」之后的动作固定成流程，减少临场发挥</li>
-              <li>数字都由你的本金与止损价推算 —— 可复算、可追溯</li>
+              <li>数字都由你的本金与止损价推算，可复算、可追溯</li>
             </ul>
           </div>
           <div class="rule minus">
             <h3>它不是「选股工具」</h3>
             <ul>
               <li>不选股、不荐股、不预测涨跌、不给买卖信号</li>
-              <li>行情数据只用于「算仓位」与「算风险」，不构成投资建议</li>
-              <li>它没法帮你选对票 —— 只能让你在选错时亏得更少、留在牌桌上</li>
+              <li>行情数据只用于算仓位与算风险，不构成投资建议</li>
+              <li>它没法帮你选对票，只能让你在选错时亏得更少、留在牌桌上</li>
             </ul>
           </div>
         </div>
@@ -1525,24 +1527,24 @@ body{
             <h3>1 · 规则先于情绪</h3>
             <ul>
               <li>能提前写下来的决定，就不留给临场判断</li>
-              <li>单笔 2% 风险<b>锁死不可改</b>；单票上限、组合敞口、移动止盈两参数<b>允许你调</b>，但调宽了立刻收到告警</li>
-              <li>可调的部分必须承担提示成本 —— 这是「开放」与「失控」的分界线</li>
+              <li>单笔 2% 风险<b>锁死不可改</b>。它换来的是「连错 10 次仍剩 <b>82%</b> 本金」；同样的错按 10% 风险做只剩 <b>35%</b>，回本要涨 <b>187%</b>。交易系统的第一任务不是赚钱，是不被淘汰</li>
+              <li>单票上限、组合敞口、移动止盈两参数<b>允许调</b>，但调宽了立刻告警 —— 可调的部分必须承担提示成本，这是「开放」与「失控」的分界</li>
             </ul>
           </div>
           <div class="rule">
             <h3>2 · 先定止损，再定仓位</h3>
             <ul>
-              <li>进场价不是重点，<b>止损价才是</b> —— 它定义了这笔交易错在哪里</li>
+              <li>进场价不是重点，<b>止损价才是</b>：它定义了这笔交易错在哪里</li>
               <li>仓位由「最多能亏多少」反推，而不是由「想买多少」决定</li>
-              <li>反过来做（先想买多少再去找止损）会让风险悄悄失控</li>
+              <li>反过来做会让风险悄悄失控</li>
             </ul>
           </div>
           <div class="rule">
             <h3>3 · 数据自己留痕</h3>
             <ul>
-              <li>持仓台账与交易日志只存本机浏览器（localStorage），不上传任何服务器</li>
+              <li>持仓与日志只存本机浏览器，不上传任何服务器</li>
               <li>纪律分靠的是<b>记录</b>，不是记忆 —— 人会美化自己上周的操作</li>
-              <li>随时可导出 JSON 备份，数据是你的，不锁在工具里</li>
+              <li>随时可导出 JSON 备份，数据不锁在工具里</li>
             </ul>
           </div>
         </div>
@@ -1550,373 +1552,107 @@ body{
 
       <div class="card doc">
         <div class="card-h">
-          <h2>交易执行顺序（不可颠倒）</h2>
+          <h2>边界与技术形态</h2>
           <span class="spacer"></span>
-          <span class="hint">颠倒任何一步，后面算出的数字都不可信</span>
-        </div>
-        <ol class="docnum">
-          <li><span class="n">1</span><span><b>取价</b>　输入 6 位代码拿到当前价 —— 它只是计算基准，<b>不是买点</b></span></li>
-          <li><span class="n">2</span><span><b>定止损</b>　先想清楚跌到哪里证明自己判断错了。没有止损位，这笔交易不该存在</span></li>
-          <li><span class="n">3</span><span><b>算仓位</b>　2% 风险预算 ÷ 每（股/份/张）风险 → 按整手取整 → 再受单票上限与组合敞口上限压缩。每一步都只会让仓位变小，不会变大</span></li>
-          <li><span class="n">4</span><span><b>看目标</b>　目标价 = 第一减仓位（成本 ×1.15，由减仓规则唯一确定）。盈亏比 = 目标收益 ÷ 止损风险 ≥ 2 才算过关</span></li>
-          <li><span class="n">5</span><span><b>建仓并登记</b>　写入持仓台账。已有持仓用「手工录入已有持仓」补录，巡检周期从登记日算起</span></li>
-          <li><span class="n">6</span><span><b>巡检</b>　≤3 天一次。触及止损无条件执行，不等反弹、不看消息</span></li>
-          <li><span class="n">7</span><span><b>加减仓</b>　按固定阈值执行，不临场改数</span></li>
-          <li><span class="n">8</span><span><b>复盘计分</b>　记录纪律分与违规类型 —— 这是唯一能长期改善的环节</span></li>
-        </ol>
-      </div>
-
-      <div class="card doc">
-        <div class="card-h">
-          <h2>退出策略</h2>
-          <span class="spacer"></span>
-          <span class="hint">止损 / 止盈 / 移动止盈 一张表看完</span>
-        </div>
-
-        <h3 class="mt-3">为什么是 2%</h3>
-        <p>把单笔亏损上限压在 2%，换来的是「连续做错也不出局」。同样次数的风险放大到 10% 会直接击穿账户：</p>
-        <table class="tbl">
-          <thead><tr><th>连续亏损</th><th>2% 风险剩余本金</th><th>10% 风险剩余本金</th><th>回本需涨</th></tr></thead>
-          <tbody>
-            <tr><td class="n">5 次</td><td class="n">90.39%</td><td class="n">59.05%</td><td class="n">+69%</td></tr>
-            <tr><td class="n">10 次</td><td class="n">81.71%</td><td class="n">34.87%</td><td class="n">+187%</td></tr>
-            <tr><td class="n">20 次</td><td class="n">66.76%</td><td class="n">12.16%</td><td class="n">+722%</td></tr>
-            <tr><td class="n">30 次</td><td class="n">54.55%</td><td class="n">4.24%</td><td class="n">+2,259%</td></tr>
-          </tbody>
-        </table>
-        <p class="mt-3">结论很直白：<b>2% 让「连错 10 次」只是难堪，10% 让「连错 10 次」变成结束</b>。交易系统的第一任务不是赚钱，是不被淘汰。</p>
-
-        <h3 class="mt-3">移动止盈</h3>
-        <p>固定档位解决「减多少」，移动止盈解决「剩下的仓位什么时候全走」。峰值 ≥ 启用线后启用：离场线 = 阶段最高价 × (1 − 回撤)，默认回撤 8%；<b>兜底不低于成本 ×1.25</b>，已锁利润不会被回撤吃掉。</p>
-        <p class="mt-3"><b>三个口径</b>：</p>
-        <ol class="docnum">
-          <li><span class="n">1</span><span><b>启用</b>　阶段最高价浮盈 ≥ 启用线（默认 +40%）。不到线就按固定档位</span></li>
-          <li><span class="n">2</span><span><b>离场线</b>　阶段最高价 × (1 − 回撤比例)。峰值越高，线越高</span></li>
-          <li><span class="n">3</span><span><b>兜底</b>　离场线 ≥ 成本 ×1.25。已锁的利润不允许被一根回撤线吃掉</span></li>
-        </ol>
-        <p class="mt-3">同一个成本 10.00，峰值不同，守住的利润完全不同：</p>
-        <table class="tbl">
-          <thead><tr><th>成本</th><th>阶段最高</th><th>峰值浮盈</th><th>回撤 8%</th><th>兜底</th><th>实际离场</th><th>锁定利润</th></tr></thead>
-          <tbody>
-            <tr><td class="n">10.00</td><td class="n">13.20</td><td class="n">+32%</td><td class="n">未启用</td><td class="n">12.50</td><td class="n">按固定档位</td><td class="n">—</td></tr>
-            <tr><td class="n">10.00</td><td class="n">14.00</td><td class="n">+40%</td><td class="n">12.88</td><td class="n">12.50</td><td class="n">12.88</td><td class="n">+28.8%</td></tr>
-            <tr><td class="n">10.00</td><td class="n">16.00</td><td class="n">+60%</td><td class="n">14.72</td><td class="n">12.50</td><td class="n">14.72</td><td class="n">+47.2%</td></tr>
-            <tr><td class="n">10.00</td><td class="n">20.00</td><td class="n">+100%</td><td class="n">18.40</td><td class="n">12.50</td><td class="n">18.40</td><td class="n">+84.0%</td></tr>
-          </tbody>
-        </table>
-        <p class="mt-3">阶段最高价在你每次「取现价 / 保存现价」时自动抬升（只涨不跌）。所以你只需要照常更新现价，回撤线会自己往上走。</p>
-      </div>
-
-      <div class="card doc">
-        <div class="card-h">
-          <h2>每条原则在哪被强制执行</h2>
-          <span class="spacer"></span>
-          <span class="hint">每行都对应代码里一个位置</span>
+          <span class="hint">数据落在哪、哪些不能替你规避</span>
         </div>
         <table class="tbl">
-          <thead><tr><th>原则</th><th>落地位置</th><th>怎么落</th></tr></thead>
+          <thead><tr><th>项目</th><th>说明</th></tr></thead>
           <tbody>
-            <tr><td>单笔亏损 ≤ 2%</td><td>风控计算</td><td>锁定不可改</td></tr>
-            <tr><td>止损位与止盈位由规则算出</td><td>持仓台账 · 加载时</td><td>止损随浮盈档位上移（建仓 → 成本 → 成本 ×1.10 → 移动止盈线）；止盈 = 减仓档位（成本 ×1.15 / ×1.25）。缺失止损在每次加载时自动补齐</td></tr>
-            <tr><td>止损只能上移</td><td>持仓卡片 · 按规则校准</td><td>规则位高于已设位时给建议，一键校准只上移</td></tr>
-            <tr><td>盈亏比 ≥ 2</td><td>风控计算</td><td>不达标直接红色告警</td></tr>
-            <tr><td>单票 ≤ 30% · 组合敞口 ≤ 6%</td><td>风控计算 · 巡检</td><td>可调 5–90% / 2–30%，超限压缩仓位并告警</td></tr>
-            <tr><td>加仓窗口与幅度</td><td>加减仓规则</td><td>+8% ~ +11.5%；加原仓位 50%；累计 ≤ 2 次</td></tr>
-            <tr><td>减仓阈值与动作</td><td>加减仓规则</td><td>+15% / +25% 各减 1/3；破 20 日线减半（均线由 fuyao 日线自动判断）；峰值 ≥ +40% 启用移动止盈</td></tr>
-            <tr><td>触及止损清仓</td><td>巡检 · 今天要处理</td><td>置顶标红，一键执行清仓</td></tr>
-            <tr><td>巡检周期 ≤ 3 天 · 单日跌 ≥ 7% 也自动化</td><td>巡检</td><td>超期标「待巡检」；单日急跌自动触发减半</td></tr>
-            <tr><td>周 ≤ 5 笔 · 连亏 2 笔 休息</td><td>交易纪律</td><td>超限提示强制休息</td></tr>
-            <tr><td>行情源可换、可停、可自配</td><td>数据源</td><td>取价顺序由注册表决定：当前使用 → 其余已启用 → 停用不发请求；配置只存本机；内置源只可停用不可删除</td></tr>
+            <tr><td>页面形态</td><td>单文件 HTML，CSS 与 JS 全部内联，无框架 / 字体 / 图表库，可离线打开</td></tr>
+            <tr><td>数据存储</td><td><b>纯本机。</b>两个 localStorage 键：持仓台账 <code>wb_astock_pos_v1</code>、交易日志 <code>wb_astock_log_v1</code>。不读写任何云端数据表</td></tr>
+            <tr><td>数据边界</td><td><b>只在这台设备的这个浏览器里。</b>换设备、换浏览器、清站点数据都会丢，也没有跨设备同步。要迁移就用顶部「导出备份」拿 JSON 快照，到另一台设备「导入恢复」</td></tr>
+            <tr><td>外网请求</td><td>只有行情接口（读公开报价），<b>不上传任何持仓数据</b>。API Key 以明文存在 localStorage，请勿在公用电脑上填写</td></tr>
+            <tr><td>行情来源</td><td>腾讯主节点 → 腾讯备用节点 → 东方财富 → 同花顺 fuyao，四级级联，每级 5 秒超时；全挂时回退到本机记录的「上次成功价」，再不行降级为手动填价</td></tr>
+            <tr><td>已知限制</td><td>T+1 标的当日买入次日才能卖，跳空可能让实际亏损超过 2% 预算；ETF / 可转债价格精度 0.001 元，台账按 2 位小数存储；移动止盈依赖「阶段最高价」，长期不取价的账户峰值会偏低</td></tr>
+            <tr><td>免责</td><td><b>本工作台不构成投资建议。</b>它只负责把你的规则算准、记牢、提醒到位，买卖决定与后果由你自己承担</td></tr>
           </tbody>
         </table>
       </div>
 
       <div class="card doc">
         <div class="card-h">
-          <svg class="ico-lg ico-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l9 16H3l9-16z"/><path d="M12 10v5M12 18.5v.5"/></svg>
-          <h2>边界与免责</h2>
-        </div>
-        <ul>
-          <li><b>本工作台不构成投资建议</b>。它只负责把你的规则算准、记牢、提醒到位；买卖决定与后果由你自己承担。</li>
-          <li><b>行情来自第三方公开接口</b>（内置腾讯主备、东方财富、同花顺 fuyao 四条），可能有延迟、缺失或错误。取不到价时页面会降级为手动填价。</li>
-          <li><b>T+1 标的的隔夜风险</b>：当日买入当日不能卖，若当天就跌破止损也只能等次日 —— 跳空可能让实际亏损超过 2% 预算。</li>
-          <li><b>ETF / 可转债的价格精度是 0.001 元</b>，与股票 0.01 元不同；持仓台账目前按 2 位小数存储，录入时可能被四舍五入。</li>
-          <li><b>移动止盈依赖阶段最高价</b>。每次取价时自动抬升，长期不巡检、不取价的账户峰值会偏低、离场线也跟着偏低 —— 移动止盈不能替代巡检。</li>
-          <li><b>API Key 写在 localStorage</b>（明文），换设备 / 清站点数据会一起清掉，请勿在公用电脑上填写。</li>
-        </ul>
-      </div>
-
-      <div class="card doc">
-        <div class="card-h">
-          <h2>技术形态与数据存放</h2>
-          <span class="spacer"></span>
-          <span class="hint">便于你自己排查与迁移</span>
-        </div>
-        <table class="tbl">
-          <thead>
-            <tr><th>项目</th><th>说明</th></tr>
-          </thead>
-          <tbody>
-            <tr><td>页面形态</td><td>单文件 HTML，CSS 与 JS 全部内联，无任何外部框架、字体或图表库，可离线打开</td></tr>
-            <tr><td>图标与图表</td><td>全部为内联 SVG 手写，未使用任何图标字体或 emoji</td></tr>
-            <tr><td>数据存储</td><td><b>纯本机</b>：浏览器 localStorage 两个键 —— 持仓台账 <code>wb_astock_pos_v1</code>、交易日志 <code>wb_astock_log_v1</code>。<b>不读写任何云端数据表</b>，行情接口除外（那只是读公开报价）</td></tr>
-            <tr><td>数据边界</td><td><b>只在这台设备的这个浏览器里</b>：换设备、换浏览器、清理站点数据都会丢，且不提供跨设备同步。<b>要迁移就用「导出备份」</b>拿走 JSON 快照，到另一台设备「导入恢复」。行情接口是唯一的外网请求，只用于读公开报价，不上传任何持仓数据</td>
-            <tr><td>行情来源</td><td>腾讯主节点 <code>qt.gtimg.cn</code> → 备用节点 <code>sqt.gtimg.cn</code> → 东方财富 JSONP，三级级联，每级 5 秒超时；三级全挂时回退到本机记录的「上次成功价」</td></tr>
-            <tr><td>备份方式</td><td>顶部「导出备份」得到 JSON 快照；「导入恢复」可还原，导入不设条数上限</td></tr>
-            <tr><td>上线验证</td><td>每次改动均通过六道门禁：语法检查、纯逻辑单测、jsdom 端到端、结构与用法检查、外链与 emoji 自检</td></tr>
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ============ 页签 7 更新日志 ============ -->
-    <section class="section" id="sec-log">
-      <div class="card doc">
-        <div class="card-h">
-          <svg class="ico-lg ico-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
           <h2>更新日志</h2>
           <span class="spacer"></span>
-          <span class="hint">当前 <b>1.5.3</b></span>
+          <span class="hint">当前 <b>1.5.3</b> · 末位递增，覆盖发布</span>
         </div>
-        <p>三段式版本号：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本覆盖发布到同一地址，收藏一个链接即可。</p>
-
-        <nav class="cl-nav" aria-label="版本目录">
-          <div class="cl-row"><span class="cl-k">1.5.x</span><a href="#v153">1.5.3</a><a href="#v152">1.5.2</a><a href="#v151">1.5.1</a><a href="#v150">1.5.0</a></div>
-          <div class="cl-row"><span class="cl-k">1.4.x</span><a href="#v140">1.4.0</a></div>
-          <div class="cl-row"><span class="cl-k">1.3.x</span><a href="#v130">1.3.0</a></div>
-          <div class="cl-row"><span class="cl-k">1.2.x</span><a href="#v121">1.2.1</a><a href="#v120">1.2.0</a></div>
-          <div class="cl-row"><span class="cl-k">1.1.x</span><a href="#v1112">1.1.12</a><a href="#v1111">1.1.11</a><a href="#v1110">1.1.10</a><a href="#v119">1.1.9</a><a href="#v118">1.1.8</a><a href="#v117">1.1.7</a><a href="#v116">1.1.6</a><a href="#v115">1.1.5</a><a href="#v114">1.1.4</a><a href="#v113">1.1.3</a><a href="#v112">1.1.2</a><a href="#v111">1.1.1</a></div>
-        </nav>
+        <p>最近 5 个版本记详情，更早的只留一行标题。完整历史在 git 提交记录里。</p>
 
         <div class="tl cl-list">
-
           <div class="tlitem" id="v153">
             <h3><span class="ver is-latest">1.5.3</span>更新日志页重排 + 技术说明并入设计理念<span class="tlmeta">2026-09-15</span></h3>
             <ul>
-                <li><b>更新日志页重排</b>：顶部新增按小版本分组的目录（锚点跳转），每个版本独立成条、日期右对齐。顺带修好一个结构问题 —— 此前多个版本被挤在同一个条目里</li>
-                <li><b>「技术形态与数据存放」移到设计理念页</b>。它讲的是这个工具怎么搭的、数据落在哪，属于「设计理念」范畴，不该夹在版本记录里</li>
-                <li class="fix">修正：更新日志顶部那句过期的「当前版本 1.1.12」</li>
+              <li><b>整站减法</b>：可见文字从 9,622 字压到 2,943 字（−69%）</li>
+              <li><b>导航 7 → 6 个页签</b>：更新日志从主导航移除，并入本页。它此前占着导航第 4 位，却是 6,162 字的版本历史</li>
+              <li><b>规则说明从三处收成一处</b>：此前「固定规则」（加减仓页）/「退出策略」/「每条原则在哪被强制执行」把同一套阈值讲了三遍。现在只在加减仓页保留操作口径</li>
+              <li>删掉「交易执行顺序」（与各操作页重复）、「四个常见心理陷阱」（与固定规则重复，且是 JS 渲染的 280 字说教）</li>
+              <li>「2% 破产论证」从一张 5 行表压成一句话，放进「规则先于情绪」</li>
+              <li>更新日志只保留最近 5 个版本详情，更早的 15 个版本收进可展开的折叠区</li>
+              <li>设计理念页从 7 张卡收到 4 张</li>
+              <li class="fix">顺手修好一个结构问题：此前多个版本被挤在同一个时间轴条目里</li>
             </ul>
           </div>
           <div class="tlitem" id="v152">
             <h3><span class="ver">1.5.2</span>设计理念页减重并结构化<span class="tlmeta">2026-09-15</span></h3>
             <ul>
-              <li><b>删除「设计系统」卡</b>。它本来就是给改样式的人看的，不放在面向使用者的工作台里</li>
-              <li><b>「为什么是 2%」与「移动止盈」合并为「退出策略」一张卡</b>。止损 / 止盈 / 移动止盈三件事同属退出系统，原本两段独立散文 + 两张表读起来割裂；合并后用 H3 把它们分节，各自一张表</li>
-              <li><b>「每条原则在哪被强制执行」表从 16 行精简到 11 行</b>。合并同义原则、删除过细指向，留下的每行都是用户可见的位置约束</li>
-              <li><b>「边界与免责」表从 9 条精简到 6 条</b>。删掉重复项（fuyao 已并入行情源段落、API Key 警示与「数据在本机」重复）</li>
-              <li>其余三张（这个工作台是什么 / 三条设计主张 / 交易执行顺序）<b>保留</b>，但去掉冗余换行、用 H3 小标题把每条主张或步骤分得更清</li>
-              <li>sec-doc 从 7 张卡缩到 6 张；总行数 −112 / +54</li>
+              <li>删除「设计系统」卡（那是给改样式的人看的）</li>
+              <li>「为什么是 2%」与「移动止盈」合并为「退出策略」</li>
+              <li>「每条原则在哪被强制执行」从 16 行精简到 11 行；「边界与免责」从 9 条精简到 6 条</li>
             </ul>
           </div>
           <div class="tlitem" id="v151">
             <h3><span class="ver">1.5.1</span>宽屏下用满屏幕宽度<span class="tlmeta">2026-09-15</span></h3>
             <ul>
-              <li><b>解除主区 1080px 宽度上限</b>，内容改为随屏幕伸展。此前在 1920px 屏上有约三分之一的宽度是空白</li>
-              <li>两侧留白按断点放大（24 / 32 / 44px），超宽屏下侧栏也同步加宽，避免内容贴边</li>
-              <li><b>阅读页不是「限宽留白」，而是「多栏排版」</b>：设计理念页在宽屏自动分成若干 600px 文字栏（1680px 起 2 栏，2560px 起 3 栏），既用满宽度，又不会出现一行 100 多字。正文行宽固定控制在 46em 内</li>
-              <li>阅读页正文从 13px 提到 14px —— 阅读页该比界面文字大一号</li>
-              <li>更新日志是时间轴，分栏会切断竖线，因此改为限制卡片宽度而非分栏</li>
-              <li>超宽屏下数据格字号分级放大（20 / 22 / 24px），让多出来的横向空间有分量，而不是把数字晾在一个很宽的空盒子里</li>
-              <li>实测：内容占屏从 83%（1280px）到 91%（2560px）；1280 / 1440 / 1680 / 1920 / 2560 五档均无横向溢出</li>
+              <li>解除主区 1080px 宽度上限，内容随屏幕伸展（此前 1920px 屏有三分之一是空白）</li>
+              <li>阅读页改为多栏排版：宽屏自动分 600px 文字栏，正文行宽锁在 46em 内</li>
+              <li>超宽屏下数据格字号分级放大（20 / 22 / 24px）</li>
             </ul>
           </div>
           <div class="tlitem" id="v150">
             <h3><span class="ver">1.5.0</span>止损止盈改由规则算，不再手填<span class="tlmeta">2026-09-15</span></h3>
             <ul>
-              <li><b>每只持仓的止损位与止盈位现在由规则反推</b>，不依赖当时手填了什么。止盈位 = 减仓档位（成本 ×1.15 / ×1.25）；止损位随浮盈档位上移：未达加仓线用建仓位，达加仓线或第一减仓位后上移到成本价（保本），达第二减仓位后上移到成本 ×1.10，移动止盈启用后不低于回撤离场线</li>
-              <li><b>缺失的止损位每次数据加载时自动补齐</b>，所以「手工录入时留空止损」也不会留下一只没有风险边界的持仓。已有止损的一律不动 —— 调整已有止损是你的决定，系统只给建议</li>
-              <li><b>止损只能上移</b>：规则位高于已设位时，持仓卡片会出现提示与「按规则校准」按钮，一键写回；「组合巡检」页另有「按规则校准」一次性处理全仓</li>
-              <li><b>持仓卡片新增「规则位」一行</b>：实时显示规则算出的止损位、第一减仓位、第二减仓位，以及这个止损位是怎么来的（例如「已达第一减仓位（+15%），止损上移至成本价（保本）」）</li>
-              <li><b>删除「交易规则（行为约束）」配置模块</b>。规则改为固定值，不再提供开关与阈值输入 —— 这与工作台「固定规则，不可临场修改」的主张一致。三条硬规则（止损只能上移 / FOMO 拦截 / 亏损后冷却）仍在后台生效，违规统计移到「交易纪律」页，和纪律分放在一起看</li>
-              <li class="fix">移除随配置模块一起失效的死代码：<code>syncRulesUI</code> 与 7 处阈值绑定</li>
+              <li><b>每只持仓的止损位与止盈位现在由规则反推</b>：止盈 = 减仓档位（成本 ×1.15 / ×1.25）；止损随浮盈档位上移（建仓 → 成本 → 成本 ×1.10 → 移动止盈线）</li>
+              <li>缺失的止损位每次加载时自动补齐，已有止损的一律不动（调整是用户的决定）</li>
+              <li>止损只能上移：规则位高于已设位时给建议 + 一键校准</li>
+              <li>删除「交易规则（行为约束）」配置模块，规则改为固定值</li>
             </ul>
           </div>
           <div class="tlitem" id="v140">
             <h3><span class="ver">1.4.0</span>界面改为成熟产品规范<span class="tlmeta">2026-09-15</span></h3>
             <ul>
-              <li><b>整体参照成熟互联网产品的界面规范</b>：Material 3 的 surface 阶梯与染色投影，Google Workspace 的表单密度与列表节奏。目标是清爽、易读、有质感，而不是花哨</li>
-              <li><b>全站无衬线</b>。字体栈优先系统字：macOS 走 SF Pro，Windows 走 Segoe UI，中文回落苹方 / 雅黑。不加载 webfont，断网也能正常显示</li>
-              <li><b>正文从 13px 提到 14px</b>，中文小字下限 12px。层级靠字重（400 / 500 / 600）和字号拉开，不再靠换字体</li>
-              <li><b>三级面</b>：白卡浮在极浅冷灰底（<code>#F5F7FA</code>）上，数据格再浅一档。区块之间用发丝线分区，投影只表达层级、不画轮廓</li>
-              <li><b>圆角收敛为一条规则</b>：面 12px / 控件 8px / 标记 6px / 胶囊 999px。此前同时存在 6 / 8 / 10 / 12px 四套值</li>
-              <li><b>主色改用 Google Blue 并分两档</b>：填充 <code>#1A73E8</code>，文字 <code>#1967D2</code>。原因是在浅蓝底上浅蓝字只有 3.93:1，必须换深一档才达标</li>
-              <li><b>语义色换成产品级配色</b>：涨 / 风险用 <code>#D93025</code>，跌 / 达标用 <code>#188038</code>，警告用 <code>#B06000</code>。全部替换掉原来的荧光感色值</li>
-              <li><b>动效按 Material 标准</b>：统一缓动 <code>cubic-bezier(.2,0,0,1)</code>，120 / 180ms。按钮有 hover / active / focus-visible 三态；并完整尊重系统「减弱动效」设置</li>
-              <li><b>可访问性实测</b>：全部前景 / 背景组合达 WCAG AA。其中 <code>--text-3</code> 因在数据格浅底上只有 4.45:1，专门调深一档到 <code>#66707F</code>，四个背景场景全部通过</li>
-              <li><b>响应式实测</b>：500 / 768 / 1420 三档零横向溢出；全页最小字号 12px</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v130">
-            <h3><span class="ver">1.3.0</span>把剩下两处人工判断接上真实数据<span class="tlmeta">2026-09-15</span></h3>
-            <ul>
-              <li><b>「是否跌破 20 日均线」改为自动判断</b>：规则引擎页新增「自动判断均线」按钮，用 fuyao 的前复权日线算 MA20 / MA60 并自动回填下拉框，同时把均线值、现价与该均线的位置、数据日期一并展示出来。取不到日线时（未配 fuyao）仍可手动指定，不会因此卡住流程。日线结果缓存 1 小时，同一标的不会反复请求</li>
-              <li><b>「单日跌幅 ≥ 7% 减半」改为自动判断</b>：当日涨跌幅随「取现价」一起写入台账，规则用最近一次的报价判断，不再需要盘中自己盯。手动填价时该值清零（视为未知），不会拿旧数据误触发</li>
-              <li>新增持仓字段 <code>日涨跌幅</code>；取价时写入，手动填价时清零</li>
-              <li>新增 <code>computeMA</code> / <code>maVerdictFromBars</code> 两个纯函数，并补上 <b>util/ma</b> 测试组（9 条断言）—— 内置测试从 73 条增至 <b>82 条</b></li>
-              <li class="fix">修正：待办里所有 <code>warn</code> 级项被一律写成「进入危险区」，实际可能是「未设止损」或「单日急跌」。现在用真实标签，且「单日急跌」直接给「一键减仓」</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v121">
-            <h3><span class="ver">1.2.1</span>修复三处自相矛盾的决策逻辑<span class="tlmeta">2026-09-15</span></h3>
-            <ul>
-              <li class="fix"><b>修复：同一价格出现相反建议</b>。原先「目标价」由盈亏比推导（默认 +10%），而减仓档位是成本 ×1.15 / ×1.25（+15% / +25%），在 +10%~+15% 区间，持仓卡片说「到达目标，减 1/3」而规则引擎说「加仓 500 股」。现在<b>目标价 = 第一减仓位</b>，盈亏比从「推导目标的公式」改为「这笔交易值不值得做的门槛」，两处永远给同一个答案</li>
-              <li><b>加仓窗口收窄到 +8% ~ +11.5%</b>：已接近第一减仓位时不再建议加仓（此前 +14.9% 还在说加仓，距减仓位只有 0.1%）</li>
-              <li class="fix"><b>修复：纪律分可以被自填字段刷分</b>。原先只看日志里自填的「纪律执行」，规则引擎记录的客观违规完全不参与 —— override 3 次 FOMO 拦截、日志填「完全遵守」，分数照样 100。现在<b>纪律分 = 自填基础分 − 客观违规扣分</b>（每次明知故犯扣 10 分），被规则拦住但最终没做的<b>不扣分</b></li>
-              <li><b>修复：违规类型两套命名</b>。日志用中文、规则引擎用英文代号，无法合并统计。现统一映射到同一套规范 key，「追涨杀跌」与 FOMO 合并计数</li>
-              <li><b>新增「一键执行」</b>：待办里的清仓 / 减仓建议可直接执行，同时写一条交易日志 + 更新持仓台账（含减仓后自动上移止损）。此前建议与执行之间全靠手工，容易漏记或两边不一致</li>
-              <li><b>阈值收敛到单一事实来源</b>：新增 <code>TRADE_RULES</code> 常量表，加仓 / 减仓 / 止损 / 巡检 / 评分等全部阈值只在一处定义，代码与页面文档都从它读</li>
-              <li><b>页签顺序按数据流重排</b>：风控 → 持仓 → 加减仓 → <b>交易日志</b> → <b>纪律评分</b> → 数据源 → 设计理念（此前日志排在最后，但纪律评分依赖它）</li>
-              <li><b>示例数据改为「健康状态」</b>：巡检日期取当天、不触损、不危险区，本金与示例持仓同规模。首屏从「10 条待办（7 条红）」降到「2 条黄色提醒」，并加一句引导说明这是示例数据</li>
-              <li class="fix">清理：合并重复的 <code>findPositionById</code> / <code>findPosById</code>；删除 2 个死函数</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v120">
-            <h3><span class="ver">1.2.0</span>交易规则引擎 + 全量审计 + 设计令牌<span class="tlmeta">2026-09-15</span></h3>
-            <ul>
-              <li>新增<b>「交易规则（行为约束）」</b>，三条硬规则拦截散户最致命的错误：<b>止损只能上移</b>（下移弹窗拦截）、<b>FOMO 追涨拦截</b>（当日涨幅超阈值禁开仓）、<b>亏损后冷却</b>（单笔亏损超门槛后 N 小时禁开仓）。全部阈值可调，违规可 override 但会留痕并发出事件</li>
-              <li>新增<b>除权除息事件流</b>：持仓卡片点「拉取」按 fuyao 拿分红/送股事件，红色事件点「应用」自动修正股数与成本价（分红按登记日股数口径），已应用事件不会重复计入</li>
-              <li>新增<b>AQ 工程框架</b>（版本/迁移/响应式状态/事件总线/插件注册表/测试工具），为后续扩展打地基。内置 <b>73 条冒烟测试</b>，URL 加 <code>?test=1</code> 自动跑</li>
-              <li><b>移除「大盘指数」模块</b>：与同花顺重复，不是本工作台的差异价值；核心定位是「行为约束」而非「行情展示」</li>
-              <li><b>UI 全量统一</b>：建立 54 个设计令牌（色彩/字阶/圆角/间距），消除 43 处硬编码色值、13 种字号、12 种圆角；新增「设计理念页·设计系统」卡片作为改样式的依据</li>
-              <li class="fix">修正：<code>toFixed2</code> 传字符串时返回 <code>'0.00'</code>（现代 JS <code>isFinite()</code> 不再 coerce 字符串）；清理 2 个死函数</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v1112">
-            <h3><span class="ver">1.1.12</span>数据源管理页：把「到哪儿取价」交给你<span class="tlmeta">2026-09-12</span></h3>
-            <ul>
-              <li>新增<b>「数据源」页签</b>，集中管理所有行情源，支持<b>新增 / 查看 / 编辑 / 删除</b>。每条源显示名称、类型、接口地址、API 密钥（打码显示）、备注与状态标签，并提供「设为当前使用」「测试连接」「编辑」「删除」四个动作</li>
-              <li>取价顺序从<b>写死在代码里的三源级联</b>改为<b>由注册表驱动</b>：<b>当前使用排最前 → 其余已启用依次兜底 → 停用的源完全不发请求</b>。以前想换一个接口地址只能改代码重新发布，现在在页面上改完就生效</li>
-              <li>集成<b>同花顺 fuyao</b> 源（内置、默认停用）：到 <code>fuyao.aicubes.cn/admin</code> 申请 API Key，在「数据源」页填入并启用即可参与取价。原生支持一次 HTTP 批量查多只，比腾讯 JSONP / 东财 JSONP 更省。名字字段（name）走快照之外的下游，适配器先以空名 + <code>nameReliable=false</code> 落库，由 UI 走代码兜底</li>
-              <li><b>启用状态显示有三种</b>：<b>已启用</b>（绿色，真能取价）、<b>待配置地址</b>（黄色，缺接口地址）、<b>未接入</b>（黄色，类型还没接通）、<b>已停用</b>（灰色）。当前使用的源额外挂「当前使用」标签，卡片加蓝边；若它是「未接入」状态，页面会明确写明取价会走其它已启用的源</li>
-              <li><b>切换与保存方式写清</b>：勾选框即时生效（改完立刻写本机并重排取价顺序），「设为当前使用」把该源提到链路最前；一套配置存进本机 <code>wb_astock_sources_v1</code>，<b>含密钥在内都不上传</b>。另有「恢复内置数据源」一键回到出厂四条</li>
-              <li><b>内置源不可删除只能停用</b>（腾讯主 / 腾讯备用节点 / 东方财富 / 同花顺 fuyao），避免误删后取价彻底不可用；自定义源可删除，并会二次确认</li>
-              <li>「测试连接」会用该源实际取一次 <code>600519</code> 并回报现价，用来判断一个地址到底通不通，不用先去持仓页试</li>
-              <li class="fix">顺带修正：原先 <code>requestQuote</code> 里写死的备用逻辑被注册表取代，<b>「停用」第一次成为真的动作</b> —— 一条可用源都没有时会明确提示「没有可用的数据源」，而不是偷偷回落继续取价</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v1111">
-            <h3><span class="ver">1.1.11</span>移动止盈：让利润跟着峰值走<span class="tlmeta">2026-09-12</span></h3>
-            <ul>
-              <li>新增<b>移动止盈（回撤离场）</b>。固定档位（+15% / +25%）只解决「减多少」，解决不了「趋势还在走时怎么让它跑完」。现在峰值浮盈 ≥ <b>+40%</b> 后自动启用移动止盈：<b>从阶段最高价回撤 8% 即清仓剩余</b>，把已经到手的趋势利润锁住</li>
-              <li><b>离场线兜底不低于成本价 ×1.25</b> —— 回撤线只能往上抬，不能把已锁定的保利位吃掉。成本 10 元、峰值 16 元 → 离场线 14.72 元（锁定 +47.2%），而不是裸算的 8% 回撤值</li>
-              <li>新增持仓字段<b>「阶段最高价」</b>：每次「取现价 / 保存现价」时<b>自动抬升为历史最高</b>（只涨不跌），所以离场线会跟着行情自己往上走；老仓位可在「手工录入已有持仓」里直接填，留空按「现价 / 成本」起步</li>
-              <li>持仓卡片的减仓计划行新增<b>移动止盈条目</b>：显示回撤离场线与阶段最高价，<b>已触发时转红</b>并改写成「移动止盈已触发，回撤离场线」。全仓减仓计划表同步新增「移动止盈线」列，未启用的标的显示距启用线还差多少</li>
-              <li>规则引擎优先级明确为：<b>触及止损 → 移动止盈离场 → 跌破 20 日线 → 固定档位减仓 → 加仓</b>。移动止盈触发时给出「清仓剩余 + 3 个交易日内不追高买回」的完整执行步骤，不再和普通减仓建议混在一起</li>
-              <li>启用线（默认 +40%，可调 20–100%）与回撤比例（默认 8%，可调 3–20%）<b>做成可调参数</b>，与单票上限、组合敞口上限并列在「风控计算」的锁定行；改完立即重算持仓卡片与全仓减仓计划。导入备份同样会恢复这两个参数</li>
-              <li>设计理念页新增「移动止盈：什么时候把浮盈换成现金」，含四条峰值场景算例（峰值 +32% / +40% / +60% / +100% 分别能锁住多少利润）</li>
-              <li class="fix">顺带修正：持仓卡片与「今天要处理」里危险项的标题原先<b>硬编码成「触及止损」</b>，现在按实际状态显示（如「移动止盈离场」），避免新增离场规则后标题与实际原因自相矛盾</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v1110">
-            <h3><span class="ver">1.1.10</span>修好「取现价」的行情源<span class="tlmeta">2026-09-12</span></h3>
-            <ul>
-              <li class="fix">修正：<b>点「取现价」经常报「行情源不可达」</b>。根因是所谓的双通道其实只有一条能用——备用通道用 <code>fetch</code> 直连东方财富，跨域且该接口不返回 CORS 头，<b>每次都必失败</b>（实测 <code>net::ERR_EMPTY_RESPONSE</code>）。主通道一抖动，就完全没有退路</li>
-              <li>主通道改为<b>双节点级联</b>：先走 <code>qt.gtimg.cn</code>，失败自动换腾讯备用节点 <code>sqt.gtimg.cn</code>（报文格式完全一致，实测可用）。单节点抖动不再导致「取不到价」</li>
-              <li>备用通道改为 <b>JSONP</b> 而非 fetch，作为第三级兜底。每个源最多等 5 秒（原 6 秒），超时立刻换下一个，不让你干等</li>
-              <li>新增<b>「上次成功价」兜底</b>：三个源全挂时，把该标的上次成功取到的价填进现价输入框，并标明取到的时间（如「已填入 09-12 14:30 的价格」），你确认后点「保存现价」即可。<b>只填框、不静默写回台账</b>，不会用旧价偷偷改掉你的记录</li>
-              <li>实在没有历史价时，自动把光标移到现价输入框，并明确写「请在现价框填好后点保存现价」。风控页与手工录入页同样享受这个兜底</li>
-              <li>顺带修正一处误导：错误提示现在会区分「请求超时 / 源不可达 / 该代码暂无报价」，而不是笼统一句「行情源不可达」</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v119">
-            <h3><span class="ver">1.1.9</span>改为纯本机存储，不再上云<span class="tlmeta">2026-09-12</span></h3>
-            <ul>
-              <li><b>数据不再读写任何云端数据表</b>。持仓台账与交易日志改为只存在本机浏览器：两个 <code>localStorage</code> 键 <code>wb_astock_pos_v1</code> / <code>wb_astock_log_v1</code>。页面打开后除「取行情」外不再发起任何数据请求，持仓数据不会离开你的设备</li>
-              <li>为什么改：分享页对未登录访客<b>只放行读、写会返回 401</b>，导致录入的记录要么存不下、要么只能靠「本机暂存 + 手动补传」兜底。既然最终真正可用的数据本来就只在本机，就不该再让用户对着一个「同步」按钮猜数据到底在哪</li>
-              <li>去掉了顶栏的「本机暂存 N 条待同步 + 同步本机数据」与卡片上的「本机待同步」标记 —— 全部数据都在本机，这个区分已经没有意义。徽标固定显示「本地存储」</li>
-              <li>下拉选项（操作类型 / 纪律执行 / 违规类型 / 持仓状态）原先要向云端取 schema，现改为<b>内置在页面里</b>，离线也能正常选</li>
-              <li>首次打开预置示例数据（与原先一致，备注带「示例」，可用「清空示例数据」一键清掉且不影响你自己的记录）；<b>老版本留在本机缓冲里的记录会自动并入正式存储</b>，升级不会丢数据</li>
-              <li>导出备份不再区分「云端段 / 待同步段」，一份 JSON 就是全部；导入恢复同样写回本机</li>
-              <li><b>代价必须讲清楚</b>：数据只跟着「这台设备的这个浏览器」走 —— 换设备、换浏览器、清理站点数据都会丢，也没有跨设备同步。<b>要迁移就用「导出备份」</b>拿走 JSON 快照，到另一台设备「导入恢复」</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v118">
-            <h3><span class="ver">1.1.8</span>自动算出减仓点位与股数<span class="tlmeta">2026-09-12</span></h3>
-            <ul>
-              <li>新增<b>减仓计划</b>：把加减仓规则里的阈值反推成<b>确定的触发价与股数</b>，不用等涨上去了再临时心算。口径与减仓卡片、规则引擎完全一致——<b>只认成本价，不认现价</b></li>
-              <li>触发价 = 成本价 ×(1 + 阈值)：<b>① 浮盈 +15% → 减 1/3；② 浮盈 +25% → 对剩余仓位再减 1/3（阶梯式，不是重复减同一个数）</b>；价格按标的最小变动单位取整（股票 0.01 元，ETF / 可转债 0.001 元）</li>
-              <li>股数按 1 手取整，且单位随标的走：股票「股」、ETF「份」、可转债「张」（1 手 = 10 张）。<b>不足 2 手时不再硬凑，直接说明「无法按比例部分减仓」</b>，避免出现「减 0 股」这种假动作</li>
-              <li>持仓卡片内新增一行减仓计划：列出两档触发价与对应股数，<b>现价已达标的那一档会高亮</b>，一眼看出该不该动手</li>
-              <li>加减仓规则页新增「全仓减仓计划」清单：一次列出所有在持标的的现价 / 成本、两档减仓点、破 20 日线时的减仓量与当前状态（未触发 / 已达第 1 档 / 已达第 2 档）</li>
-              <li>保留人工判断的部分：<b>是否真的跌破 20 日均线需要你自己确认</b>，所以「破 20 日线仍浮盈 → 减 1/2」只给条件值，不伪装成已触发的信号</li>
-              <li class="fix">修正：加减仓建议里的减仓数量对所有标的都按 100 股取整，可转债（1 手 10 张）会算出「减 3 张」这种无法下单的数字。现在与减仓计划共用同一套整手逻辑</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v117">
-            <h3><span class="ver">1.1.7</span>手工录入存不下来<span class="tlmeta">2026-09-11</span></h3>
-            <ul>
-              <li class="fix">修正：<b>手工录入持仓点保存后「无法保存」</b>。根因不是表单坏了，而是<b>分享出去的页面，访客未登录时写接口被服务端拒绝</b>——实测读接口（getSchema / query）返回 200，写接口（addRecord）返回 <code>401 not login</code>。原代码把写失败直接当错误抛出，于是记录既没上云、也没落本地，输入内容凭空消失</li>
-              <li>新增「本机暂存」：写云端被拒（未登录 / 断网 / 接口异常）时自动转存本机，<b>记录立刻照常出现在列表里</b>，并在卡片上标注「本机待同步」</li>
-              <li>新增顶栏「本机暂存 N 条待同步 + 同步本机数据」按钮：登录后一键把本机记录补传上云，成功后自动清除本机副本</li>
-              <li>同步徽标改为「已同步 / 同步中 / 本机保存」，并修正一个不诚实的细节：<b>本机还有未上云的数据时，不再显示「已同步」</b></li>
-              <li>本机记录同样可以「取现价 / 更新 / 标记已巡检 / 删除」，改动直接落在本机副本上，不会有「点得动但存不下」的空操作</li>
-              <li>导出备份：主台账只导出已上云的记录，本机待同步的数据单列一段，恢复时原样写回本机缓冲——既不丢数据，也不会把同一条记录重复传两遍造成重复</li>
-              <li class="fix">修正：持仓明细里<b>同一个 6 位代码显示两次</b>（代码 + 「名称」列也是代码）。原因是取不到名称时把代码写进了名称列当兜底。现在名称未知就留空，列表、今日待处理、加减仓下拉、加减仓建议都只显示一次代码；等取到行情后名称会自动补上</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v116">
-            <h3><span class="ver">1.1.6</span>版本号标记与同步修正<span class="tlmeta">2026-09-11</span></h3>
-            <ul>
-              <li>更新日志改用三段式版本号标记，替代原先的「迭代 N」写法</li>
-              <li>卡片头显示当前版本号，并写明版本号递增规则</li>
-              <li class="fix">修正：移除对不存在的 db.onUpdated 订阅接口的调用。资料库 SDK 只提供 query / addRecord / getRecord / updateRecord / deleteRecord / getSchema 六个方法，原订阅被守卫拦住、静默失效，等于「假装有推送」。现改为打开页面与手动刷新时读取最新数据，跨设备数据一致性不受影响</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v115">
-            <h3><span class="ver">1.1.5</span>文档化<span class="tlmeta">2026-09-11</span></h3>
-            <ul>
-              <li>新增「设计理念」页签：设计主张、执行顺序、2% 铁律的数学说明、原则与落地位置对照表、边界与免责</li>
-              <li>新增「更新日志」页签（本页）</li>
-              <li class="fix">修正：两个上限输入框的 HTML 属性区间（60% / 20%）与程序实际钳制区间（90% / 30%）不一致</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v114">
-            <h3><span class="ver">1.1.4</span>记录已有持仓<span class="tlmeta">2026-09-11</span></h3>
-            <ul>
-              <li>新增「手工录入已有持仓」：直接填真实股数、成本价、止损价，不受 2% 规则与单票上限约束</li>
-              <li>新增「未设止损」巡检判定：止损价为空 → 标黄提醒先补止损位</li>
-              <li>持仓卡片新增「删除」（二次确认），补上此前无法删除单条记录的缺口</li>
-              <li>持仓卡片的单位与价格精度改为按标的自适应（ETF 显示「份」与三位小数）</li>
-              <li class="fix">修正：新增按钮漏绑记录标识导致点击无效（与 1.1.2 同款缺陷，已在渲染层统一加空值保护）</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v113">
-            <h3><span class="ver">1.1.3</span>覆盖 ETF 与可转债<span class="tlmeta">2026-09-11</span></h3>
-            <ul>
-              <li>标的自动识别：类型 / T+0 或 T+1 / 最小变动单位 / 涨跌幅限制 / 1 手大小（ETF 100 份、可转债 10 张）</li>
-              <li>价格精度随标的自适应：股票 2 位小数，ETF 与可转债 3 位（0.001 元）</li>
-              <li>单票上限（5–90%）与组合敞口上限（2–30%）改为可调，超限给出告警</li>
-              <li>止损幅度按标的涨跌幅自适应提示：易被日内扫损 / 一天内不可能触及</li>
-              <li class="fix">修正：行情解析层把价格强制取整到 2 位小数，导致 ETF 1.058 变 1.06 —— 这是从「只支持股票」时就存在的缺陷</li>
-              <li class="fix">修正：单票上限小到买不起 1 手时，页面仍按未压制的仓位出结果（与上限自相矛盾）</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v112">
-            <h3><span class="ver">1.1.2</span>行情联动<span class="tlmeta">2026-09-11</span></h3>
-            <ul>
-              <li>只输 6 位代码 → 自动取价 → 自动算出买入价、止损价、目标价与可买数量</li>
-              <li>双通道取价：腾讯为主（一次可查多只），东方财富备用</li>
-              <li>450ms 输入防抖 + 丢弃过期响应；行情不可达时降级为手动填价，不阻塞使用</li>
-              <li>新增「刷新全仓现价」批量写回台账；持仓卡片新增「取现价」</li>
-              <li class="fix">修正：「取现价」误走 60 秒缓存，改为强制取最新价</li>
-              <li class="fix">修正：渲染时无条件回写输入框，会打断正在输入的数字</li>
-              <li class="fix">修正：行情失败时误把同步状态标成「离线模式」</li>
-            </ul>
-          </div>
-          <div class="tlitem" id="v111">
-            <h3><span class="ver">1.1.1</span>初版<span class="tlmeta">2026-09-11</span></h3>
-            <ul>
-              <li>四大模块：风控计算、持仓巡检、加减仓规则、交易纪律</li>
-              <li>两张云端数据表（持仓台账 / 交易日志），首次打开预置示例数据</li>
-              <li>「今天要处理」置顶区：自动汇总逾期与临期项，逾期标红并给一键处理</li>
-              <li>导出 JSON 备份 / 导入恢复 / 清空需二次确认</li>
+              <li>整体参照成熟互联网产品规范（Material 3 的 surface 阶梯与染色投影、Google Workspace 的表单与列表密度）</li>
+              <li><b>全站无衬线</b>，优先系统字（SF Pro / Segoe UI + 苹方 / 雅黑），不加载 webfont</li>
+              <li>正文 13px → 14px；圆角收敛为一条规则（面 12 / 控件 8 / 标记 6 / 胶囊）</li>
+              <li>主色改 Google Blue 分两档（填充 / 文字）；语义色换成产品级配色</li>
+              <li>动效按 Material 标准（120 / 180ms），并尊重系统「减弱动效」</li>
+              <li>全部前景 / 背景组合达 WCAG AA</li>
             </ul>
           </div>
         </div>
-      </div>
 
+        <details class="cl-old">
+          <summary>更早的 15 个版本（1.1.x ~ 1.3.0）</summary>
+          <ul class="cl-mini">
+            <li><b>1.3.0</b> 把剩下两处人工判断接上真实数据 <span class="tlmeta">2026-09-15</span></li>
+            <li><b>1.2.1</b> 修复三处自相矛盾的决策逻辑 <span class="tlmeta">2026-09-15</span></li>
+            <li><b>1.2.0</b> 交易规则引擎 + 全量审计 + 设计令牌 <span class="tlmeta">2026-09-15</span></li>
+            <li><b>1.1.12</b> 数据源管理页：把「到哪儿取价」交给你 <span class="tlmeta">2026-09-12</span></li>
+            <li><b>1.1.11</b> 移动止盈：让利润跟着峰值走 <span class="tlmeta">2026-09-12</span></li>
+            <li><b>1.1.10</b> 修好「取现价」的行情源 <span class="tlmeta">2026-09-12</span></li>
+            <li><b>1.1.9</b> 改为纯本机存储，不再上云 <span class="tlmeta">2026-09-12</span></li>
+            <li><b>1.1.8</b> 自动算出减仓点位与股数 <span class="tlmeta">2026-09-12</span></li>
+            <li><b>1.1.7</b> 手工录入存不下来 <span class="tlmeta">2026-09-11</span></li>
+            <li><b>1.1.6</b> 版本号标记与同步修正 <span class="tlmeta">2026-09-11</span></li>
+            <li><b>1.1.5</b> 文档化 <span class="tlmeta">2026-09-11</span></li>
+            <li><b>1.1.4</b> 记录已有持仓 <span class="tlmeta">2026-09-11</span></li>
+            <li><b>1.1.3</b> 覆盖 ETF 与可转债 <span class="tlmeta">2026-09-11</span></li>
+            <li><b>1.1.2</b> 行情联动 <span class="tlmeta">2026-09-11</span></li>
+            <li><b>1.1.1</b> 初版 <span class="tlmeta">2026-09-11</span></li>
+          </ul>
+        </details>
+      </div>
     </section>
+
   </main>
 </div>
 
@@ -1932,10 +1668,6 @@ body{
 <button data-tab="rule">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"/><path d="M5 8h14"/><path d="M5 8l-3 6h6L5 8z"/><path d="M19 8l-3 6h6l-3-6z"/></svg>
     加减仓
-  </button>
-<button data-tab="log">
-    <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v5l3.5 2"/><path d="M3.5 12a8.5 8.5 0 108.5-8.5"/><path d="M3 5v4.5h4.5"/></svg>
-    日志
   </button>
 <button data-tab="disc">
     <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 4v5c0 4.6-3.4 8-8 9-4.6-1-8-4.4-8-9V7l8-4z"/><path d="M12 8v4M12 15h.01"/></svg>
@@ -5860,6 +5592,8 @@ body{
   var restoreLogDraft = null, restoreRiskDraft = null;
 
   function switchTab(tab) {
+    /* 防御：传入已被移除的页签（或历史遗留值）时回落到风控计算，避免整页空白 */
+    if (!document.getElementById('sec-' + tab)) { tab = 'risk'; }
     state.tab = tab;
     $$('.section').forEach(function (s) { s.classList.remove('on'); });
     var sec = document.getElementById('sec-' + tab);
@@ -6813,38 +6547,6 @@ body{
 
   /* ---------------- 心理陷阱卡片 ---------------- */
 
-  var TRAPS = [
-    { icon: 'up', title: '追涨杀跌', bad: '盘中看到拉升就冲进去，一回落就割肉。买在情绪高点，卖在恐慌低点。', good: '规则约束：当日涨幅超过 5% 的标的一律不买；所有买入必须来自风控计算器给出的点位，盘中不做临时决策。' },
-    { icon: 'down', title: '扛单不止损', bad: '跌破止损后安慰自己「再等等」，把 2% 的小亏扛成 20% 的大亏。', good: '规则约束：止损价一经设定不得后移；触及止损当日无条件清仓；清仓后 1 个交易日内不买回同一标的。' },
-    { icon: 'repeat', title: '频繁交易', bad: '没有机会也硬要做，一周十几笔，手续费和情绪成本吃掉全部利润。', good: '规则约束：每周最多 5 笔交易；连续 2 笔亏损后强制休息 1 个交易日；同一标的当日只操作一次。' },
-    { icon: 'warn', title: '情绪化摊平', bad: '浮亏时不断补仓摊低成本，把一次小错变成重仓深套。', good: '规则约束：浮亏状态一律禁止加仓；加仓只在浮盈 ≥ 8% 且未跌破 20 日均线时进行，加仓后必须把止损上移到成本价。' }
-  ];
-
-  function trapIcon(name) {
-    if (name === 'up') {
-      return '<svg class="ico ico-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18l6-6 4 3 6-8"/><path d="M15 7h5v5"/></svg>';
-    }
-    if (name === 'down') {
-      return '<svg class="ico ico-down" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 6l6 6 4-3 6 8"/><path d="M15 17h5v-5"/></svg>';
-    }
-    if (name === 'repeat') {
-      return '<svg class="ico ico-warn" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9a5 5 0 015-5h11"/><path d="M17 1l3 3-3 3"/><path d="M20 15a5 5 0 01-5 5H4"/><path d="M7 23l-3-3 3-3"/></svg>';
-    }
-    return '<svg class="ico ico-up" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l10 18H2L12 3z"/><path d="M12 10v5M12 18h.01"/></svg>';
-  }
-
-  function renderTraps() {
-    var box = $('#trapBox');
-    if (!box) { return; }
-    var h = '';
-    for (var i = 0; i < TRAPS.length; i++) {
-      h += '<div class="trap"><h3>' + trapIcon(TRAPS[i].icon) + esc(TRAPS[i].title) + '</h3>' +
-        '<div class="bad">' + esc(TRAPS[i].bad) + '</div>' +
-        '<div class="good">' + esc(TRAPS[i].good) + '</div></div>';
-    }
-    box.innerHTML = h;
-  }
-
   /* ---------------- 初始化 ---------------- */
 
   function bindDraftCaches() {
@@ -6863,7 +6565,6 @@ body{
     loadParams();
     loadPatrol();
     loadSources();
-    renderTraps();
     bindEvents();
     bindDraftCaches();
     switchTab('risk');
