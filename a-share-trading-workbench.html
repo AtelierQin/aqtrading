@@ -1688,6 +1688,9 @@ body{
           <div class="tlitem" id="v153">
             <h3><span class="ver is-latest">1.5.3</span>更新日志页重排 + 技术说明并入设计理念<span class="tlmeta">2026-09-15</span></h3>
             <ul>
+              <li class="fix"><b>修复：用 fuyao 作行情源时，输入股票代码不会带出中文名。</b>fuyao 的行情快照接口只返回 thscode / ticker，<b>不返回中文名</b>（腾讯 / 东财都带）。适配器当时以「空名 + nameReliable=false」落库，导致回填条件永远不成立。现在补上标的检索 <code>/api/meta/tickers/search</code>：快照拿不到名字时自动查一次，结果按 thscode 长期缓存（名称不会变），同一只标的不重复请求</li>
+              <li>三处入口都会补名：风控计算输入代码、持仓卡「取现价」、手工录入。用户手改过名称的不覆盖</li>
+              <li>新增 <b>name_e2e</b> 端到端用例（7 项断言）：覆盖 fuyao 快照无名的场景、标的检索回填、缓存命中、以及手改名不被覆盖</li>
               <li><b>整条链贯通了：目标 → 风格 → 整套阈值 → 每笔动作。</b>设计时发现一件事：那六个「固定规则」常量其实全是<b>止损宽度的固定倍数</b> —— 加仓 8%(1.6R) / 上界 11.5%(2.3R) / 减仓 15%(3R) / 25%(5R) / 移动止盈 40%(8R) / 回撤 8%(1.6R)，在 5% 止损下正好等于原来那组数字。也就是说整套规则只有一个自变量</li>
               <li><b>新增「我的策略」卡</b>：三选一的交易风格（趋势跟随 8% / 波段 5% / 短线 3%），选完立刻推出全部阈值并列出 R 倍数换算</li>
               <li><b>换风格 = 全站重算</b>：建仓页的默认止损幅度（5% → 8%）、持仓卡上的加仓 / 减仓触发价、移动止盈线、减仓计划清单、最低盈亏比，全部跟着变。已建立的持仓不自动改止损，需要时用卡片上的「按规则校准」</li>
@@ -3966,6 +3969,7 @@ body{
 
   var stateCorpCache = {};   /* thscode → { at, events }，只存内存，不入 LS（避免会话间状态过期） */
   var stateMaCache = {};     /* thscode → { at, bars[] }，日线缓存（1 小时有效），只存内存 */
+  var stateNameCache = {};   /* thscode → 中文名。fuyao 快照不返回名称，用标的检索补，结果长期缓存 */
 
   function findActiveFuyao() {
     var list = (state.sources && state.sources.items) || [];
@@ -4185,6 +4189,69 @@ body{
       if (btn) { btn.disabled = false; }
       toast('应用失败：' + ((e && e.message) || '未知错误'));
     });
+  }
+
+  /* ============================================================
+   * 名称解析（fuyao /api/meta/tickers/search）
+   * ------------------------------------------------------------
+   * fuyao 的行情快照只返回 thscode / ticker，不返回中文名。
+   * 这里用标的检索把名称补上，结果按 thscode 长期缓存（名称不会变）。
+   * 腾讯 / 东财本身带名称，只有它们拿不到时才走这条路。
+   * ============================================================ */
+  /* 通用：给一个 input 异步补名称。拿不到就什么都不做，不打断流程。
+     onDone 只在真的拿到名字时回调一次，避免无谓重渲染。 */
+  function fillNameAsync(code, nameEl, onDone) {
+    if (!nameEl) { return; }
+    var src = findActiveFuyao();
+    if (!src) { return; }
+    resolveNameFuyao(src, code, function (nm) {
+      if (!nm) { return; }
+      if (nameEl.getAttribute('data-touched') === '1') { return; }
+      if (document.activeElement === nameEl) { return; }
+      var changed = (nameEl.value !== nm);
+      nameEl.value = nm;
+      if (changed && onDone) { onDone(nm); }
+    });
+  }
+
+  function resolveNameFuyao(src, code, cb) {
+    var thscode = fuyaoThscodeOf({ prefix: marketPrefix(code), code: code });
+    if (!thscode) { cb(''); return; }
+    if (stateNameCache[thscode]) { cb(stateNameCache[thscode]); return; }
+    if (!src || !src.key) { cb(''); return; }
+    var base = String(src.url || '').replace(/\/+$/, '');
+    if (!base) { cb(''); return; }
+
+    var url = base + '/api/meta/tickers/search?q=' + encodeURIComponent(thscode) + '&limit=5';
+    var done = false, timer = null;
+    timer = setTimeout(function () {
+      if (done) { return; }
+      done = true;
+      cb('');
+    }, QUOTE_TIMEOUT);
+    fetch(url, { method: 'GET', headers: { 'X-api-key': src.key, 'Accept': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        if (done) { return; }
+        done = true;
+        if (timer) { clearTimeout(timer); }
+        var name = '';
+        if (json && json.code === 0 && json.data && json.data.item && json.data.item.length) {
+          var items = json.data.item;
+          for (var i = 0; i < items.length; i++) {
+            if (items[i].thscode === thscode) { name = String(items[i].name || ''); break; }
+          }
+          if (!name) { name = String(items[0].name || ''); }
+        }
+        if (name) { stateNameCache[thscode] = name; }
+        cb(name);
+      })
+      ['catch'](function () {
+        if (done) { return; }
+        done = true;
+        if (timer) { clearTimeout(timer); }
+        cb('');
+      });
   }
 
   /* ============================================================
@@ -4497,6 +4564,14 @@ body{
     var nameEl = f.querySelector('[name="riskName"]');
     if (q.nameReliable && q.name && nameEl.getAttribute('data-touched') !== '1' && document.activeElement !== nameEl) {
       nameEl.value = q.name;
+    } else if (!nameEl.value) {
+      /* 数据源不返回名称（fuyao 快照就是这种）→ 用标的检索异步补上。
+         名称到手后要重跑一次标的识别：跨境 ETF 这类只能靠名字区分。 */
+      fillNameAsync(q.code, nameEl, function (nm) {
+        syncPriceDec();
+        renderInstrument(instrumentOf(q.code, nm));
+        recalcRisk('pct');
+      });
     }
     /* 名称到手后才能识别跨境 ETF 等只能靠名字区分的类型，先同步小数位再回填 */
     var it = instrumentOf(q.code, nameEl.value);
@@ -4630,6 +4705,12 @@ body{
     var nameEl = manualEl('mName'), lastEl = manualEl('mLast');
     if (nameEl && q.nameReliable && q.name && nameEl.getAttribute('data-touched') !== '1' && document.activeElement !== nameEl) {
       nameEl.value = q.name;
+    } else if (nameEl && !nameEl.value) {
+      /* 数据源不带名称时异步补，补到再刷新标的识别 */
+      fillNameAsync(q.code, nameEl, function (nm) {
+        renderInstrument(manualInstrument(), 'manualInstRow');
+        setManualTip('已取价 ' + nm + '，填好股数与成本价即可保存', 'ok');
+      });
     }
     var it = manualInstrument();
     var price = fmtByTick(roundToTick(q.price, it.tick), it.tick);
@@ -6202,7 +6283,21 @@ body{
       properties['巡检日期'] = { date: todayStr() };
       /* 当日涨跌幅随报价一起落库：这是「单日跌幅 ≥7% 减半」唯一的数据来源 */
       properties['日涨跌幅'] = { number: round2(num(q.changePct)) };
-      if (q.nameReliable && q.name) { properties['股票名称'] = { text: q.name }; }
+      if (q.nameReliable && q.name) {
+        properties['股票名称'] = { text: q.name };
+      } else if (!String(target['股票名称'] || '').trim()) {
+        /* 数据源不给名称、这笔持仓也还没名字 → 异步补，补到就单独写一次 */
+        var fsrc = findActiveFuyao();
+        if (fsrc) {
+          resolveNameFuyao(fsrc, code, function (nm) {
+            if (!nm) { return; }
+            updatePosition(id, { '股票名称': { text: nm } }).then(reloadData).then(function () {
+              refreshAll();
+              toast('已补上名称：' + nm);
+            })['catch'](function () { /* 补名失败不影响取价 */ });
+          });
+        }
+      }
       /* 取到的新价若创新高，同步抬升「阶段最高价」，让移动止盈线随之上移 */
       var qpk = peakPatch(target, q.price);
       if (qpk) { properties['阶段最高价'] = qpk; }
