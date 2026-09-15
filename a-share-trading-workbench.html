@@ -7,78 +7,105 @@
 <title>A股交易纪律工作台</title>
 <style>
 :root{
-  /* ---- 基础面 ---- */
-  --bg:#f5f6f8;
-  --card:#ffffff;
-  --line:#e6e8ee;
-  --line-soft:#f0f1f5;
-  --gray-soft:#f2f3f6;
-  --neutral-bg:#fafbfd;
+  /* ============================================================
+     面（Material 3 的 surface 阶梯：白面浮在极浅冷灰底上）
+     ============================================================ */
+  --bg:#F5F7FA;
+  --card:#FFFFFF;
+  --line:#E3E7ED;
+  --line-soft:#EFF2F6;
+  --gray-soft:#F1F4F8;
+  --neutral-bg:#F8FAFC;
 
-  /* ---- 文字 ---- */
-  --text:#1b1f2a;
-  --text-2:#5b6472;
-  --text-3:#8d96a6;
+  /* ---- 文字（三级，全部达 WCAG AA）---- */
+  --text:#1B1F24;
+  --text-2:#4E5766;
+  --text-3:#66707F;
 
-  /* ---- 主色（蓝：动作 / 信息）---- */
-  --primary:#1f4bd8;
-  --primary-dark:#1b3fae;
-  --primary-soft:#eef2fe;
-  --primary-tint:#fbfcff;
-  --primary-line:#d6e0fb;
-  --primary-line-strong:#cddaf9;
+  /* ============================================================
+     主色：Google Blue。填充与文字分两档，保证任何底色上都达标
+     ============================================================ */
+  --primary:#1A73E8;          /* 填充：按钮、选中态、图标 */
+  --primary-ink:#1967D2;      /* 文字：链接、标签字（白底 5.4:1 / 蓝浅底 4.7:1）*/
+  --primary-dark:#1765CC;     /* hover */
+  --primary-active:#1455A8;   /* pressed */
+  --primary-soft:#E8F0FE;
+  --primary-tint:#F5F9FF;
+  --primary-line:#D2E3FC;
+  --primary-line-strong:#AECBFA;
 
-  /* ---- 涨（红：风险 / 上涨 / 危险）---- */
-  --up:#d93838;
-  --up-dark:#8f2626;
-  --up-soft:#fdeeee;
-  --up-tint:#fffafa;
-  --up-bar:#fef3f3;
-  --up-line:#f0c9c9;
-  --up-line-soft:#f4d2d2;
+  /* ---- 涨 / 风险 / 危险（Google Red 系）---- */
+  --up:#D93025;
+  --up-dark:#B3261E;
+  --up-soft:#FCE8E6;
+  --up-tint:#FEF8F7;
+  --up-bar:#FDEDEB;
+  --up-line:#F6CFCB;
+  --up-line-soft:#FADBD8;
 
-  /* ---- 跌（绿：安全 / 下跌 / 达标）---- */
-  --down:#12996b;
-  --down-strong:#0f8a5f;
-  --down-dark:#0d6d4c;
-  --down-soft:#eaf7f1;
-  --down-tint:#f4f7f5;
-  --down-line:#cdeadd;
-  --down-line-soft:#e3eae6;
+  /* ---- 跌 / 达标 / 安全（Google Green 系）---- */
+  --down:#188038;
+  --down-strong:#146C2E;
+  --down-dark:#0D5223;
+  --down-soft:#E6F4EA;
+  --down-tint:#F5FBF7;
+  --down-line:#CEEAD6;
+  --down-line-soft:#E1F1E6;
 
-  /* ---- 警告（橙：提醒 / 待处理）---- */
-  --warn:#c8791a;
-  --warn-dark:#7d5210;
-  --warn-soft:#fdf4e7;
-  --warn-tint:#fffdf8;
-  --warn-bar:#fdf8eb;
-  --warn-line:#f0dfc2;
-  --warn-line-soft:#f2e0c5;
+  /* ---- 警告 / 待处理（Google Yellow 深档，保证可读）---- */
+  --warn:#B06000;
+  --warn-dark:#8A4B00;
+  --warn-soft:#FEF7E0;
+  --warn-tint:#FFFCF3;
+  --warn-bar:#FEF3D7;
+  --warn-line:#FDE293;
+  --warn-line-soft:#FCEFC4;
 
-  /* ---- 中性灰阶 ---- */
-  --muted-bg:#eceef3;
-  --muted-bg-2:#e6e9f0;
-  --muted-fg:#5a6478;
-  --muted-line:#c9cedb;
-  --ink-2:#22262f;
+  /* ---- 中性 ---- */
+  --muted-bg:#EEF1F5;
+  --muted-bg-2:#E4E8EF;
+  --muted-fg:#5F6875;
+  --muted-line:#C4CBD5;
+  --ink-2:#202429;
 
-  /* ---- 字阶（7 级）---- */
-  --fs-2xs:11px;
+  /* ---- 描边（表单）---- */
+  --field-line:#D5DAE1;
+
+  /* ============================================================
+     字体：纯无衬线。macOS 走 SF Pro，Windows 走 Segoe UI，
+     中文回落苹方 / 微软雅黑。不做 webfont，保证离线可用
+     ============================================================ */
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,"PingFang SC","Hiragino Sans GB","Microsoft YaHei",sans-serif;
+  --font-mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+
+  /* ---- 字阶：正文 14px（不是 13px），小字不低于 12px ---- */
+  --fs-2xs:12px;
   --fs-xs:12px;
   --fs-base:13px;
   --fs-md:14px;
   --fs-lg:16px;
   --fs-xl:20px;
-  --fs-hero:26px;
-  /* ---- 圆角（4 级 + 胶囊）---- */
+  --fs-hero:28px;
+
+  /* ============================================================
+     圆角：一条规则贯穿全站
+       面（卡片/面板）12 · 控件（按钮/输入）8 · 标记（标签）6 · 胶囊 999
+     ============================================================ */
   --radius-xs:6px;
   --radius-sm:8px;
-  --radius-md:10px;
+  --radius-md:8px;   /* 控件档别名，兼容历史引用 */
   --radius:12px;
   --radius-pill:999px;
 
-  /* ---- 阴影 ---- */
-  --shadow:0 1px 2px rgba(20,26,40,.05), 0 6px 18px rgba(20,26,40,.05);
+  /* ---- 高度：Material 3 的染色投影，越浮越深 ---- */
+  --shadow:0 1px 2px rgba(60,64,67,.08),0 1px 3px 1px rgba(60,64,67,.05);
+  --shadow-2:0 1px 2px rgba(60,64,67,.10),0 2px 6px 2px rgba(60,64,67,.07);
+  --shadow-3:0 1px 3px rgba(60,64,67,.12),0 4px 8px 3px rgba(60,64,67,.08);
+
+  /* ---- 动效：Material 标准缓动 ---- */
+  --ease:cubic-bezier(.2,0,0,1);
+  --dur-fast:120ms;
+  --dur:180ms;
 }
 /* ---- 工具类（间距按 4px 栅格：4 / 8 / 12 / 16）---- */
 .mt-1{margin-top:4px;}
@@ -438,6 +465,329 @@ svg{display:block;}
   .tabs-m button{font-size:var(--fs-2xs);gap:2px;}
   .tabs-m .ico-lg{width:20px;height:20px;}
 }
+
+/* ============================================================
+   产品级界面皮肤（Google / Meta 系）
+   ------------------------------------------------------------
+   纯无衬线 / 白面浮浅灰底 / 单一蓝主色 / 一条圆角规则 / 克制的染色投影
+   只覆盖视觉层。不改结构、不改类名、不改任何交互逻辑。
+   ============================================================ */
+
+html{font-family:var(--font-sans);}
+body{
+  background:var(--bg);
+  font-family:var(--font-sans);
+  font-size:var(--fs-md);
+  line-height:1.6;
+  letter-spacing:-.003em;
+  -webkit-font-smoothing:antialiased;
+}
+
+/* ---- 侧栏 ---- */
+.side{
+  background:var(--card);
+  border-right:1px solid var(--line);
+  padding:18px 12px 12px;
+}
+.brand{gap:10px;padding:0 8px 16px;margin-bottom:10px;border-bottom:1px solid var(--line-soft);}
+.brand-mark{
+  width:34px;height:34px;border-radius:var(--radius-sm);
+  background:var(--primary);color:#fff;
+  box-shadow:0 1px 2px rgba(26,115,232,.30),inset 0 1px 0 rgba(255,255,255,.22);
+}
+.brand-txt b{font-size:15px;font-weight:600;letter-spacing:-.01em;color:var(--text);}
+.brand-txt span{font-size:12px;color:var(--text-3);margin-top:1px;}
+
+.navitem{
+  border-radius:var(--radius-sm);margin-bottom:2px;
+  padding:10px 12px;min-height:44px;
+  font-size:var(--fs-md);font-weight:500;color:var(--text-2);
+  transition:background var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+}
+.navitem:hover{background:var(--gray-soft);color:var(--text);}
+.navitem.on{background:var(--primary-soft);color:var(--primary-ink);font-weight:600;}
+.navitem.on:hover{background:var(--primary-line);}
+.side-foot{border-top:1px solid var(--line-soft);}
+.side-foot p{font-size:var(--fs-xs);color:var(--text-3);line-height:1.6;}
+
+/* ---- 报头 ---- */
+.topbar{gap:12px;margin-bottom:18px;}
+.topbar h1{
+  font-size:var(--fs-xl);font-weight:600;letter-spacing:-.018em;
+  color:var(--text);line-height:1.25;
+}
+.topbar .sub{font-size:var(--fs-base);color:var(--text-3);margin-top:2px;}
+
+/* ---- 卡片：白面 + 细边 + 极浅投影，留白放宽 ---- */
+.card{
+  background:var(--card);
+  border:1px solid var(--line);
+  border-radius:var(--radius);
+  box-shadow:var(--shadow);
+  padding:20px 22px 22px;
+  margin-bottom:16px;
+}
+.card-h{
+  gap:9px;margin-bottom:16px;padding-bottom:0;
+  border-bottom:0;
+}
+.card-h h2{
+  font-size:var(--fs-lg);font-weight:600;letter-spacing:-.012em;
+  color:var(--text);
+}
+.card-h .hint{font-size:var(--fs-base);color:var(--text-3);}
+.card-h .ico-lg{color:var(--primary);width:20px;height:20px;}
+
+/* ---- 数据格：白底细块，数字大一号 ---- */
+.stat{
+  background:var(--neutral-bg);
+  border:1px solid var(--line-soft);
+  border-radius:var(--radius-sm);
+  padding:12px 13px;
+}
+.stat .k{font-size:var(--fs-base);color:var(--text-3);margin-bottom:4px;}
+.stat .v{
+  font-size:var(--fs-xl);font-weight:600;letter-spacing:-.02em;
+  color:var(--text);line-height:1.2;
+}
+.stat .v.sm{font-size:17px;}
+.stat .u{font-size:var(--fs-xs);color:var(--text-3);font-weight:400;}
+
+/* ---- 按钮：Material 的填充 / 描边 / 文字三层 ---- */
+.btn{
+  border-radius:var(--radius-sm);
+  border:1px solid var(--field-line);
+  background:var(--card);color:var(--text);
+  font-size:var(--fs-md);font-weight:500;letter-spacing:0;
+  min-height:42px;padding:0 16px;
+  transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+}
+.btn:hover{background:var(--gray-soft);border-color:var(--muted-line);}
+.btn.primary{
+  background:var(--primary);border-color:var(--primary);color:#fff;
+  box-shadow:0 1px 2px rgba(26,115,232,.24);
+}
+.btn.primary:hover{background:var(--primary-dark);border-color:var(--primary-dark);box-shadow:0 1px 3px rgba(26,115,232,.32);}
+.btn.primary:active{background:var(--primary-active);box-shadow:none;}
+.btn.danger{color:var(--up);border-color:var(--up-line);}
+.btn.danger:hover{background:var(--up-soft);border-color:var(--up);}
+.btn.sm{min-height:34px;font-size:var(--fs-base);border-radius:var(--radius-sm);padding:0 12px;}
+.btn.xs{min-height:30px;font-size:var(--fs-base);border-radius:var(--radius-xs);padding:0 10px;}
+.btn:active{transform:translateY(1px);}
+.btn:focus-visible{outline:2px solid var(--primary);outline-offset:2px;}
+
+/* ---- 标签 / 徽标 ---- */
+.badge{
+  border-radius:var(--radius-pill);
+  border:1px solid var(--line);background:var(--card);
+  font-size:var(--fs-xs);font-weight:500;color:var(--text-2);
+  padding:3px 10px;
+}
+.tag{
+  border-radius:var(--radius-xs);
+  font-size:var(--fs-xs);font-weight:500;letter-spacing:0;
+  padding:3px 8px;
+}
+.tag.danger{background:var(--up-soft);color:var(--up-dark);border-color:var(--up-line);}
+.tag.warn{background:var(--warn-soft);color:var(--warn-dark);border-color:var(--warn-line);}
+.tag.ok{background:var(--down-soft);color:var(--down-dark);border-color:var(--down-line);}
+.tag.info{background:var(--primary-soft);color:var(--primary-ink);border-color:var(--primary-line);}
+.tag.gray{background:var(--gray-soft);color:var(--text-2);border-color:var(--line);}
+
+/* ---- 表单 ---- */
+.field{gap:6px;}
+.field label{font-size:var(--fs-base);font-weight:500;color:var(--text-2);letter-spacing:0;}
+.field input,.field select,.field textarea{
+  border-radius:var(--radius-sm);
+  border:1px solid var(--field-line);
+  background:var(--card);color:var(--text);
+  padding:10px 12px;min-height:44px;
+  transition:border-color var(--dur-fast) var(--ease),box-shadow var(--dur-fast) var(--ease);
+}
+.field input:hover,.field select:hover,.field textarea:hover{border-color:var(--muted-line);}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(26,115,232,.15);
+  outline:none;
+}
+.field .tip{font-size:var(--fs-xs);color:var(--text-3);}
+.lockrow .tiny{border-radius:var(--radius-xs);border-color:var(--field-line);}
+.lockrow .tiny:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,115,232,.15);outline:none;}
+.inline-edit input{border-radius:var(--radius-sm);border-color:var(--field-line);}
+.inline-edit input:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(26,115,232,.15);outline:none;}
+.chip{
+  border-radius:var(--radius-pill);
+  border:1px solid var(--field-line);background:var(--card);
+  font-size:var(--fs-base);font-weight:500;color:var(--text-2);
+  transition:background var(--dur-fast) var(--ease),border-color var(--dur-fast) var(--ease),color var(--dur-fast) var(--ease);
+}
+.chip:hover{background:var(--gray-soft);color:var(--text);}
+.chip.on{background:var(--primary-soft);border-color:var(--primary-line-strong);color:var(--primary-ink);font-weight:600;}
+
+/* ---- 表格：只有行间细线，无外框 ---- */
+.tbl{
+  border-collapse:separate;border-spacing:0;
+  font-size:var(--fs-base);margin-top:10px;
+}
+.tbl th{
+  border-bottom:1px solid var(--line);
+  font-size:var(--fs-xs);font-weight:600;color:var(--text-3);
+  padding:9px 10px;letter-spacing:0;
+}
+.tbl td{
+  border-bottom:1px solid var(--line-soft);
+  padding:10px;color:var(--text-2);vertical-align:top;
+}
+.tbl tbody tr:hover td{background:var(--neutral-bg);}
+.tbl tbody tr:last-child td{border-bottom:0;}
+
+/* ---- 提示条：浅底 + 细边，不要粗色条 ---- */
+.notice{
+  border-radius:var(--radius-sm);
+  font-size:var(--fs-base);line-height:1.6;
+  padding:11px 13px;font-weight:400;
+}
+.notice.red{background:var(--up-soft);border:1px solid var(--up-line);color:var(--up-dark);}
+.notice.yellow{background:var(--warn-soft);border:1px solid var(--warn-line);color:var(--warn-dark);}
+.notice.green{background:var(--down-soft);border:1px solid var(--down-line);color:var(--down-dark);}
+.notice.blue{background:var(--primary-soft);border:1px solid var(--primary-line);color:#174EA6;}
+.notice b{font-weight:600;}
+
+/* ---- 今天要处理 ---- */
+.today{border-left:1px solid var(--line);box-shadow:var(--shadow-2);}
+.today.hasrisk{border-left:1px solid var(--line);}
+.today .card-h h2{color:var(--text);}
+.titem{border-bottom:1px solid var(--line-soft);padding:12px 0;}
+.titem .tdot{width:8px;height:8px;margin-top:7px;}
+.titem .tname{font-size:var(--fs-md);font-weight:600;letter-spacing:-.008em;}
+.titem .tdesc{font-size:var(--fs-base);color:var(--text-2);line-height:1.6;}
+
+/* ---- 持仓卡片 ---- */
+.pcard{
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:14px 16px;background:var(--card);
+  box-shadow:var(--shadow);
+  transition:border-color var(--dur) var(--ease);
+}
+.pcard:hover{border-color:var(--muted-line);}
+.pcard.risk{border-color:var(--up-line);background:var(--up-tint);}
+.pcard.warn{border-color:var(--warn-line);background:var(--warn-tint);}
+.pcard-h .code{font-size:var(--fs-lg);font-weight:600;letter-spacing:-.015em;}
+.pcard-h .name{font-size:var(--fs-base);color:var(--text-3);}
+.pcard-f{border-top:1px solid var(--line-soft);padding-top:12px;}
+.metric{
+  background:var(--neutral-bg);border:1px solid var(--line-soft);
+  border-radius:var(--radius-xs);padding:8px 10px;
+}
+.metric .k{font-size:var(--fs-xs);color:var(--text-3);}
+.metric .v{font-size:var(--fs-md);font-weight:600;letter-spacing:-.01em;}
+
+/* ---- 减仓计划 / 除权除息 ---- */
+.rplan{
+  border-radius:var(--radius-sm);background:var(--gray-soft);
+  border:1px solid var(--line-soft);padding:10px 12px;margin-top:12px;
+}
+.actbar{border-radius:var(--radius-sm);background:var(--neutral-bg);border:1px solid var(--line-soft);}
+.actbar.future{background:var(--warn-tint);border-color:var(--warn-line);}
+.actbar.past{background:var(--up-tint);border-color:var(--up-line);}
+.actbar.applied{background:var(--down-tint);border-color:var(--down-line-soft);}
+.rptable{border-radius:var(--radius-sm);overflow:hidden;border:1px solid var(--line-soft);}
+.rptr{border-bottom:1px solid var(--line-soft);padding:11px 12px;}
+.rpthead{background:var(--gray-soft);border-bottom:1px solid var(--line);border-radius:0;}
+
+/* ---- 规则 / 陷阱 / 日志 / 规则行 ---- */
+.rule,.trap{
+  border:1px solid var(--line);border-radius:var(--radius);
+  padding:15px 16px;background:var(--card);box-shadow:var(--shadow);
+}
+.rule h3,.trap h3{font-size:15px;font-weight:600;letter-spacing:-.008em;}
+.rule.plus{border-color:var(--down-line);}
+.rule.minus{border-color:var(--up-line);}
+.rule-row{
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:13px 14px;background:var(--card);
+}
+.rule-row .srcswitch b{font-size:var(--fs-md);font-weight:600;}
+.logrow{
+  border:1px solid var(--line);border-radius:var(--radius-sm);
+  padding:12px 14px;background:var(--card);
+}
+.logrow .lt{font-size:var(--fs-md);font-weight:600;}
+.logrow .ld{font-size:var(--fs-base);color:var(--text-3);}
+.logrow .lr{font-size:var(--fs-md);font-weight:600;}
+.checklist input{accent-color:var(--primary);}
+.trap code,.doc code{
+  background:var(--gray-soft);border:1px solid var(--line-soft);
+  border-radius:var(--radius-xs);padding:1px 6px;
+  font-family:var(--font-mono);font-size:var(--fs-xs);
+}
+
+/* ---- 说明文档 ---- */
+.doc p{font-size:var(--fs-base);color:var(--text-2);line-height:1.85;margin:9px 0;}
+.doc h3{font-size:15px;font-weight:600;letter-spacing:-.008em;margin-bottom:8px;color:var(--text);}
+.doc ul{font-size:var(--fs-base);line-height:1.8;}
+.docnum li{border-bottom:1px solid var(--line-soft);padding:9px 0;font-size:var(--fs-base);}
+.docnum .n{
+  border-radius:var(--radius-xs);
+  background:var(--primary-soft);color:var(--primary-ink);
+  font-weight:600;
+}
+
+/* ---- 更新日志 ---- */
+.tl{border-left:1px solid var(--line);}
+.tlitem::before{
+  background:var(--primary);border-radius:50%;
+  box-shadow:0 0 0 3px var(--card);width:8px;height:8px;left:-23px;top:7px;
+}
+.tlitem h3{font-size:var(--fs-md);font-weight:600;letter-spacing:-.008em;}
+.ver{
+  border-radius:var(--radius-xs);
+  background:var(--primary-soft);color:var(--primary-ink);
+  font-weight:600;font-size:var(--fs-xs);
+}
+
+/* ---- 违规分布条 ---- */
+.bars{gap:9px;}
+.barrow .bl{font-size:var(--fs-base);color:var(--text-2);}
+.barrow .bt{height:8px;background:var(--muted-bg);border-radius:var(--radius-pill);}
+.barrow .bf{background:var(--up);border-radius:var(--radius-pill);transition:width var(--dur) var(--ease);}
+.barrow .bn{font-size:var(--fs-base);font-weight:600;color:var(--text-2);}
+
+/* ---- 纪律分环 ---- */
+.ringtxt b{font-size:var(--fs-hero);font-weight:600;letter-spacing:-.03em;line-height:1.1;}
+.ringtxt span{font-size:var(--fs-base);color:var(--text-3);}
+
+/* ---- Toast ---- */
+.toast{
+  border-radius:var(--radius-sm);
+  background:var(--ink-2);color:#fff;
+  font-size:var(--fs-base);font-weight:500;
+  padding:12px 18px;
+  box-shadow:var(--shadow-3);
+  transition:opacity var(--dur) var(--ease),transform var(--dur) var(--ease);
+}
+.toast.on{transform:translateX(-50%) translateY(0);}
+
+/* ---- 移动端底栏 ---- */
+@media (max-width:768px){
+  .tabs-m{border-top:1px solid var(--line);background:var(--card);box-shadow:0 -1px 3px rgba(60,64,67,.06);}
+  .tabs-m button{border-radius:0;font-weight:500;}
+  .tabs-m button.on{color:var(--primary-ink);font-weight:600;}
+}
+
+/* ---- 动效：只做颜色与位移，尊重系统减弱动效设置 ---- */
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{
+    animation-duration:.001ms!important;
+    transition-duration:.001ms!important;
+  }
+  .btn:active{transform:none;}
+}
+
+/* ---- 数字全局等宽，列不跳动 ---- */
+.stat .v,.metric .v,.pcard-h .code,.logrow .lr,.ringtxt b,
+.rptr b,.rplan .rpl-i b,.actbar .ac-i b,.tbl td,.lockrow .tiny,
+.barrow .bn,input[type="number"]{font-variant-numeric:tabular-nums;}
 </style>
 </head>
 <body>
@@ -1264,26 +1614,31 @@ svg{display:block;}
           <span class="spacer"></span>
           <span class="hint">颜色 / 字阶 / 圆角 / 间距全走令牌，不要写死</span>
         </div>
-        <p class="muted fs-base">新增界面时只用下表令牌与工具类；写死色值或另起一套尺寸会让风格发散。</p>
+        <p class="muted fs-base">整体参照<b>成熟互联网产品的界面规范</b>（Material 3 的 surface 阶梯与染色投影、Google Workspace 的表单与列表密度）：纯无衬线、白面浮在极浅冷灰底上、单一蓝主色、一条圆角规则、克制动效。新增界面时只用下表令牌与工具类；写死色值或另起一套尺寸会让风格发散。</p>
         <div class="grid4 mt-3">
-          <div class="stat"><div class="k">色彩令牌</div><div class="v sm">54 个</div><div class="u">基础面 / 文字 / 主色 / 涨跌 / 警告 / 灰阶</div></div>
-          <div class="stat"><div class="k">字阶</div><div class="v sm">7 级</div><div class="u">11 / 12 / 13 / 14 / 16 / 20 / 26</div></div>
-          <div class="stat"><div class="k">圆角</div><div class="v sm">6 级</div><div class="u">6 / 8 / 10 / 12 / 16 / 胶囊</div></div>
-          <div class="stat"><div class="k">间距</div><div class="v sm">4px 栅格</div><div class="u">4 / 8 / 12 / 16</div></div>
+          <div class="stat"><div class="k">字体</div><div class="v sm">纯无衬线</div><div class="u">SF Pro / Segoe UI + 苹方 / 雅黑</div></div>
+          <div class="stat"><div class="k">字阶</div><div class="v sm">7 级</div><div class="u">12 / 13 / 14 / 16 / 20 / 28，正文 14px</div></div>
+          <div class="stat"><div class="k">圆角</div><div class="v sm">4 档</div><div class="u">面 12 · 控件 8 · 标记 6 · 胶囊</div></div>
+          <div class="stat"><div class="k">高度</div><div class="v sm">3 级</div><div class="u">染色投影，越浮越深</div></div>
         </div>
+        <p class="mt-3"><b>三条硬通则</b>：① 全站无衬线，标题靠字重和字号拉层级，不靠字体换脸；② 圆角只有四档（面 12 / 控件 8 / 标记 6 / 胶囊），不临时拍一个；③ 语义色压在同色浅底上时必须换深一档，否则对比度会掉到 4.5:1 以下。</p>
         <table class="tbl mt-3">
           <thead><tr><th>用途</th><th>令牌</th><th>说明</th></tr></thead>
           <tbody>
-            <tr><td>页面底色 / 卡片</td><td><code>--bg</code> <code>--card</code></td><td>卡片内不再自造白色</td></tr>
-            <tr><td>边框 / 分隔</td><td><code>--line</code> <code>--line-soft</code></td><td>浅分层级用 soft</td></tr>
-            <tr><td>正文 / 次要 / 弱化</td><td><code>--text</code> <code>--text-2</code> <code>--text-3</code></td><td>不要再写十六进制灰值</td></tr>
-            <tr><td>主色（动作 / 信息）</td><td><code>--primary</code> <code>--primary-soft</code> <code>--primary-line</code></td><td>soft 是底色，line 是边框</td></tr>
-            <tr><td>涨 / 风险 / 危险</td><td><code>--up</code> <code>--up-soft</code> <code>--up-line</code></td><td>统一红色系，不混橙</td></tr>
-            <tr><td>跌 / 达标 / 安全</td><td><code>--down</code> <code>--down-soft</code> <code>--down-line</code></td><td>达标也用这套绿</td></tr>
-            <tr><td>警告 / 待处理</td><td><code>--warn</code> <code>--warn-soft</code> <code>--warn-line</code></td><td>「注意但不是错误」用它</td></tr>
+            <tr><td>页面底 / 卡面 / 数据格</td><td><code>--bg</code> <code>--card</code> <code>--neutral-bg</code></td><td>三级面：白卡浮在浅灰底上，数据格再浅一档</td></tr>
+            <tr><td>边框 / 次级线</td><td><code>--line</code> <code>--line-soft</code></td><td>用线分区，投影只做层级不画轮廓</td></tr>
+            <tr><td>正文 / 次要 / 弱化</td><td><code>--text</code> <code>--text-2</code> <code>--text-3</code></td><td>三级全部达 WCAG AA（最低 4.5:1）</td></tr>
+            <tr><td>主色：填充 / 文字</td><td><code>--primary</code> <code>--primary-ink</code></td><td>填充用 <code>#1A73E8</code>，文字用深一档 <code>#1967D2</code>，保证浅底上也达标</td></tr>
+            <tr><td>涨 / 风险 / 危险</td><td><code>--up</code> <code>--up-dark</code> <code>--up-soft</code></td><td>正文用 <code>--up</code>，压在同色浅底上时换 <code>--up-dark</code></td></tr>
+            <tr><td>跌 / 达标 / 安全</td><td><code>--down</code> <code>--down-dark</code> <code>--down-soft</code></td><td>同上，浅底配深字</td></tr>
+            <tr><td>警告 / 待处理</td><td><code>--warn</code> <code>--warn-dark</code> <code>--warn-soft</code></td><td>「注意但不是错误」用它</td></tr>
+            <tr><td>字体</td><td><code>--font-sans</code> <code>--font-mono</code></td><td><b>全站无衬线</b>。macOS 走 SF Pro，Windows 走 Segoe UI，中文回落苹方 / 雅黑</td></tr>
+            <tr><td>圆角</td><td><code>--radius</code> <code>--radius-sm</code> <code>--radius-xs</code> <code>--radius-pill</code></td><td>一条规则：面 12 / 控件 8 / 标记 6 / 胶囊 999</td></tr>
+            <tr><td>高度</td><td><code>--shadow</code> <code>--shadow-2</code> <code>--shadow-3</code></td><td>三级染色投影。<b>只有浮起来的元素才用</b>，静态区块用边框</td></tr>
+            <tr><td>动效</td><td><code>--ease</code> <code>--dur-fast</code> <code>--dur</code></td><td>Material 标准缓动 120 / 180ms，并尊重系统「减弱动效」</td></tr>
             <tr><td>间距</td><td><code>.mt-1</code> ~ <code>.mt-4</code></td><td>4 / 8 / 12 / 16，不写 margin-top:10px</td></tr>
-            <tr><td>字号</td><td><code>--fs-2xs</code> ~ <code>--fs-hero</code></td><td>不写 font-size:12.5px</td></tr>
-            <tr><td>图标着色</td><td><code>.ico-primary/up/down/warn</code></td><td>SVG 用 <code>stroke="currentColor"</code>，颜色靠类</td></tr>
+            <tr><td>字号</td><td><code>--fs-2xs</code> ~ <code>--fs-hero</code></td><td>正文 14px，中文不小于 12px</td></tr>
+            <tr><td>数字</td><td><code>font-variant-numeric</code></td><td>所有数值 <code>tabular-nums</code>，列不跳动</td></tr>
           </tbody>
         </table>
       </div>
@@ -1318,6 +1673,19 @@ svg{display:block;}
         <p>页面采用三段式版本号 <code>1.1.x</code>：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本都覆盖发布到同一个在线地址，收藏一个链接即可，无需重新分享。下面按版本从新到旧记录改了什么、修了什么。</p>
         <div class="tl">
           <div class="tlitem">
+            <h3><span class="ver">1.4.0</span>界面改为成熟产品规范<span class="tlmeta">2026-09-15</span></h3>
+            <ul>
+              <li><b>整体参照成熟互联网产品的界面规范</b>：Material 3 的 surface 阶梯与染色投影，Google Workspace 的表单密度与列表节奏。目标是清爽、易读、有质感，而不是花哨</li>
+              <li><b>全站无衬线</b>。字体栈优先系统字：macOS 走 SF Pro，Windows 走 Segoe UI，中文回落苹方 / 雅黑。不加载 webfont，断网也能正常显示</li>
+              <li><b>正文从 13px 提到 14px</b>，中文小字下限 12px。层级靠字重（400 / 500 / 600）和字号拉开，不再靠换字体</li>
+              <li><b>三级面</b>：白卡浮在极浅冷灰底（<code>#F5F7FA</code>）上，数据格再浅一档。区块之间用发丝线分区，投影只表达层级、不画轮廓</li>
+              <li><b>圆角收敛为一条规则</b>：面 12px / 控件 8px / 标记 6px / 胶囊 999px。此前同时存在 6 / 8 / 10 / 12px 四套值</li>
+              <li><b>主色改用 Google Blue 并分两档</b>：填充 <code>#1A73E8</code>，文字 <code>#1967D2</code>。原因是在浅蓝底上浅蓝字只有 3.93:1，必须换深一档才达标</li>
+              <li><b>语义色换成产品级配色</b>：涨 / 风险用 <code>#D93025</code>，跌 / 达标用 <code>#188038</code>，警告用 <code>#B06000</code>。全部替换掉原来的荧光感色值</li>
+              <li><b>动效按 Material 标准</b>：统一缓动 <code>cubic-bezier(.2,0,0,1)</code>，120 / 180ms。按钮有 hover / active / focus-visible 三态；并完整尊重系统「减弱动效」设置</li>
+              <li><b>可访问性实测</b>：全部前景 / 背景组合达 WCAG AA。其中 <code>--text-3</code> 因在数据格浅底上只有 4.45:1，专门调深一档到 <code>#66707F</code>，四个背景场景全部通过</li>
+              <li><b>响应式实测</b>：500 / 768 / 1420 三档零横向溢出；全页最小字号 12px</li>
+            </ul>
             <h3><span class="ver">1.3.0</span>把剩下两处人工判断接上真实数据<span class="tlmeta">2026-09-15</span></h3>
             <ul>
               <li><b>「是否跌破 20 日均线」改为自动判断</b>：规则引擎页新增「自动判断均线」按钮，用 fuyao 的前复权日线算 MA20 / MA60 并自动回填下拉框，同时把均线值、现价与该均线的位置、数据日期一并展示出来。取不到日线时（未配 fuyao）仍可手动指定，不会因此卡住流程。日线结果缓存 1 小时，同一标的不会反复请求</li>
