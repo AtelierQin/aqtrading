@@ -7,60 +7,80 @@
 <title>A股交易纪律工作台</title>
 <style>
 :root{
-  /* ---- 基础面 ---- */
-  --bg:#f5f6f8;
-  --card:#ffffff;
-  --line:#e6e8ee;
-  --line-soft:#f0f1f5;
-  --gray-soft:#f2f3f6;
-  --neutral-bg:#fafbfd;
+  /* ============================================================
+     纸与墨（The Economist 印刷体系：奶油纸底 + 墨黑正文）
+     ============================================================ */
+  --bg:#F7F5F0;
+  --card:#FFFFFF;
+  --line:rgba(18,18,18,.16);
+  --line-soft:rgba(18,18,18,.09);
+  --gray-soft:#F2EFE8;
+  --neutral-bg:#FAF8F4;
 
   /* ---- 文字 ---- */
-  --text:#1b1f2a;
-  --text-2:#5b6472;
-  --text-3:#8d96a6;
+  --text:#121212;
+  --text-2:#4A4A4A;
+  --text-3:#6E6E6E;
 
-  /* ---- 主色（蓝：动作 / 信息）---- */
-  --primary:#1f4bd8;
-  --primary-dark:#1b3fae;
-  --primary-soft:#eef2fe;
-  --primary-tint:#fbfcff;
-  --primary-line:#d6e0fb;
-  --primary-line-strong:#cddaf9;
+  /* ============================================================
+     品牌红（章节标尺 / 激活指示 / 品牌标记）—— 只作面，不排小字
+     ============================================================ */
+  --brand:#E3120B;
+  --brand-ink:#B00D07;
+  --brand-soft:#FBE9E7;
+  --brand-line:rgba(227,18,11,.30);
 
-  /* ---- 涨（红：风险 / 上涨 / 危险）---- */
-  --up:#d93838;
-  --up-dark:#8f2626;
-  --up-soft:#fdeeee;
-  --up-tint:#fffafa;
-  --up-bar:#fef3f3;
-  --up-line:#f0c9c9;
-  --up-line-soft:#f4d2d2;
+  /* ---- 主色（墨蓝：交互 / 焦点 / 主按钮）---- */
+  --primary:#0C2340;
+  --primary-dark:#06172B;
+  --primary-soft:#E9EDF2;
+  --primary-tint:#F7F9FB;
+  --primary-line:rgba(12,35,64,.22);
+  --primary-line-strong:rgba(12,35,64,.40);
 
-  /* ---- 跌（绿：安全 / 下跌 / 达标）---- */
-  --down:#12996b;
-  --down-strong:#0f8a5f;
-  --down-dark:#0d6d4c;
-  --down-soft:#eaf7f1;
-  --down-tint:#f4f7f5;
-  --down-line:#cdeadd;
-  --down-line-soft:#e3eae6;
+  /* ---- 涨 / 风险 / 危险（编辑红，奶油底 5.2:1）---- */
+  --up:#CE0E0E;
+  --up-dark:#8E0A0A;
+  --up-soft:#FBEAE9;
+  --up-tint:#FDF7F6;
+  --up-bar:#FCEFEE;
+  --up-line:rgba(206,14,14,.30);
+  --up-line-soft:rgba(206,14,14,.18);
 
-  /* ---- 警告（橙：提醒 / 待处理）---- */
-  --warn:#c8791a;
-  --warn-dark:#7d5210;
-  --warn-soft:#fdf4e7;
-  --warn-tint:#fffdf8;
-  --warn-bar:#fdf8eb;
-  --warn-line:#f0dfc2;
-  --warn-line-soft:#f2e0c5;
+  /* ---- 跌 / 达标 / 安全（编辑绿）---- */
+  --down:#0E6E4E;
+  --down-strong:#0A5A3F;
+  --down-dark:#08402D;
+  --down-soft:#E8F1ED;
+  --down-tint:#F5F9F7;
+  --down-line:rgba(14,110,78,.30);
+  --down-line-soft:rgba(14,110,78,.18);
+
+  /* ---- 警告 / 待处理（赭石）---- */
+  --warn:#8A5409;
+  --warn-dark:#6B4107;
+  --warn-soft:#FAF0DF;
+  --warn-tint:#FDF9F2;
+  --warn-bar:#FBF3E6;
+  --warn-line:rgba(138,84,9,.30);
+  --warn-line-soft:rgba(138,84,9,.18);
 
   /* ---- 中性灰阶 ---- */
-  --muted-bg:#eceef3;
-  --muted-bg-2:#e6e9f0;
-  --muted-fg:#5a6478;
-  --muted-line:#c9cedb;
-  --ink-2:#22262f;
+  --muted-bg:#EFEBE3;
+  --muted-bg-2:#E8E3DA;
+  --muted-fg:#6E6E6E;
+  --muted-line:rgba(18,18,18,.30);
+  --ink-2:#2A2A2A;
+
+  /* ---- 描边（表单）---- */
+  --field-line:rgba(18,18,18,.34);
+
+  /* ============================================================
+     字体：衬线做标题与数字强调，无衬线做正文与界面
+     Charter / Sitka 带等宽数字，适合标题里出现百分比
+     ============================================================ */
+  --font-serif:Charter,"Bitstream Charter","Sitka Text",Cambria,Georgia,"Songti SC","Source Han Serif SC","Noto Serif CJK SC",SimSun,serif;
+  --font-sans:-apple-system,BlinkMacSystemFont,"Segoe UI","PingFang SC","Hiragino Sans GB","Microsoft YaHei","Helvetica Neue",Arial,sans-serif;
 
   /* ---- 字阶（7 级）---- */
   --fs-2xs:11px;
@@ -68,17 +88,20 @@
   --fs-base:13px;
   --fs-md:14px;
   --fs-lg:16px;
-  --fs-xl:20px;
-  --fs-hero:26px;
-  /* ---- 圆角（4 级 + 胶囊）---- */
-  --radius-xs:6px;
-  --radius-sm:8px;
-  --radius-md:10px;
-  --radius:12px;
-  --radius-pill:999px;
+  --fs-xl:21px;
+  --fs-hero:30px;
 
-  /* ---- 阴影 ---- */
-  --shadow:0 1px 2px rgba(20,26,40,.05), 0 6px 18px rgba(20,26,40,.05);
+  /* ============================================================
+     圆角：印刷品不用圆角。2px 只为主按钮留一点快门感
+     ============================================================ */
+  --radius-xs:0px;
+  --radius-sm:0px;
+  --radius-md:2px;
+  --radius:2px;
+  --radius-pill:2px;
+
+  /* ---- 版面靠发丝线分层，不用投影 ---- */
+  --shadow:none;
 }
 /* ---- 工具类（间距按 4px 栅格：4 / 8 / 12 / 16）---- */
 .mt-1{margin-top:4px;}
@@ -233,7 +256,7 @@ svg{display:block;}
   border-radius:var(--radius-md);background:var(--card);color:var(--text);font-size:var(--fs-lg);outline:none;
 }
 .field textarea{min-height:70px;font-size:var(--fs-lg);line-height:1.5;resize:vertical;}
-.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(31,75,216,.1);}
+.field input:focus,.field select:focus,.field textarea:focus{border-color:var(--ink-2);box-shadow:0 0 0 2px rgba(18,18,18,.18);}
 .field .tip{font-size:var(--fs-2xs);color:var(--text-3);}
 
 .stat{background:var(--gray-soft);border-radius:var(--radius);padding:11px 12px;}
@@ -438,15 +461,288 @@ svg{display:block;}
   .tabs-m button{font-size:var(--fs-2xs);gap:2px;}
   .tabs-m .ico-lg{width:20px;height:20px;}
 }
+
+/* ============================================================
+   The Economist 印刷体系皮肤
+   ------------------------------------------------------------
+   纸底墨字 / 衬线标题 / 发丝分隔 / 锐角 / 单一强调红
+   仅覆盖视觉层。不改结构、不改类名、不改任何交互逻辑。
+   ============================================================ */
+
+body{
+  background:var(--bg);
+  font-family:var(--font-sans);
+  line-height:1.55;
+}
+
+/* ---- 侧栏：栏目标尺，而非「导航卡片」---- */
+.side{
+  background:var(--bg);
+  border-right:1px solid var(--line);
+  padding:20px 10px 12px;
+}
+.brand{
+  gap:10px;padding:0 6px 14px;margin-bottom:6px;
+  border-bottom:2px solid var(--ink-2);
+}
+.brand-mark{
+  width:34px;height:34px;border-radius:0;
+  background:var(--brand);color:#fff;
+  font-family:var(--font-serif);font-size:19px;font-weight:700;
+  line-height:1;letter-spacing:0;
+}
+.brand-txt b{
+  font-family:var(--font-serif);
+  font-size:15px;font-weight:700;letter-spacing:-.01em;
+}
+.brand-txt span{
+  font-size:11px;letter-spacing:.04em;color:var(--text-3);
+  margin-top:2px;
+}
+.navitem{
+  border-radius:0;margin-bottom:0;
+  border-bottom:1px solid var(--line-soft);
+  border-left:3px solid transparent;
+  padding:11px 10px 11px 9px;min-height:42px;
+  font-size:var(--fs-md);color:var(--text-2);
+}
+.navitem:hover{background:var(--gray-soft);color:var(--text);}
+.navitem.on{
+  background:transparent;color:var(--text);font-weight:700;
+  border-left-color:var(--brand);
+}
+.side-foot{border-top:1px solid var(--line);}
+
+/* ---- 报头 ---- */
+.topbar{
+  gap:12px;margin-bottom:20px;padding-bottom:12px;
+  border-bottom:2px solid var(--ink-2);
+}
+.topbar h1{
+  font-family:var(--font-serif);
+  font-size:25px;font-weight:700;letter-spacing:-.015em;
+  line-height:1.15;
+}
+.topbar .sub{
+  font-size:11.5px;letter-spacing:.04em;color:var(--text-3);
+  margin-top:3px;
+}
+
+/* ---- 面板：发丝线 + 顶部粗线分层，取消投影与圆角 ---- */
+.card{
+  border:1px solid var(--line);
+  border-top:2px solid var(--ink-2);
+  border-radius:0;box-shadow:none;
+  padding:18px 20px 20px;margin-bottom:16px;
+}
+.card-h{
+  border-bottom:1px solid var(--line);
+  padding-bottom:10px;margin-bottom:15px;
+  gap:9px;
+}
+.card-h h2{
+  font-family:var(--font-serif);
+  font-size:18px;font-weight:700;letter-spacing:-.01em;
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.card-h .hint{
+  font-size:11.5px;color:var(--text-3);letter-spacing:.02em;
+}
+.card-h .ico-lg{color:var(--brand);width:19px;height:19px;}
+
+/* ---- 数据格：以数字为主，发丝线为界，不做圆角灰块 ---- */
+.stat{
+  background:transparent;border-radius:0;
+  border-top:1px solid var(--line);
+  padding:9px 0 2px;
+}
+.stat .k{
+  font-size:11.5px;letter-spacing:.04em;color:var(--text-3);
+  margin-bottom:5px;
+}
+.stat .v{
+  font-size:19px;font-weight:700;letter-spacing:-.015em;
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.stat .v.sm{font-size:16px;}
+.stat .u{font-size:11px;color:var(--text-3);}
+
+/* ---- 按钮：方形描边。主按钮用墨蓝，危险按钮用编辑红 ---- */
+.btn{
+  border-radius:2px;border:1px solid var(--field-line);
+  background:var(--card);color:var(--text);
+  font-size:var(--fs-md);font-weight:600;letter-spacing:.01em;
+  transition:background .12s ease,color .12s ease;
+}
+.btn:hover{background:var(--gray-soft);}
+.btn.primary{background:var(--primary);border-color:var(--primary);color:#fff;}
+.btn.primary:hover{background:var(--primary-dark);filter:none;}
+.btn.danger{color:var(--up);border-color:var(--up-line);}
+.btn.danger:hover{background:var(--up-soft);}
+.btn.sm{min-height:34px;font-size:var(--fs-base);border-radius:2px;}
+.btn.xs{min-height:28px;font-size:var(--fs-xs);border-radius:2px;}
+.btn:active{transform:translateY(1px);}
+
+/* ---- 标签 / 徽标：方形色块，不用胶囊 ---- */
+.badge{
+  border-radius:0;border-color:var(--line);
+  font-size:11.5px;font-weight:600;letter-spacing:.03em;
+  padding:3px 8px;
+}
+.tag{
+  border-radius:0;font-size:11.5px;font-weight:600;letter-spacing:.02em;
+  padding:2px 7px;
+}
+.tag.danger{border-color:var(--up-line);background:var(--up-soft);color:var(--up-dark);}
+.tag.warn{border-color:var(--warn-line);background:var(--warn-soft);color:var(--warn-dark);}
+.tag.ok{border-color:var(--down-line);background:var(--down-soft);color:var(--down-dark);}
+.tag.info{border-color:var(--primary-line);background:var(--primary-soft);color:var(--primary);}
+.tag.gray{border-color:var(--line);background:transparent;color:var(--text-2);}
+.chip{
+  border-radius:2px;border-color:var(--field-line);
+  font-size:var(--fs-base);font-weight:600;
+}
+.chip.on{background:var(--primary);border-color:var(--primary);color:#fff;}
+.chip.on:hover{background:var(--primary-dark);}
+
+/* ---- 表单：细描边 + 墨色硬焦点环（可见即可，不用发光）---- */
+.field label{
+  font-size:11.5px;letter-spacing:.04em;color:var(--text-2);font-weight:700;
+}
+.field input,.field select,.field textarea{
+  border-radius:2px;border:1px solid var(--field-line);
+  background:var(--card);color:var(--text);
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.field input:focus,.field select:focus,.field textarea:focus{
+  border-color:var(--ink-2);
+  box-shadow:0 0 0 2px rgba(18,18,18,.18);
+}
+.field .tip{font-size:11px;color:var(--text-3);}
+.lockrow .tiny{border-radius:2px;border-color:var(--field-line);}
+.lockrow .tiny:focus{outline:none;border-color:var(--ink-2);box-shadow:0 0 0 2px rgba(18,18,18,.18);}
+.inline-edit input{border-radius:2px;border-color:var(--field-line);}
+
+/* ---- 表格：Economist 式，顶部与表头下各一道粗线，行间发丝线 ---- */
+.tbl{
+  border-top:2px solid var(--ink-2);
+  border-bottom:1px solid var(--line);
+  font-variant-numeric:lining-nums tabular-nums;
+}
+.tbl th{
+  border-bottom:1px solid var(--ink-2);
+  font-size:11.5px;letter-spacing:.04em;font-weight:700;
+  color:var(--text-2);padding:8px 10px;
+}
+.tbl td{
+  border-bottom:1px solid var(--line-soft);
+  padding:8px 10px;font-size:var(--fs-base);
+}
+.tbl tbody tr:last-child td{border-bottom:0;}
+
+/* ---- 提示条：左色条 + 极浅底，方形 ---- */
+.notice{
+  border-radius:0;border-left-width:3px;
+  font-size:var(--fs-base);line-height:1.6;
+  padding:10px 12px;
+}
+.notice.red{background:var(--up-tint);border-color:var(--up-line-soft);border-left:3px solid var(--up);color:var(--up-dark);}
+.notice.yellow{background:var(--warn-tint);border-color:var(--warn-line-soft);border-left:3px solid var(--warn);color:var(--warn-dark);}
+.notice.green{background:var(--down-tint);border-color:var(--down-line-soft);border-left:3px solid var(--down);color:var(--down-dark);}
+.notice.blue{background:var(--primary-tint);border-color:var(--primary-line);border-left:3px solid var(--primary);color:var(--primary);}
+
+/* ---- 今天要处理：品牌红左标尺 ---- */
+.today{border-left:3px solid var(--brand);}
+.today.hasrisk{border-left-color:var(--up);}
+.titem{border-bottom:1px solid var(--line-soft);}
+.titem .tdot{width:7px;height:7px;}
+.titem .tname{font-size:var(--fs-md);font-weight:700;}
+.titem .tdesc{font-size:var(--fs-base);color:var(--text-2);line-height:1.6;}
+
+/* ---- 持仓卡片：左侧状态色条，取消渐变底 ---- */
+.pcard{
+  border-radius:0;border:1px solid var(--line);
+  border-left:3px solid var(--line);
+  padding:13px 14px;
+}
+.pcard.risk{border-color:var(--line);border-left-color:var(--up);background:var(--card);}
+.pcard.warn{border-color:var(--line);border-left-color:var(--warn);background:var(--card);}
+.pcard-h .code{font-size:var(--fs-lg);letter-spacing:-.01em;}
+.pcard-f{border-top:1px solid var(--line-soft);}
+.metric{
+  background:transparent;border-radius:0;
+  border-top:1px solid var(--line);
+  padding:6px 0 0;
+}
+.metric .k{font-size:11px;letter-spacing:.03em;color:var(--text-3);}
+.metric .v{font-size:var(--fs-md);font-weight:700;font-variant-numeric:lining-nums tabular-nums;}
+
+/* ---- 减仓计划行 / 除权除息行：方形浅底 ---- */
+.rplan{border-radius:0;background:var(--gray-soft);border-left:2px solid var(--line);}
+.actbar{border-radius:0;background:var(--neutral-bg);}
+.rpthead{background:var(--gray-soft);border-radius:0;border-bottom:1px solid var(--ink-2);}
+.rptr{border-bottom:1px solid var(--line-soft);}
+
+/* ---- 规则 / 陷阱 / 日志卡：方形，标题衬线 ---- */
+.rule,.trap,.logrow,.rule-row{border-radius:0;}
+.rule h3,.trap h3{font-family:var(--font-serif);font-size:15px;font-weight:700;letter-spacing:-.005em;}
+.rule.plus{border-left:3px solid var(--down);}
+.rule.minus{border-left:3px solid var(--up);}
+.trap code,.doc code{border-radius:0;background:var(--gray-soft);border:1px solid var(--line-soft);}
+
+/* ---- 说明文档：衬线小标题，正文行距放宽 ---- */
+.doc h3{font-family:var(--font-serif);font-size:15px;font-weight:700;letter-spacing:-.005em;margin-bottom:8px;}
+.doc p{line-height:1.82;}
+.docnum .n{border-radius:0;background:var(--brand-soft);color:var(--brand-ink);font-weight:700;}
+
+/* ---- 更新日志时间线：方形节点 + 品牌红 ---- */
+.tl{border-left:1px solid var(--line);}
+.tlitem::before{
+  border-radius:0;width:7px;height:7px;left:-23px;top:6px;
+  background:var(--brand);box-shadow:none;
+}
+.ver{
+  border-radius:0;background:var(--brand-soft);color:var(--brand-ink);
+  border:1px solid var(--brand-line);
+  font-weight:700;letter-spacing:.02em;
+}
+.tlitem h3{font-family:var(--font-serif);font-size:14px;font-weight:700;}
+
+/* ---- 违规分布条形图：细线，无圆角 ---- */
+.barrow .bt{background:var(--muted-bg);border-radius:0;height:8px;}
+.barrow .bf{background:var(--up);border-radius:0;}
+.barrow .bl{font-size:12px;letter-spacing:.02em;}
+
+/* ---- 纪律分环 ---- */
+.ringtxt b{font-family:var(--font-serif);font-size:32px;font-weight:700;letter-spacing:-.02em;font-variant-numeric:lining-nums tabular-nums;}
+
+/* ---- Toast ---- */
+.toast{
+  border-radius:2px;background:var(--ink-2);
+  font-size:var(--fs-base);letter-spacing:.01em;
+  border-left:3px solid var(--brand);
+}
+
+/* ---- 移动端底栏 ---- */
+@media (max-width:768px){
+  .tabs-m{
+    border-top:1px solid var(--line);background:var(--card);
+  }
+  .tabs-m button{border-radius:0;}
+  .tabs-m button.on{color:var(--brand-ink);box-shadow:inset 0 -2px 0 var(--brand);}
+}
+
+/* ---- 数字全局等宽，任何位置都不跳动 ---- */
+.stat .v,.metric .v,.pcard-h .code,.logrow .lr,.ringtxt b,
+.rptr b,.rplan .rpl-i b,.actbar .ac-i b,.tbl td,.lockrow .tiny,
+input[type="number"]{font-variant-numeric:lining-nums tabular-nums;}
 </style>
 </head>
 <body>
 <div class="app">
   <aside class="side">
     <div class="brand">
-      <div class="brand-mark">
-        <svg class="ico-lg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 17l5-5 4 3 5-7 4 4"/><path d="M3 21h18"/></svg>
-      </div>
+      <div class="brand-mark" aria-hidden="true">纪</div>
       <div class="brand-txt"><b>A股交易纪律台</b><span>规则化执行系统</span></div>
     </div>
     <button class="navitem on" data-tab="risk">
@@ -1264,26 +1560,31 @@ svg{display:block;}
           <span class="spacer"></span>
           <span class="hint">颜色 / 字阶 / 圆角 / 间距全走令牌，不要写死</span>
         </div>
-        <p class="muted fs-base">新增界面时只用下表令牌与工具类；写死色值或另起一套尺寸会让风格发散。</p>
+        <p class="muted fs-base">整体走<b>印刷品体系（The Economist 式）</b>：奶油纸底、墨黑正文、衬线标题、发丝分隔线、锐角、单一强调红。新增界面时只用下表令牌与工具类；写死色值或另起一套尺寸会让风格发散。</p>
         <div class="grid4 mt-3">
-          <div class="stat"><div class="k">色彩令牌</div><div class="v sm">54 个</div><div class="u">基础面 / 文字 / 主色 / 涨跌 / 警告 / 灰阶</div></div>
-          <div class="stat"><div class="k">字阶</div><div class="v sm">7 级</div><div class="u">11 / 12 / 13 / 14 / 16 / 20 / 26</div></div>
-          <div class="stat"><div class="k">圆角</div><div class="v sm">6 级</div><div class="u">6 / 8 / 10 / 12 / 16 / 胶囊</div></div>
-          <div class="stat"><div class="k">间距</div><div class="v sm">4px 栅格</div><div class="u">4 / 8 / 12 / 16</div></div>
+          <div class="stat"><div class="k">色彩令牌</div><div class="v sm">61 个</div><div class="u">纸墨 / 品牌红 / 涨跌 / 警告 / 灰阶</div></div>
+          <div class="stat"><div class="k">字阶</div><div class="v sm">7 级</div><div class="u">11 / 12 / 13 / 14 / 16 / 21 / 30</div></div>
+          <div class="stat"><div class="k">圆角</div><div class="v sm">0 与 2px</div><div class="u">印刷品不用圆角，2px 只给按钮</div></div>
+          <div class="stat"><div class="k">分隔</div><div class="v sm">发丝线</div><div class="u">不用投影，用线分层</div></div>
         </div>
+        <p class="mt-3"><b>三条硬通则</b>：① 版面分层一律用发丝线，禁止投影与圆角卡片；② 红只作「章节标尺 / 激活指示 / 涨与风险」，不拿来做装饰；③ 中文最小 11px，数值一律等宽。</p>
         <table class="tbl mt-3">
           <thead><tr><th>用途</th><th>令牌</th><th>说明</th></tr></thead>
           <tbody>
-            <tr><td>页面底色 / 卡片</td><td><code>--bg</code> <code>--card</code></td><td>卡片内不再自造白色</td></tr>
-            <tr><td>边框 / 分隔</td><td><code>--line</code> <code>--line-soft</code></td><td>浅分层级用 soft</td></tr>
-            <tr><td>正文 / 次要 / 弱化</td><td><code>--text</code> <code>--text-2</code> <code>--text-3</code></td><td>不要再写十六进制灰值</td></tr>
-            <tr><td>主色（动作 / 信息）</td><td><code>--primary</code> <code>--primary-soft</code> <code>--primary-line</code></td><td>soft 是底色，line 是边框</td></tr>
-            <tr><td>涨 / 风险 / 危险</td><td><code>--up</code> <code>--up-soft</code> <code>--up-line</code></td><td>统一红色系，不混橙</td></tr>
-            <tr><td>跌 / 达标 / 安全</td><td><code>--down</code> <code>--down-soft</code> <code>--down-line</code></td><td>达标也用这套绿</td></tr>
-            <tr><td>警告 / 待处理</td><td><code>--warn</code> <code>--warn-soft</code> <code>--warn-line</code></td><td>「注意但不是错误」用它</td></tr>
+            <tr><td>纸底 / 卡面</td><td><code>--bg</code> <code>--card</code></td><td>奶油纸底，卡面纯白；不再自造白色</td></tr>
+            <tr><td>发丝线 / 次级线</td><td><code>--line</code> <code>--line-soft</code></td><td>版面靠线分层，不用投影</td></tr>
+            <tr><td>正文 / 次要 / 弱化</td><td><code>--text</code> <code>--text-2</code> <code>--text-3</code></td><td>统一墨色阶，不写十六进制灰</td></tr>
+            <tr><td><b>品牌红</b>（章节标尺 / 激活态）</td><td><code>--brand</code> <code>--brand-ink</code> <code>--brand-soft</code></td><td>只作面：标记、左标尺、激活条。<b>不排小字</b>（--brand-ink 才排字）</td></tr>
+            <tr><td>交互 / 焦点 / 主按钮</td><td><code>--primary</code> <code>--primary-soft</code></td><td>墨蓝。表单焦点用墨色硬环，不用发光</td></tr>
+            <tr><td>涨 / 风险 / 危险</td><td><code>--up</code> <code>--up-soft</code> <code>--up-line</code></td><td>编辑红 <code>#CE0E0E</code>，与品牌红同色系但更深，保证奶油底上 5.2:1</td></tr>
+            <tr><td>跌 / 达标 / 安全</td><td><code>--down</code> <code>--down-soft</code> <code>--down-line</code></td><td>编辑绿 <code>#0E6E4E</code>，不是荧光绿</td></tr>
+            <tr><td>警告 / 待处理</td><td><code>--warn</code> <code>--warn-soft</code> <code>--warn-line</code></td><td>赭石 <code>#8A5409</code></td></tr>
+            <tr><td>标题字体</td><td><code>--font-serif</code></td><td>Charter / Sitka / Cambria / 宋体。仅用于 h1、h2、h3 与纪律分数字</td></tr>
+            <tr><td>正文与界面</td><td><code>--font-sans</code></td><td>系统无衬线。密排数据用无衬线更易扫读</td></tr>
+            <tr><td>数字</td><td><code>font-variant-numeric</code></td><td>所有数值一律 <code>tabular-nums</code>，跳动会让整列都晃</td></tr>
             <tr><td>间距</td><td><code>.mt-1</code> ~ <code>.mt-4</code></td><td>4 / 8 / 12 / 16，不写 margin-top:10px</td></tr>
-            <tr><td>字号</td><td><code>--fs-2xs</code> ~ <code>--fs-hero</code></td><td>不写 font-size:12.5px</td></tr>
-            <tr><td>图标着色</td><td><code>.ico-primary/up/down/warn</code></td><td>SVG 用 <code>stroke="currentColor"</code>，颜色靠类</td></tr>
+            <tr><td>字号</td><td><code>--fs-2xs</code> ~ <code>--fs-hero</code></td><td>不写 font-size:12.5px；中文不小于 11px</td></tr>
+            <tr><td>圆角</td><td><code>--radius*</code></td><td>一律 0 或 2px。印刷品没有圆角</td></tr>
           </tbody>
         </table>
       </div>
@@ -1318,6 +1619,20 @@ svg{display:block;}
         <p>页面采用三段式版本号 <code>1.1.x</code>：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本都覆盖发布到同一个在线地址，收藏一个链接即可，无需重新分享。下面按版本从新到旧记录改了什么、修了什么。</p>
         <div class="tl">
           <div class="tlitem">
+            <h3><span class="ver">1.4.0</span>整体视觉改为印刷品体系<span class="tlmeta">2026-09-15</span></h3>
+            <ul>
+              <li><b>视觉语言整体转向「严肃出版物」</b>：奶油纸底 + 墨黑正文 + 衬线标题 + 发丝分隔线 + 锐角 + 单一强调红。目标是让这个工具读起来像一份日报的数据版，而不是一个消费级 App</li>
+              <li><b>标题改衬线</b>：h1 / h2 / h3 与纪律分数字走 Charter（Win 回落 Sitka / Cambria，中文回落宋体系）。正文与界面文字保持无衬线，因为密排小字用衬线会更难扫读</li>
+              <li><b>品牌标记改为红底衬线方块</b>，替代原来的图表图标。这是全页唯一的纯品牌色块</li>
+              <li><b>版面无投影</b>：所有卡片去掉 box-shadow 与圆角，改为「1px 发丝边框 + 2px 顶部墨线」分层。分隔线一律实线，取消原来的虚线</li>
+              <li><b>数据格重做</b>：原来是圆角灰底块，现在是「顶部发丝线 + 大号等宽数字」，读起来像一张数据表而不是一排按钮</li>
+              <li><b>表格改印刷体</b>：顶部 2px 墨线、表头下 1px 墨线、行间发丝线，与周刊的数据页同构</li>
+              <li><b>色彩体系重建</b>：<code>--brand</code> 品牌红只作「章节标尺 / 激活指示 / 左色条」，不排小字；<code>--up</code> 用同色系但更深的编辑红 <code>#CE0E0E</code>，保证在奶油底上也有 5.2:1；跌用编辑绿 <code>#0E6E4E</code> 而非荧光绿；警告用赭石 <code>#8A5409</code></li>
+              <li><b>可访问性实测</b>：全部 18 组前景 / 背景组合通过 WCAG AA（正文 4.5:1）。最低一档是白字压品牌红 4.82:1</li>
+              <li><b>中文小字下限抬到 11px</b>：上一版把说明文字压到 10px 和 10.5px，中文在这个尺寸下几乎不可读。现全部抬到 11px 以上，并把字距从 .08em 收到 .04em</li>
+              <li><b>响应式实测</b>：500 / 768 / 1420 三档均无横向溢出；窄屏仍走底部页签，宽屏走左侧栏目标尺</li>
+              <li class="fix">修正：提示条左色条被 <code>border</code> 简写重置回 1px，实际只有 1px 而非设计的 3px</li>
+            </ul>
             <h3><span class="ver">1.3.0</span>把剩下两处人工判断接上真实数据<span class="tlmeta">2026-09-15</span></h3>
             <ul>
               <li><b>「是否跌破 20 日均线」改为自动判断</b>：规则引擎页新增「自动判断均线」按钮，用 fuyao 的前复权日线算 MA20 / MA60 并自动回填下拉框，同时把均线值、现价与该均线的位置、数据日期一并展示出来。取不到日线时（未配 fuyao）仍可手动指定，不会因此卡住流程。日线结果缓存 1 小时，同一标的不会反复请求</li>
