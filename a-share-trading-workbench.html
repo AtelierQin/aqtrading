@@ -87,6 +87,7 @@
 .mt-4{margin-top:16px;}
 .row{display:flex;gap:9px;flex-wrap:wrap;}
 .row-mid{display:flex;align-items:center;gap:8px;}
+.flex-1{flex:1 1 auto;min-width:0;}
 .fs-115{font-size:var(--fs-xs);}
 .fs-12{font-size:var(--fs-xs);}
 .fs-125{font-size:var(--fs-base);}
@@ -785,7 +786,7 @@ svg{display:block;}
             <ul>
               <li>浮盈 ≥ <b>+15%</b>：减 <b>1/3</b> 锁利，剩余止损上移至成本价（保本）</li>
               <li>浮盈 ≥ <b>+25%</b>：再减 <b>1/3</b>，剩余止损上移至成本价 ×1.10</li>
-              <li>跌破 20 日均线且仍有浮盈：减 <b>1/2</b>，剩余止损回拉到成本价</li>
+              <li>跌破 20 日均线且仍有浮盈：减 <b>1/2</b>，剩余止损回拉到成本价<span class="muted">（均线状态在规则引擎页点「自动判断均线」由 fuyao 日线算出）</span></li>
               <li class="up">峰值浮盈 ≥ <b>+40%</b> 后启用<b>移动止盈</b>：从阶段最高价回撤 <b>8%</b> → 清仓剩余。离场线兜底不低于成本价 ×1.25，已锁住的利润不会被回撤吃掉</li>
               <li>触及止损价：<b>清仓 100%</b>，不讨论、不等反弹</li>
               <li>单日跌幅 ≥ 7% 且未到止损：减 1/2，规避流动性风险</li>
@@ -816,10 +817,14 @@ svg{display:block;}
           </div>
           <div class="field">
             <label>是否跌破 20 日均线</label>
-            <select id="ruleMA" style="min-height:44px">
-              <option value="no">未跌破（趋势完好）</option>
-              <option value="yes">已跌破（趋势走坏）</option>
-            </select>
+            <div class="row-mid">
+              <select id="ruleMA" class="flex-1">
+                <option value="no">未跌破（趋势完好）</option>
+                <option value="yes">已跌破（趋势走坏）</option>
+              </select>
+              <button type="button" class="btn sm" id="btnAutoMA" title="用 fuyao 日线自动算 MA20 并判断">自动判断均线</button>
+            </div>
+            <span class="tip">需启用 fuyao 数据源；也可手动选（无法取日线时）</span>
           </div>
           <div class="field">
             <label>该标的已加仓次数</label>
@@ -830,6 +835,7 @@ svg{display:block;}
             </select>
           </div>
         </div>
+        <div id="ruleMAInfo" class="mt-3"></div>
         <div class="mt-4">
           <button class="btn primary" id="btnRuleRun">
             <svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
@@ -1239,7 +1245,7 @@ svg{display:block;}
             <tr><td>盈亏比 ≥ 2</td><td>风控计算</td><td>达标才给绿色确认</td></tr>
             <tr><td>浮亏禁止加仓</td><td>加减仓规则</td><td>规则引擎直接不输出加仓建议</td></tr>
             <tr><td>加仓幅度与次数</td><td>加减仓规则</td><td>≤ 原持仓 50%，累计 ≤ 2 次</td></tr>
-            <tr><td>减仓阈值</td><td>加减仓规则</td><td>+15% / +25% 各减 1/3，破 20 日线减半；峰值 +40% 后转移动止盈</td></tr>
+            <tr><td>减仓阈值</td><td>加减仓规则</td><td>+15% / +25% 各减 1/3，破 20 日线减半（均线由 fuyao 日线自动判断）；峰值 +40% 后转移动止盈</td></tr>
             <tr><td>减仓点位与股数提前定死</td><td>持仓卡片 · 全仓减仓计划</td><td>触发价 = 成本价 ×1.15 / ×1.25，股数按 1 手取整，达标档位自动高亮</td></tr>
             <tr><td>移动止盈（回撤离场）</td><td>加减仓规则 · 持仓卡片 · 全仓减仓计划</td><td>阶段最高价浮盈 ≥ 启用线（可调 20–100%）才启用；离场线 = 阶段最高价 ×(1 − 回撤，可调 3–20%)，兜底不低于成本价 ×1.25；触发即清仓剩余</td></tr>
             <tr><td>止盈后的止损上移</td><td>加减仓规则 · 规则引擎</td><td>+15% → 成本；+25% → 成本 ×1.10；破 20 日线 → 回拉成本；移动止盈 → 兜底 成本 ×1.25</td></tr>
@@ -1293,7 +1299,8 @@ svg{display:block;}
           <li><b>T+1 标的的隔夜风险</b>：当日买入当日不能卖，若当天就跌破止损也只能等次日 —— 跳空可能让实际亏损超过 2% 预算。页面会给提示，但无法替你规避。</li>
           <li><b>ETF / 可转债 / 债券的价格精度</b>是 0.001 元，与股票的 0.01 元不同；持仓台账的数据表字段目前按 2 位小数存储，录入这类标的时可能被四舍五入。</li>
           <li><b>移动止盈依赖「阶段最高价」</b>：这个值在你每次「取现价 / 保存现价」时自动抬升，所以它记住的是<b>你实际刷新过的价格</b>，而不是行情的真实最高点。长期不巡检、不取价，峰值就会偏低、离场线也跟着偏低 —— 移动止盈不能替代巡检。</li>
-          <li><b>「单日跌幅 ≥ 7% 减半」需要你自己判断</b>：页面只能拿到日线级价格，缺少分时数据，无法自动识别「当日跌幅」。这一条写在规则里，执行靠你在盘中确认。</li>
+          <li><b>均线状态已自动化</b>：「是否跌破 20 日均线」由 fuyao 的前复权日线自动算出（规则引擎页点「自动判断均线」），不再靠你手动选。取不到日线时（未配 fuyao）仍可手动指定。</li>
+          <li><b>「单日跌幅 ≥ 7% 减半」已自动化</b>：当日涨跌幅随「取现价」一起写入台账，规则用最近一次的报价判断。手动填价时该值清零（视为未知），不会用旧数据误触发。</li>
           <li><b>本工作台不构成投资建议</b>。它只负责把你的规则算准、记牢、提醒到位；买卖决定与后果由你自己承担。</li>
         </ul>
       </div>
@@ -1311,6 +1318,14 @@ svg{display:block;}
         <p>页面采用三段式版本号 <code>1.1.x</code>：<b>末位每次发布递增</b>，首位留给架构级重写，中位留给不兼容改动。全部版本都覆盖发布到同一个在线地址，收藏一个链接即可，无需重新分享。下面按版本从新到旧记录改了什么、修了什么。</p>
         <div class="tl">
           <div class="tlitem">
+            <h3><span class="ver">1.3.0</span>把剩下两处人工判断接上真实数据<span class="tlmeta">2026-09-15</span></h3>
+            <ul>
+              <li><b>「是否跌破 20 日均线」改为自动判断</b>：规则引擎页新增「自动判断均线」按钮，用 fuyao 的前复权日线算 MA20 / MA60 并自动回填下拉框，同时把均线值、现价与该均线的位置、数据日期一并展示出来。取不到日线时（未配 fuyao）仍可手动指定，不会因此卡住流程。日线结果缓存 1 小时，同一标的不会反复请求</li>
+              <li><b>「单日跌幅 ≥ 7% 减半」改为自动判断</b>：当日涨跌幅随「取现价」一起写入台账，规则用最近一次的报价判断，不再需要盘中自己盯。手动填价时该值清零（视为未知），不会拿旧数据误触发</li>
+              <li>新增持仓字段 <code>日涨跌幅</code>；取价时写入，手动填价时清零</li>
+              <li>新增 <code>computeMA</code> / <code>maVerdictFromBars</code> 两个纯函数，并补上 <b>util/ma</b> 测试组（9 条断言）—— 内置测试从 73 条增至 <b>82 条</b></li>
+              <li class="fix">修正：待办里所有 <code>warn</code> 级项被一律写成「进入危险区」，实际可能是「未设止损」或「单日急跌」。现在用真实标签，且「单日急跌」直接给「一键减仓」</li>
+            </ul>
             <h3><span class="ver">1.2.1</span>修复三处自相矛盾的决策逻辑<span class="tlmeta">2026-09-15</span></h3>
             <ul>
               <li class="fix"><b>修复：同一价格出现相反建议</b>。原先「目标价」由盈亏比推导（默认 +10%），而减仓档位是成本 ×1.15 / ×1.25（+15% / +25%），在 +10%~+15% 区间，持仓卡片说「到达目标，减 1/3」而规则引擎说「加仓 500 股」。现在<b>目标价 = 第一减仓位</b>，盈亏比从「推导目标的公式」改为「这笔交易值不值得做的门槛」，两处永远给同一个答案</li>
@@ -1683,7 +1698,7 @@ svg{display:block;}
         '股票代码', '股票名称', '持仓状态', '持仓股数', '成本价',
         '现价', '阶段最高价', '止损价', '目标价',
         '买入日期', '巡检日期', '备注',
-        '成本价原始', '持仓股数原始', '除权除息已应用'
+        '成本价原始', '持仓股数原始', '除权除息已应用', '日涨跌幅'
       ],
       required: ['股票代码', '持仓股数', '成本价'],
       defaults: function () {
@@ -2457,6 +2472,11 @@ svg{display:block;}
       out.level = 'danger'; out.label = '触及止损';
       out.action = '立即清仓全部 ' + fmtShares(shares) + ' ' + out.unit + '，不等反弹、不看消息';
       out.reasons.push('现价 ' + fmtPrice(price) + ' 已跌破止损价 ' + fmtPrice(stop) + '，规则要求无条件执行。');
+    } else if (num(p['日涨跌幅']) <= -TRADE_RULES.STOP_SINGLE_DAY_PCT) {
+      /* 单日急跌未触损：与 adviceFor 同阈值同动作 */
+      out.level = 'warn'; out.label = '单日急跌';
+      out.action = '今日已跌 ' + toFixed2(Math.abs(num(p['日涨跌幅']))) + '%，按规则先减 ' + pctLabel(TRADE_RULES.BREAK_MA_FRAC) + ' 规避流动性风险';
+      out.reasons.push('当日跌幅 ' + toFixed2(Math.abs(num(p['日涨跌幅']))) + '% 已达阈值 ' + toFixed2(TRADE_RULES.STOP_SINGLE_DAY_PCT) + '%（且未触及止损）。');
     } else if (out.trail.triggered) {
       out.level = 'danger'; out.label = '移动止盈离场';
       out.action = '清仓剩余 ' + fmtShares(shares) + ' ' + out.unit + '，落袋为安';
@@ -2541,7 +2561,10 @@ svg{display:block;}
         /* danger = 必须离场（触及止损 / 移动止盈触发）→ 提供「一键执行」 */
         items.push({ tone: 'red', pri: 0, title: a.code + an + ' ' + (a.label || '触及止损'), desc: a.reasons[0], posId: a.id, act: '一键清仓', exec: 'close', tab: 'pos' });
       } else if (a.level === 'warn') {
-        items.push({ tone: 'red', pri: 1, title: a.code + an + ' 进入危险区', desc: a.reasons[0], posId: a.id, act: '标记已巡检', tab: 'pos' });
+        /* warn 有多种（未设止损 / 危险区 / 单日急跌）—— 用实际 label，不要一律写成「进入危险区」 */
+        var wact = (a.label === '单日急跌') ? '一键减仓' : '标记已巡检';
+        var wexec = (a.label === '单日急跌') ? 'reduce' : '';
+        items.push({ tone: 'red', pri: 1, title: a.code + an + ' ' + (a.label || '进入危险区'), desc: a.reasons[0], posId: a.id, act: wact, exec: wexec, tab: 'pos' });
       } else if (a.level === 'target') {
         /* target = 到了减仓位（可能是第一档也可能是第二档）→ 可一键执行对应档位 */
         items.push({ tone: 'yellow', pri: 2, title: a.code + an + ' ' + a.label, desc: a.action, posId: a.id, act: '一键减仓', exec: 'reduce', tab: 'pos' });
@@ -2637,7 +2660,7 @@ svg{display:block;}
      规则口径（与上方减仓卡片、规则引擎完全一致，阈值只认成本价、不认现价）：
        · 浮盈 ≥ +15% → 减 1/3
        · 浮盈 ≥ +25% → 再减 1/3（对第一档减完后的剩余仓位，即阶梯式）
-       · 跌破 20 日均线且仍有浮盈 → 减 1/2（均线状态要人工确认，故这里只给条件值）
+       · 跌破 20 日均线且仍有浮盈 → 减 1/2（均线状态可由规则引擎自动判断，也可手动指定）
      触发价 = 成本价 ×(1 + 阈值)，按标的最小变动单位取整；股数按 1 手取整。 */
   function minOneLot(n, shares, lot) {
     if (n >= lot) { return n; }
@@ -2679,6 +2702,8 @@ svg{display:block;}
     var itA = instrumentOf(p['股票代码'] || '', p['股票名称'] || '');
     var lotA = num(itA.lot) > 0 ? num(itA.lot) : 100;
     var pnlRate = cost > 0 ? (price - cost) / cost * 100 : 0;
+    /* 当日涨跌幅：由最近一次取价写入；手动填价时为 0（未知），不会误触发 */
+    var dayDropPct = num(p['日涨跌幅']);
     /* 移动止盈：峰值浮盈 ≥ 启用线后，用「从阶段最高价回撤」代替固定档位离场 */
     var trig = trailing(p);
     var out = { code: p['股票代码'] || '', name: p['股票名称'] || '', shares: shares, pnlRate: pnlRate, price: price, cost: cost, stop: stop,
@@ -2719,6 +2744,14 @@ svg{display:block;}
         '成交后在交易日志记录本次清仓，并写明当时想扛单的冲动。',
         '清仓后 1 个交易日内不再买回同一标的。'
       ];
+    } else if (dayDropPct <= -TRADE_RULES.STOP_SINGLE_DAY_PCT) {
+      /* 单日急跌但还没到止损：先减半，规避流动性风险（原先靠人工判断，现由报价里的当日涨跌幅驱动）*/
+      sell(shares * TRADE_RULES.BREAK_MA_FRAC, '今日已跌 ' + toFixed2(Math.abs(dayDropPct)) + '%（未到止损），按规则先减 ' + pctLabel(TRADE_RULES.BREAK_MA_FRAC) + ' 规避流动性风险。', [
+        '确认这是「当日跌幅」而不是累计跌幅（数据来自最近一次取价）。',
+        '在现价附近按建议数量挂单减仓，不追跌卖出。',
+        '剩余仓位止损维持不变，若继续下行按止损执行。',
+        '在交易日志记录本次减仓，并写明当日发生了什么。'
+      ]);
     } else if (trig.triggered) {
       out.action = '清仓剩余 ' + fmtShares(shares) + ' ' + itA.unit; out.tone = 'danger';
       out.sellShares = shares; out.afterShares = 0;
@@ -3320,6 +3353,7 @@ svg{display:block;}
   }
 
   var stateCorpCache = {};   /* thscode → { at, events }，只存内存，不入 LS（避免会话间状态过期） */
+  var stateMaCache = {};     /* thscode → { at, bars[] }，日线缓存（1 小时有效），只存内存 */
 
   function findActiveFuyao() {
     var list = (state.sources && state.sources.items) || [];
@@ -3541,7 +3575,156 @@ svg{display:block;}
     });
   }
 
-  /* 按 id 找持仓：state.positions 是 Notion shape，逐项扫 */
+  /* ============================================================
+   * 日线序列 + 均线（fuyao /api/a-share/prices/historical）
+   * ------------------------------------------------------------
+   * 目的：把「是否跌破 20 日均线」从人工下拉改成自动判断。
+   * 接口约束：单只标的（不接受逗号）、interval 仅支持 1d、窗口 ≤ 10 年。
+   * ============================================================ */
+  var MA_CACHE_TTL = 60 * 60 * 1000;   /* 1 小时内不重复请求同一标的 */
+  var MA_NEED_BARS = 60;                /* 一次取够 60 根，算 MA20 与 MA60 都够 */
+
+  function fetchDailyBarsFuyao(src, thscode, needBars, cb) {
+    if (!src || !src.key) { cb(new Error('同花顺 fuyao：请先填写 API Key')); return; }
+    var base = String(src.url || '').replace(/\/+$/, '');
+    if (!base) { cb(new Error('同花顺 fuyao：请先填写接口地址')); return; }
+    /* 多取自然日以覆盖周末/节假日：需要 N 根日线时向外多要一截 */
+    var days = Math.ceil(num(needBars) * 1.8) + 20;
+    var end = Date.now();
+    var start = end - days * 86400000;
+    var url = base + '/api/a-share/prices/historical'
+      + '?thscode=' + encodeURIComponent(thscode)
+      + '&interval=1d'
+      + '&start=' + start
+      + '&end=' + end
+      + '&adjust=forward';
+    var done = false, timer = null;
+    timer = setTimeout(function () {
+      if (done) { return; }
+      done = true;
+      cb(new Error('日线请求超时'));
+    }, QUOTE_TIMEOUT);
+    fetch(url, { method: 'GET', headers: { 'X-api-key': src.key, 'Accept': 'application/json' } })
+      .then(function (r) { return r.json(); })
+      .then(function (json) {
+        if (done) { return; }
+        done = true;
+        if (timer) { clearTimeout(timer); }
+        if (!json || json.code !== 0) {
+          cb(new Error('日线：' + ((json && json.message) || ('code=' + (json && json.code)))));
+          return;
+        }
+        var data = json.data || {};
+        var item = data.item || [];
+        var bars = [];
+        for (var i = 0; i < item.length; i++) {
+          var c = num(item[i].close_price);
+          if (c > 0) { bars.push({ ms: num(item[i].date_ms), close: c }); }
+        }
+        bars.sort(function (a, b) { return a.ms - b.ms; });   /* 按日期升序 */
+        cb(null, bars);
+      })
+      ['catch'](function (err) {
+        if (done) { return; }
+        done = true;
+        if (timer) { clearTimeout(timer); }
+        cb(new Error('日线：网络失败（' + ((err && err.message) || err) + '）'));
+      });
+  }
+
+  /* 纯函数：最后 n 根的收盘均价。不足 n 根返回 null（不散假装算得出）*/
+  function computeMA(bars, period) {
+    var n = Math.round(num(period));
+    if (!bars || !bars.length || n <= 0 || bars.length < n) { return null; }
+    var sum = 0;
+    for (var i = bars.length - n; i < bars.length; i++) { sum += num(bars[i].close); }
+    return sum / n;
+  }
+
+  /* 由缓存日线 + 现价得出均线研判（纯函数，便于单测）*/
+  function maVerdictFromBars(bars, price) {
+    if (!bars || !bars.length) { return null; }
+    var ma20 = computeMA(bars, 20), ma60 = computeMA(bars, 60);
+    var p = num(price);
+    var last = bars[bars.length - 1];
+    return {
+      bars: bars.length,
+      ma20: ma20,
+      ma60: ma60,
+      price: p,
+      lastMs: last.ms,
+      lastClose: last.close,
+      below20: (ma20 !== null && p > 0) ? (p < ma20) : null,
+      below60: (ma60 !== null && p > 0) ? (p < ma60) : null
+    };
+  }
+
+  function maCacheGet(code) {
+    var thscode = fuyaoThscodeOf({ prefix: marketPrefix(code), code: code });
+    if (!thscode) { return null; }
+    var c = stateMaCache[thscode];
+    if (!c || !c.bars || !c.bars.length) { return null; }
+    if (Date.now() - c.at > MA_CACHE_TTL) { return null; }
+    return c;
+  }
+
+  /* 一键取日线 → 自动判定均线状态 → 回填下拉框 */
+  function onAutoMA(btn) {
+    var pos = findPosById(state.rulePosId);
+    if (!pos) { toast('请先选择一个标的'); return; }
+    var src = findActiveFuyao();
+    if (!src) { toast('自动判断均线需要 fuyao：请在「数据源」启用并填入 API Key'); return; }
+    var code = normCode(pos['股票代码']);
+    var thscode = fuyaoThscodeOf({ prefix: marketPrefix(code), code: code });
+    if (!thscode) { toast('该标的代码格式不正确，无法取日线'); return; }
+
+    /* 命中缓存就直接用，不重复请求 */
+    var hit = maCacheGet(code);
+    if (hit) { applyMAVerdict(pos, code); return; }
+
+    if (btn) { btn.disabled = true; }
+    if (btn) { btn.textContent = '取日线中…'; }
+    fetchDailyBarsFuyao(src, thscode, MA_NEED_BARS, function (err, bars) {
+      if (btn) { btn.disabled = false; btn.textContent = '自动判断均线'; }
+      if (err) { toast('取日线失败：' + err.message); return; }
+      if (!bars || bars.length < 20) { toast('日线只有 ' + (bars ? bars.length : 0) + ' 根，不足以算 MA20'); return; }
+      stateMaCache[thscode] = { at: Date.now(), bars: bars };
+      applyMAVerdict(pos, code);
+    });
+  }
+
+  /* 把均线研判写回界面：下拉框自动选中 + 把 MA 值展示出来 */
+  function applyMAVerdict(pos, code) {
+    var cached = maCacheGet(code);
+    if (!cached) { return; }
+    var v = maVerdictFromBars(cached.bars, pos['现价']);
+    if (!v || v.below20 === null) { toast('数据不足，无法判定'); return; }
+    var sel = $('#ruleMA');
+    if (sel) { sel.value = v.below20 ? 'yes' : 'no'; state.ruleMA = sel.value; }
+    state.advice = null;
+    refreshAll();
+    toast('MA20 = ¥' + toFixed2(v.ma20) +
+      (v.ma60 !== null ? '，MA60 = ¥' + toFixed2(v.ma60) : '') +
+      '；现价 ¥' + toFixed2(v.price) + ' → ' + (v.below20 ? '已跌破 MA20' : '未跌破 MA20'));
+  }
+
+  /* 均线信息条：有缓存才显示（带数据日期与两个均线值）*/
+  function renderMAInfo(cached, price) {
+    var box = $('#ruleMAInfo');
+    if (!box) { return; }
+    if (!cached) { box.innerHTML = ''; return; }
+    var v = maVerdictFromBars(cached.bars, price);
+    if (!v) { box.innerHTML = ''; return; }
+    var cls = v.below20 ? 'up' : 'down';
+    var txt = v.below20 ? '已跌破' : '未跌破';
+    box.innerHTML = '<div class="notice ' + (v.below20 ? 'red' : 'green') + '" style="margin:0">' +
+      '<b>MA20 = ¥' + toFixed2(v.ma20) + '</b>' +
+      (v.ma60 !== null ? '　MA60 = ¥' + toFixed2(v.ma60) : '') +
+      '　现价 ¥' + toFixed2(v.price) + ' → <b>' + txt + ' MA20</b>' +
+      '<br><span class="muted">基于 ' + v.bars + ' 根前复权日线，最新一根 ' + fuyaoStampFromMs(v.lastMs).slice(0, 8).replace(/(\d{4})(\d{2})(\d{2})/, '$1-$2-$3') + '（收盘 ¥' + toFixed2(v.lastClose) + '）</span>' +
+      '</div>';
+  }
+
   /* 用「某一个具体数据源」取价：腾讯与 fuyao 都支持一次多只，原生走批量；其余类型逐只来 */
   function fetchQuotesViaSource(src, reqs, cb) {
     if (!src) { cb(new Error('数据源不存在')); return; }
@@ -4602,6 +4785,13 @@ svg{display:block;}
     var maEl = $('#ruleMA'); if (maEl) { maEl.value = state.ruleMA; }
     var addEl = $('#ruleAdd'); if (addEl) { addEl.value = String(state.ruleAdd); }
 
+    /* 均线信息条：选中的标的若有日线缓存，就把 MA20/MA60 摆出来（含数据日期）*/
+    (function () {
+      var cur = null;
+      for (var m = 0; m < assessed.length; m++) { if (assessed[m].id === sel.value) { cur = assessed[m]; break; } }
+      if (cur) { renderMAInfo(maCacheGet(cur.code), cur.price); } else { renderMAInfo(null, 0); }
+    })();
+
     var out = $('#ruleOut');
     if (!out) { return; }
     var a = state.advice;
@@ -5196,6 +5386,8 @@ svg{display:block;}
     var properties = {};
     properties['现价'] = { number: v };
     properties['巡检日期'] = { date: todayStr() };
+    /* 手动填价时无法得知当日涨跌幅 → 清空，避免用上一次的旧值误触发「单日跌幅」规则 */
+    properties['日涨跌幅'] = { number: 0 };
     /* 现价创出新高时同步抬升「阶段最高价」，移动止盈的回撤线才会跟着往上走 */
     var curPos = findPosById(id);
     if (curPos) { var pk = peakPatch(curPos, v); if (pk) { properties['阶段最高价'] = pk; } }
@@ -5277,6 +5469,8 @@ svg{display:block;}
       var properties = {};
       properties['现价'] = { number: q.price };
       properties['巡检日期'] = { date: todayStr() };
+      /* 当日涨跌幅随报价一起落库：这是「单日跌幅 ≥7% 减半」唯一的数据来源 */
+      properties['日涨跌幅'] = { number: round2(num(q.changePct)) };
       if (q.nameReliable && q.name) { properties['股票名称'] = { text: q.name }; }
       /* 取到的新价若创新高，同步抬升「阶段最高价」，让移动止盈线随之上移 */
       var qpk = peakPatch(target, q.price);
@@ -5881,6 +6075,8 @@ svg{display:block;}
         state.rulePosId = rulePosEl.value; state.advice = null; refreshAll();
       });
     }
+    var autoMABtn = $('#btnAutoMA');
+    if (autoMABtn) { autoMABtn.addEventListener('click', function () { onAutoMA(autoMABtn); }); }
     var ruleMAEl = $('#ruleMA');
     if (ruleMAEl) {
       ruleMAEl.addEventListener('change', function () { state.ruleMA = ruleMAEl.value; state.advice = null; refreshAll(); });
@@ -6184,6 +6380,22 @@ svg{display:block;}
     T.eq(r4.pastUnapplied.length, 0, 'corp 已应用 不重复');
     T.eq(r4.applied.length, 1, 'corp 已应用 列表计数');
   });
+  AQ.Test.group('util/ma', function (T) {
+    /* 造 60 根日线：收盘价 10..69 */
+    var bars = [];
+    for (var i = 0; i < 60; i++) { bars.push({ ms: 1700000000000 + i * 86400000, close: 10 + i }); }
+    T.near(computeMA(bars, 20), 59.5, 1e-9, 'MA20 = 最后 20 根均值');
+    T.near(computeMA(bars, 60), 39.5, 1e-9, 'MA60 = 全部均值');
+    T.eq(computeMA(bars.slice(0, 10), 20), null, '不足 20 根 → null');
+    T.eq(computeMA([], 20), null, '空序列 → null');
+    T.eq(computeMA(bars, 0), null, 'period=0 → null');
+    var v = maVerdictFromBars(bars, 60);
+    T.eq(v.below20, false, '现价 60 > MA20 59.5 → 未跌破');
+    T.eq(maVerdictFromBars(bars, 55).below20, true, '现价 55 < MA20 → 已跌破');
+    T.eq(maVerdictFromBars(bars, 0).below20, null, '无现价 → 无法判定');
+    T.eq(maVerdictFromBars([], 10), null, '空序列 → null');
+  });
+
   AQ.Test.group('util/store', function (T) {
     /* Store 基本订阅 / set / get */
     var received = null;
